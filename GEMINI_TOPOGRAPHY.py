@@ -88,10 +88,10 @@ class RepositoryTopography:
             source_repository="https://github.com/JDUB1216/nlt-otoi",
             source_branch="main", 
             local_path="toi-otoi-framework/",
-            description="Terms of Interaction and Optimization Through Organized Intelligence",
+            description="Terms of Interaction and Orchestrated Terms of Interaction",
             capabilities=[
                 "Terms of Interaction (TOI) management",
-                "Optimization Through Organized Intelligence (OTOI)",
+                "Orchestrated Terms of Interaction (OTOI)",
                 "User preference learning and adaptation",
                 "System-wide optimization coordination",
                 "Privacy-first personalization",

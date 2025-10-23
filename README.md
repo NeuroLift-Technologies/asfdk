@@ -11,7 +11,7 @@
 The NeuroLift Foundation is a comprehensive, unified platform that integrates three core components into a single, cohesive ADHD support system:
 
 - **🚨 RRT Advocate** - Rapid Response Team for crisis intervention and immediate support
-- **🧠 TOI-OTOI Framework** - Terms of Interaction and Optimization Through Organized Intelligence
+- **🧠 TOI-OTOI Framework** - Terms of Interaction and Orchestrated Terms of Interaction
 - **🎤 Aimybox Voice Interface** - Natural language voice interaction capabilities
 
 This foundation serves as the cornerstone for the complete NeuroLift Technologies ecosystem, providing privacy-first, user-centric AI assistance specifically designed for neurodivergent individuals.

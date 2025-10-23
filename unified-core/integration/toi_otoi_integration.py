@@ -183,7 +183,7 @@ class TOIOTOIIntegration:
         self.logger.info("User TOI loaded")
     
     async def _initialize_otoi(self):
-        """Initialize Optimization Through Organized Intelligence"""
+        """Initialize Orchestrated Terms of Interaction"""
         self.optimization_data = {
             "patterns": {},
             "effectiveness_scores": {},

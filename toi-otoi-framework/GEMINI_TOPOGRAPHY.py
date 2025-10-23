@@ -54,7 +54,7 @@ HISTORICAL_SIGNIFICANCE = {
             "Human-controlled AI collaboration",
             "Open standard for AI interaction"
         ],
-        "evolution_path": "OTOI → TOI-OTOI (Theory of Intelligence - Optimization Through Organized Intelligence)"
+        "evolution_path": "OTOI → TOI-OTOI (Theory of Intelligence - Orchestrated Terms of Interaction)"
     },
     "development_context": {
         "collaboration_period": "Year-long journey with multiple AI systems",
@@ -193,7 +193,7 @@ FRAMEWORK_EVOLUTION = {
     },
     "current_toi_otoi": {
         "name": "TOI-OTOI Framework",
-        "focus": "Theory of Intelligence - Optimization Through Organized Intelligence",
+        "focus": "Theory of Intelligence - Orchestrated Terms of Interaction",
         "key_features": [
             "Avatar→Aide→Advocate Architecture",
             "Intelligence fusion algorithms",

@@ -128,7 +128,7 @@ As part of the testing strategy for TOI-OTOI framework integration, the RRT Advo
 
 #### Future TOI-OTOI Integration
 - **Terms of Interaction (TOI)**: User-defined crisis response preferences and boundaries
-- **Optimization Through Organized Intelligence (OTOI)**: Systematic optimization of crisis interventions based on user feedback and outcomes
+- **Orchestrated Terms of Interaction (OTOI)**: Systematic orchestration of crisis interventions based on user feedback and outcomes
 - **Framework Unification**: Seamless integration with the broader TOI-OTOI framework
 
 ```python
@@ -138,7 +138,7 @@ class TOIOTOIIntegration:
         """Apply user's Terms of Interaction to crisis response"""
         
     def optimize_through_otoi(self, intervention_history: List, outcomes: List) -> Dict:
-        """Optimize interventions through organized intelligence analysis"""
+        """Optimize interventions through orchestrated terms of interaction analysis"""
 ```
 
 ## External System Integration
