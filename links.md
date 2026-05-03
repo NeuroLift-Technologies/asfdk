@@ -179,6 +179,54 @@ Use this as the scaffolding baseline when creating new agent projects within the
 
 ---
 
+## External Agent Frameworks
+
+### google/adk-docs — <https://github.com/google/adk-docs>
+
+Official documentation source for Google's Agent Development Kit (ADK). Contains guides,
+API references, and examples for building agents with the ADK ecosystem.
+
+---
+
+### google/adk-go — <https://github.com/google/adk-go>
+
+Go implementation of Google's Agent Development Kit. Use as a reference when building
+ADK-compatible agents in Go or integrating Go services into the ASFDK pipeline.
+
+---
+
+### google/adk-python — <https://github.com/google/adk-python>
+
+Python implementation of Google's Agent Development Kit. Provides the core abstractions
+for building, orchestrating, and evaluating agents. Compatible with Gemini and other LLMs.
+Reference this when extending ASFDK components with ADK-based agent patterns.
+
+---
+
+### i-am-bee/agentstack — <https://github.com/i-am-bee/agentstack>
+
+IBM's open-source AgentStack framework for building production-ready multi-agent systems.
+Offers modular agent composition, task routing, and tool integration. Reference for
+multi-agent coordination patterns applicable to the Solidarity Framework's unified-core layer.
+
+---
+
+### microsoft/agent-framework — <https://github.com/microsoft/agent-framework>
+
+Microsoft's open-source agent framework for building conversational and task-based AI agents.
+Reference for agent lifecycle management, skill composition, and enterprise integration
+patterns when developing ASFDK components.
+
+---
+
+### openai/openai-agents-python — <https://github.com/openai/openai-agents-python>
+
+OpenAI's official Python SDK for building agentic workflows. Provides primitives for
+agent handoffs, tool use, guardrails, and tracing. Reference for agent orchestration
+patterns and cross-LLM compatibility considerations in the ASFDK core layer.
+
+---
+
 ## Documentation
 
 ### cloudflare-docs — <https://github.com/cloudflare/cloudflare-docs>
