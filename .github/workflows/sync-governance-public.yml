@@ -1,0 +1,135 @@
+name: Sync Governance Files to Public .github Repo
+
+# Syncs canonical governance files from solidarity-framework to the
+# NeuroLift-Technologies/.github public repo so they are available org-wide.
+#
+# Prerequisites (set once by a human):
+#   GOVERNANCE_SYNC_TOKEN — a GitHub PAT with 'contents: write' scope on
+#   the NeuroLift-Technologies/.github repository.  Create it at
+#   https://github.com/settings/tokens and add it as a repository secret
+#   at Settings → Secrets and variables → Actions → New repository secret.
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "AGENTS.md"
+      - "NLT-DEV-OTOI.md"
+      - "SOPs/**"
+      - "templates/**"
+      - "ISSUE_TEMPLATE/agent-escalation.md"
+      - "ISSUE_TEMPLATE/governance-proposal.md"
+      - "PULL_REQUEST_TEMPLATE/agent-contribution.md"
+      - ".nltotoi/**"
+      - ".github/workflows/sync-governance-public.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — log what would be synced without pushing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync to NeuroLift-Technologies/.github
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout solidarity-framework (source)
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout .github repo (target)
+        uses: actions/checkout@v4
+        with:
+          repository: NeuroLift-Technologies/.github
+          token: ${{ secrets.GOVERNANCE_SYNC_TOKEN }}
+          path: target
+
+      - name: Sync governance files
+        run: |
+          set -euo pipefail
+
+          DRY_RUN="${{ inputs.dry_run || 'false' }}"
+
+          echo "=== Syncing governance files from solidarity-framework → NeuroLift-Technologies/.github ==="
+          echo "Dry run: ${DRY_RUN}"
+          echo ""
+
+          sync_file() {
+            local src="$1"
+            local dest_dir="$2"
+            if [ -f "source/${src}" ]; then
+              mkdir -p "target/${dest_dir}"
+              if [ "${DRY_RUN}" = "true" ]; then
+                echo "  [DRY RUN] Would copy: ${src} → ${dest_dir}/$(basename ${src})"
+              else
+                cp "source/${src}" "target/${dest_dir}/$(basename ${src})"
+                echo "  ✓ Copied: ${src}"
+              fi
+            else
+              echo "  ⚠ Skipped (not found): ${src}"
+            fi
+          }
+
+          sync_dir() {
+            local src_dir="$1"
+            local dest_dir="$2"
+            if [ -d "source/${src_dir}" ]; then
+              if [ "${DRY_RUN}" = "true" ]; then
+                echo "  [DRY RUN] Would sync directory: ${src_dir}/ → ${dest_dir}/"
+              else
+                mkdir -p "target/${dest_dir}"
+                rsync -av --delete "source/${src_dir}/" "target/${dest_dir}/"
+                echo "  ✓ Synced directory: ${src_dir}/"
+              fi
+            else
+              echo "  ⚠ Skipped (not found): ${src_dir}/"
+            fi
+          }
+
+          # Top-level governance documents
+          sync_file "AGENTS.md"           "."
+          sync_file "NLT-DEV-OTOI.md"     "."
+
+          # Standard operating procedures
+          sync_dir "SOPs"                 "SOPs"
+
+          # Agent templates (registration, handoff, escalation, intent-log)
+          sync_dir "templates"            "templates"
+
+          # GitHub issue and PR templates for agent governance
+          sync_file "ISSUE_TEMPLATE/agent-escalation.md"   "ISSUE_TEMPLATE"
+          sync_file "ISSUE_TEMPLATE/governance-proposal.md" "ISSUE_TEMPLATE"
+          sync_file "PULL_REQUEST_TEMPLATE/agent-contribution.md" "PULL_REQUEST_TEMPLATE"
+
+          # NLTOTOI governance namespace
+          sync_dir ".nltotoi"             ".nltotoi"
+
+          echo ""
+          echo "=== Sync complete ==="
+
+      - name: Commit and push to .github repo
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          set -euo pipefail
+          cd target
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes detected — .github repo is already up to date."
+          else
+            COMMIT_MSG="[SYNC] chore(governance): sync governance files from solidarity-framework@${{ github.sha }}"
+            git commit -m "${COMMIT_MSG}"
+            git push
+            echo "Changes pushed to NeuroLift-Technologies/.github"
+          fi
