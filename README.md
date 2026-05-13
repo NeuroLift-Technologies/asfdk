@@ -46,7 +46,7 @@ ASFDK installs the missing layer:
 | **ASFDK-Dev** | Developers creating new agents | Solidarity-native development patterns, governance templates, integration-ready architecture |
 | **ASFDK-Deploy** | Teams with existing **claws (Agent Wrappers)** | Drop-in integration layer, adapter patterns, deployment profiles, compatibility guidance |
 
-> **Note on “claws (Agent Wrappers):** In ASFDK documentation, *claws* refers to wrapper implementations that orchestrate model calls, tools, and runtime behavior. ASFDK-Deploy is the integration track for existing claws.
+> **Note on “claws” (Agent Wrappers):** In ASFDK documentation, *claws* refers to wrapper implementations that orchestrate model calls, tools, and runtime behavior. ASFDK-Deploy is the integration track for existing claws.
 
 ---
 
