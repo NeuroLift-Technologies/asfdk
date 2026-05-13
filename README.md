@@ -64,7 +64,7 @@ Use this track when you are building a new agent.
 
 ## ASFDK-Deploy (Deployment/Integration Kit)
 
-Use this track when you already have a claws (Agent Wrapper) implementation and want ASFDK as the model ↔ agent middleware layer.
+Use this track when you already have a claw (Agent Wrapper) implementation and want ASFDK as the model ↔ agent middleware layer.
 
 1. Identify your existing wrapper boundary (model call ↔ agent orchestration).
 2. Insert ASFDK at that boundary as a middleware layer.
