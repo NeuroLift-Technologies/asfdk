@@ -51,7 +51,7 @@ ASFDK-Dev gives you a development path where your agent runtime is mediated by t
    - OTOI (for multi-agent flows)
    - RRT AIdvocAIte (contextual)
    - Sleepwalker (continuity)
-5. Validate locally and run redteam review before production.
+5. Validate locally and run nlt-redteam review before production.
 
 ---
 
