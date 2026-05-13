@@ -24,7 +24,7 @@ ASFDK-Dev gives you a development path where your agent runtime is mediated by t
 
 ## Prerequisites
 
-- Repository cloned locally (`git clone https://github.com/NeuroLift-Technologies/solidarity-framework.git`)
+- Repository cloned locally (`git clone https://github.com/NeuroLift-Technologies/solidarity-framework-pub.git`)
 - Python 3.10+ and Node.js 18+ installed
 - Dependencies installed via `pip install -r requirements.txt`
 - Basic understanding of your agent runtime entrypoint

@@ -90,3 +90,16 @@ Use this track when you already have a claw (Agent Wrapper) implementation and w
 - Enable after core integration is stable
 
 Voice is optional by design. Core functionality does not require voice components.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- **NeuroLift Technologies** — Core AI-fusion framework and methodology
+- **Human & AI ElevAItion Foundation (HAIEF)** — Governance standards
+- **ADHD Community** — Feedback and real-world testing
+- **Open Source Contributors** — Various libraries and tools
