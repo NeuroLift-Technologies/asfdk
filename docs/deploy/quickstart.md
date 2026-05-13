@@ -51,6 +51,7 @@ ASFDK-Deploy inserts governance/protection middleware at your existing boundary:
    - Advisory
    - Active
 5. Validate each phase and promote only when stable.
+6. Validate against `nlt-redteam` before promoting to production.
 
 ---
 
