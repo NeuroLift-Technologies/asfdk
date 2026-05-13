@@ -24,6 +24,9 @@ ASFDK-Deploy inserts governance/protection middleware at your existing boundary:
 
 ## Prerequisites
 
+- ASFDK repository cloned locally (`git clone https://github.com/NeuroLift-Technologies/solidarity-framework.git`)
+- Python 3.10+ and Node.js 18+ installed
+- Dependencies installed via `pip install -r requirements.txt`
 - Existing wrapper runtime with identifiable model↔agent boundary
 - Request/response schema visibility
 - Rollout strategy (staging/canary/production)
