@@ -20,7 +20,19 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
-<!-- Add new threads here. One entry per thread. -->
+### THREAD-006 — Cloudflare Workers Runtime
+| Field | Value |
+|-------|-------|
+| **Thread ID** | THREAD-006 |
+| **Status** | 🟡 In Progress |
+| **Started** | 2026-05-21 |
+| **Owner** | Claude Code (claude-sonnet-4-6) |
+| **Branch** | `claude/asfdk-agent-generator-jt1k6` |
+| **Task** | Build ASFDK Solidarity Layer as a deployable Cloudflare Worker (RRT Advocate, NLT-OTOI, Sleepwalker as HTTP service endpoints, callable via service binding) |
+| **Scope** | `workers/` (new), `docs/cloudflare-workers-deployment.md` (new), `docs/active-threads.md` |
+| **Blockers** | Requires KV and D1 IDs to be filled in by Joshua W. Dorsey, Sr. before deployment |
+| **Related PR** | TBD |
+| **Notes** | `hosting/` (Next.js landing page) is NOT modified. Workers AI default model: `@cf/meta/llama-4-scout-17b-instruct-fp8`. Crisis threshold logic must not be changed without Joshua's approval. |
 
 ---
 
