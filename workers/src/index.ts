@@ -30,17 +30,21 @@ app.post('/continuity', async (c) => {
 
 // Unified pipeline: assess → govern → save continuity
 app.post('/process', async (c) => {
-  const body = await c.req.json()
-  const { userId, message, agentResponse } = body as {
-    userId: string
-    message: string
-    agentResponse: string
+  const body = await c.req.json().catch(() => ({})) as Record<string, string>
+  const { userId, message, agentResponse } = body
+
+  if (!userId || !message || !agentResponse) {
+    return c.json({ error: 'Missing required fields: userId, message, agentResponse' }, 400)
   }
 
   const assessment = await assessCrisis({ userId, message }, c.env)
 
   if (assessment.level === 'BLACK') {
-    return c.json({ assessment, governed: null, finalResponse: assessment.intervention })
+    return c.json({
+      assessment,
+      governed: { governedResponse: agentResponse, flags: [], modified: false },
+      finalResponse: assessment.intervention ?? 'Crisis intervention required.',
+    })
   }
 
   const governed = await governInteraction({ userId, message, agentResponse }, c.env)

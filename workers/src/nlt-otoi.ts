@@ -37,7 +37,8 @@ export async function governInteraction(
 
   try {
     const text = (result as { response?: string }).response ?? ''
-    const parsed = JSON.parse(text) as GovernResponse
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text) as GovernResponse
     return {
       governedResponse: parsed.governedResponse ?? req.agentResponse,
       flags: Array.isArray(parsed.flags) ? parsed.flags : [],

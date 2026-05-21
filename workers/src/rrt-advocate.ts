@@ -38,7 +38,8 @@ export async function assessCrisis(
 
   try {
     const text = (result as { response?: string }).response ?? ''
-    const parsed = JSON.parse(text) as {
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text) as {
       level: CrisisLevel
       reason: string
       intervention: string | null
@@ -46,7 +47,7 @@ export async function assessCrisis(
     const level: CrisisLevel = LEVEL_ORDER.includes(parsed.level) ? parsed.level : 'GREEN'
     return {
       level,
-      intervention: parsed.intervention ?? undefined,
+      intervention: parsed.intervention || undefined,
       escalate: level === 'BLACK',
     }
   } catch {
