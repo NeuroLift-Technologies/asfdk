@@ -2,7 +2,7 @@
   "nltotoi_version": "1.0.0",
   "document_id": "ORG-DEV-OTOI-1.0.0",
   "repository": {
-    "name": "NeuroLift-Technologies/solidarity-framework",
+    "name": "NeuroLift-Technologies/asfdk",
     "purpose": "Agent Solidarity Kit — governance, integration layer, and operational contracts for NLT coding agents",
     "mode": "production",
     "visibility": "private",

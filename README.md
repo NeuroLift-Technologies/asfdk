@@ -69,27 +69,60 @@ Use this track when you already have a claw (Agent Wrapper) implementation and w
 1. Identify your existing wrapper boundary (model call ↔ agent orchestration).
 2. Insert ASFDK at that boundary as a middleware layer.
 3. Map wrapper inputs/outputs to ASFDK interfaces.
-4. Start with the `core_only` profile.
-5. Run in passive mode, then advisory mode, then active mode.
+4. Start with the `core_only` profile and `FoundationMode.CRISIS_ONLY` (lowest-impact starting point).
+5. Roll out incrementally — see "Rollout Phases" below.
 6. Validate against `nlt-redteam` before promoting to production.
 
 ---
 
 ## Deployment Profiles
 
+Profiles control which dependency set you install. Combine with `FoundationMode` (below) to select which components run at runtime.
+
 **`core_only`** *(recommended default)*
 
 - No voice dependencies
-- Full Solidarity Layer functionality
-- Simplest setup and broadest compatibility
+- Full Solidarity Layer functionality (RRT Advocate, NLT-OTOI, Sleepwalker)
+- Install: `pip install asfdk`
 
 **`voice_enabled`** *(optional)*
 
-- Adds voice interface path on top of the core layer
-- For teams shipping speech I/O (built on the NLT VibeVoice fork of `microsoft/VibeVoice`)
+- Adds voice interface path on top of the core layer (built on the NLT VibeVoice fork of `microsoft/VibeVoice`)
+- Pulls in `torch`, `transformers`, `accelerate`, `vibevoice` — large download
+- Install: `pip install asfdk[voice]`
 - Enable after core integration is stable
 
-Voice is optional by design. Core functionality does not require voice components.
+Voice is **opt-in** by design:
+
+- The `vibevoice` component defaults to `False` in `FoundationConfig.components` — you have to explicitly enable it.
+- Core install (`pip install asfdk`) does not pull torch/transformers/vibevoice.
+- Enabling `vibevoice=True` without installing the `[voice]` extras raises a clear `RuntimeError` at startup, not a cryptic ImportError.
+
+If you never want voice, you do not need to think about it — `pip install asfdk` and ignore.
+
+---
+
+## Foundation Modes
+
+`FoundationMode` (in `unified_core.neurolift_foundation`) controls which Solidarity Layer components are active at runtime. Pick one when constructing the foundation:
+
+| Mode | Components active | Use for |
+|---|---|---|
+| `UNIFIED` | All (RRT + OTOI + Sleepwalker + optional VibeVoice) | Production deployments wanting the full layer |
+| `CRISIS_ONLY` | RRT Advocate only | Adding crisis detection to an existing agent without the full layer |
+| `CONTINUITY_ONLY` | Sleepwalker Protocol only | Adding session continuity to an existing agent |
+| `FRAMEWORK_ONLY` | NLT-OTOI only | Adding interaction governance without crisis or continuity layers |
+| `DEVELOPMENT` | All, with debug logging | Local development and testing |
+
+---
+
+## Rollout Phases (Recommended Practice)
+
+When integrating ASFDK into an existing system, work through these phases. They are operator-applied via component config and thresholds — not separate runtime modes.
+
+1. **Observe** — Deploy with high thresholds in `rrt-advocate/config/crisis_thresholds.yaml` so the layer logs decisions but rarely intervenes. Use logs to calibrate.
+2. **Advise** — Lower thresholds gradually; emit warnings to the agent/operator but don't gate model output yet.
+3. **Enforce** — Apply governance decisions inline. Promote to production only after a `nlt-redteam` review pass.
 
 ---
 

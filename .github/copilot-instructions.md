@@ -12,7 +12,7 @@ These instructions guide GitHub Copilot when working on any repository in the Ne
 
 Complete these steps **in order** before beginning substantive work:
 
-1. **Read `NLT-DEV-OTOI.md`** in `NeuroLift-Technologies/solidarity-framework` — the canonical org-level agent governance contract. Focus on §4 (agent behavior), §4.3 (escalation triggers), §4.4 (guardrails), §5 (handoff), and §8 (ethical commitments).
+1. **Read `NLT-DEV-OTOI.md`** in `NeuroLift-Technologies/asfdk` — the canonical org-level agent governance contract. Focus on §4 (agent behavior), §4.3 (escalation triggers), §4.4 (guardrails), §5 (handoff), and §8 (ethical commitments).
 2. **Read `AGENTS.md`** in the repository you are working in — the internal coordination gateway defining guardrails, commit format, and multi-agent rules.
 3. **Read `CLAUDE.md`** in the repository you are working in — repo-specific scope, conventions, and in-scope/out-of-scope rules.
 4. **Read `docs/active-threads.md`** — check for in-progress work that may conflict with your task.

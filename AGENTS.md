@@ -24,7 +24,7 @@ The ethical foundation of all NLT work is publicly documented in the **Solidarit
 - Public governance principles: [`NeuroLift-Technologies/.github`](https://github.com/NeuroLift-Technologies/.github)
 - HAIEF reference: https://elevaitionfoundation.org
 
-The principles are public. The operational machinery is in `NeuroLift-Technologies/solidarity-framework`.
+The principles are public. The operational machinery is in `NeuroLift-Technologies/asfdk`.
 
 ---
 
@@ -80,7 +80,7 @@ These are **non-negotiable**. No exceptions without explicit Joshua approval:
 
 ## Internal File Map
 
-All files below live in this repository (`NeuroLift-Technologies/solidarity-framework`):
+All files below live in this repository (`NeuroLift-Technologies/asfdk`):
 
 ```
 NLT-DEV-OTOI.md                        ← Canonical org-level agent contract
