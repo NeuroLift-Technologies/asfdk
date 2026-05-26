@@ -1,9 +1,6 @@
+# Core ASFDK runtime dependencies.
+# For voice support, install with: pip install asfdk[voice]
+# (or install the voice deps listed in pyproject.toml [project.optional-dependencies].voice manually)
 pyyaml>=6.0
 jsonschema
 pydantic
-# VibeVoice — open-source frontier voice AI (ASR + TTS)
-# Install from: https://github.com/NeuroLift-Technologies/VibeVoice
-torch
-transformers>=4.51.3,<5.0.0
-accelerate
-vibevoice @ git+https://github.com/NeuroLift-Technologies/VibeVoice.git

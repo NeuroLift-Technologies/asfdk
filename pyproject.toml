@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asfdk"
+version = "0.1.0"
+description = "Agent Solidarity Framework Development/Deployment Kit — middleware between AI model and agent runtime, implementing the HAIEF Solidarity Framework standard."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "NeuroLift Technologies" }
+]
+keywords = [
+    "ai", "agent", "governance", "solidarity-framework", "haief",
+    "rrt-advocate", "sleepwalker", "toi", "otoi", "crisis-intervention"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+voice = [
+    "torch",
+    "transformers>=4.51.3,<5.0.0",
+    "accelerate",
+    "vibevoice @ git+https://github.com/NeuroLift-Technologies/VibeVoice.git",
+]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
+
+[project.urls]
+Homepage = "https://github.com/NeuroLift-Technologies/asfdk"
+Documentation = "https://github.com/NeuroLift-Technologies/asfdk#readme"
+Repository = "https://github.com/NeuroLift-Technologies/asfdk"
+"HAIEF Standard" = "https://github.com/NeuroLift-Technologies/haief"
+Issues = "https://github.com/NeuroLift-Technologies/asfdk/issues"
+
+# Only unified_core ships as an installable Python package today.
+# The component source trees (rrt-advocate/, nlt-otoi/, sleepwalker/) use
+# hyphenated directory names that aren't valid Python package identifiers;
+# they are wrapped by adapters under unified_core/integration/ and currently
+# require PYTHONPATH manipulation to import directly. See docs/dev/quickstart.md
+# for the integration entry points.
+[tool.setuptools.packages.find]
+include = ["unified_core*"]
+exclude = [
+    "tests*",
+    "docs*",
+    "hosting*",
+    "archive*",
+    "scripts*",
+    "rrt-advocate*",
+    "nlt-otoi*",
+    "sleepwalker*",
+]

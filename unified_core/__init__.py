@@ -18,4 +18,4 @@ __all__ = [
     "NeuroLiftFoundation",
     "UserInteraction",
     "create_foundation",
-]"""Agent Solidarity Kit unified core (Python package root)."""
+]
