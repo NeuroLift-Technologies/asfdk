@@ -13,7 +13,7 @@
     "platform": "REPLACE_WITH_PLATFORM",
     "date": "REPLACE_WITH_ISO_8601_DATE",
     "otoi_version": "ORG-DEV-OTOI-1.0.0",
-    "repo": "REPLACE_WITH_REPO (e.g. NeuroLift-Technologies/.github)",
+    "repo": "REPLACE_WITH_REPO (e.g. NeuroLift-Technologies/asfdk)",
     "branch": "REPLACE_WITH_BRANCH",
     "active_thread_id": "REPLACE_WITH_THREAD_ID",
     "work_completed": [

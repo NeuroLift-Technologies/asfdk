@@ -17,7 +17,7 @@
     "work_completed": [
       "Self-registered as GitHub Copilot session c9d4 in docs/agent-log/registrations/2026-05-02-copilot-c9d4.json",
       "Assessed THREAD-001 scope — confirmed all governance file deliverables (AGENTS.md, CLAUDE.md, docs/, templates/, SOPs/, ISSUE_TEMPLATE/agent-escalation.md, ISSUE_TEMPLATE/governance-proposal.md, .nltotoi/) already exist in the repo from prior sessions",
-      "Created .github/workflows/sync-governance-public.yml — GitHub Actions workflow that syncs canonical governance files from solidarity-framework to NeuroLift-Technologies/.github on push to main/master (path-filtered) and supports workflow_dispatch with dry-run option",
+      "Created .github/workflows/sync-governance-public.yml — GitHub Actions workflow that syncs canonical governance files from solidarity-framework to NeuroLift-Technologies/asfdk on push to main/master (path-filtered) and supports workflow_dispatch with dry-run option",
       "Workflow syncs: AGENTS.md, NLT-DEV-OTOI.md, SOPs/, templates/, ISSUE_TEMPLATE/agent-escalation.md, ISSUE_TEMPLATE/governance-proposal.md, PULL_REQUEST_TEMPLATE/agent-contribution.md, .nltotoi/",
       "Marked THREAD-001 as Complete and moved it to Completed Threads in docs/active-threads.md",
       "Updated active-threads.md — Active Threads section is now empty (no active threads remain)"
@@ -26,7 +26,7 @@
       "None"
     ],
     "blockers": [
-      "None — workflow is created. However, a human (Joshua W. Dorsey, Sr.) must add the GOVERNANCE_SYNC_TOKEN secret to the solidarity-framework repository settings before the workflow can push to NeuroLift-Technologies/.github. Instructions: create a GitHub PAT with 'contents: write' scope on NeuroLift-Technologies/.github and add it as a repository secret named GOVERNANCE_SYNC_TOKEN at Settings → Secrets and variables → Actions."
+      "None — workflow is created. However, a human (Joshua W. Dorsey, Sr.) must add the GOVERNANCE_SYNC_TOKEN secret to the solidarity-framework repository settings before the workflow can push to NeuroLift-Technologies/asfdk. Instructions: create a GitHub PAT with 'contents: write' scope on NeuroLift-Technologies/asfdk and add it as a repository secret named GOVERNANCE_SYNC_TOKEN at Settings → Secrets and variables → Actions."
     ],
     "decisions_made": [
       {

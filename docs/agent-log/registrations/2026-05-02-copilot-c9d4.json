@@ -16,7 +16,7 @@
     "otoi_version": "ORG-DEV-OTOI-1.0.0",
     "working_repo": "NeuroLift-Technologies/solidarity-framework",
     "working_branch": "copilot/work-on-active-threads-again",
-    "task_summary": "Create the sync-governance-public.yml workflow to bootstrap governance files from solidarity-framework into the NeuroLift-Technologies/.github public repo",
+    "task_summary": "Create the sync-governance-public.yml workflow to bootstrap governance files from solidarity-framework into the NeuroLift-Technologies/asfdk public repo",
     "active_thread_id": "THREAD-001",
     "capabilities_self_reported": [
       "code generation",
@@ -27,7 +27,7 @@
     "known_limitations": [
       "Cannot access external URLs directly",
       "Cannot push code without report_progress tool",
-      "Cannot access the NeuroLift-Technologies/.github repo directly"
+      "Cannot access the NeuroLift-Technologies/asfdk repo directly"
     ],
     "preferred_handoff_format": "JSON handoff record + updated active-threads.md",
     "escalation_acknowledged": true,

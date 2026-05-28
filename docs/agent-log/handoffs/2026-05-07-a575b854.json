@@ -49,7 +49,7 @@
         "issue_url": null
       }
     ],
-    "next_agent_notes": "PR must be reviewed and merged by Joshua W. Dorsey, Sr. After merge, the GOVERNANCE_SYNC_TOKEN secret should be configured (noted in THREAD-001 notes) so the sync-governance-public workflow can push to NeuroLift-Technologies/.github. All 10 Dependabot alerts (#1–10) are now in a fixed or safe state.",
+    "next_agent_notes": "PR must be reviewed and merged by Joshua W. Dorsey, Sr. After merge, the GOVERNANCE_SYNC_TOKEN secret should be configured (noted in THREAD-001 notes) so the sync-governance-public workflow can push to NeuroLift-Technologies/asfdk. All 10 Dependabot alerts (#1–10) are now in a fixed or safe state.",
     "files_modified": [
       "hosting/package.json",
       "hosting/package-lock.json",

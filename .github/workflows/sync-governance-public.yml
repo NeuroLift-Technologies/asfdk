@@ -1,11 +1,11 @@
 name: Sync Governance Files to Public .github Repo
 
 # Syncs canonical governance files from solidarity-framework to the
-# NeuroLift-Technologies/.github public repo so they are available org-wide.
+# NeuroLift-Technologies/asfdk public repo so they are available org-wide.
 #
 # Prerequisites (set once by a human):
 #   GOVERNANCE_SYNC_TOKEN — a GitHub PAT with 'contents: write' scope on
-#   the NeuroLift-Technologies/.github repository.  Create it at
+#   the NeuroLift-Technologies/asfdk repository.  Create it at
 #   https://github.com/settings/tokens and add it as a repository secret
 #   at Settings → Secrets and variables → Actions → New repository secret.
 
@@ -36,7 +36,7 @@ permissions:
 
 jobs:
   sync:
-    name: Sync to NeuroLift-Technologies/.github
+    name: Sync to NeuroLift-Technologies/asfdk
     runs-on: ubuntu-latest
     steps:
       - name: Checkout solidarity-framework (source)
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout .github repo (target)
         uses: actions/checkout@v4
         with:
-          repository: NeuroLift-Technologies/.github
+          repository: NeuroLift-Technologies/asfdk
           token: ${{ secrets.GOVERNANCE_SYNC_TOKEN }}
           path: target
 
@@ -57,7 +57,7 @@ jobs:
 
           DRY_RUN="${{ inputs.dry_run || 'false' }}"
 
-          echo "=== Syncing governance files from solidarity-framework → NeuroLift-Technologies/.github ==="
+          echo "=== Syncing governance files from solidarity-framework → NeuroLift-Technologies/asfdk ==="
           echo "Dry run: ${DRY_RUN}"
           echo ""
 
@@ -131,5 +131,5 @@ jobs:
             COMMIT_MSG="[SYNC] chore(governance): sync governance files from solidarity-framework@${{ github.sha }}"
             git commit -m "${COMMIT_MSG}"
             git push
-            echo "Changes pushed to NeuroLift-Technologies/.github"
+            echo "Changes pushed to NeuroLift-Technologies/asfdk"
           fi

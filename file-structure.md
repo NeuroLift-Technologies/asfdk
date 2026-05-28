@@ -3,7 +3,7 @@
 
 | Layer | Repo | Audience | Purpose |
 |---|---|---|---|
-| **Public governance identity** | `NeuroLift-Technologies/.github` | All agents, public | Solidarity Framework principles, HAIEF attribution, org profile |
+| **Public governance identity** | `NeuroLift-Technologies/asfdk` | All agents, public | Solidarity Framework principles, HAIEF attribution, org profile |
 | **Operational governance** | `NeuroLift-Technologies/solidarity-framework` | Internal coding agents | OTOI contracts, operational procedures, escalation templates, agent registration |
 | **Repo-level stubs** | Each NLT repo | That repo's agents | Thin pointers to solidarity-framework and public .github |
 
@@ -197,7 +197,7 @@ Drop this `CLAUDE.md` in each repo root:
 You are working in a NeuroLift Technologies repository.
 
 **Mandatory reading (in order):**
-1. Org-level governance: https://github.com/NeuroLift-Technologies/solidarity-framework/blob/main/NLT-DEV-OTOI.md
+1. Repo-local governance: https://github.com/NeuroLift-Technologies/solidarity-framework/blob/main/NLT-DEV-OTOI.md
 2. Project context: `docs/context/README_TO_AI.md` (this repo)
 3. Active threads: `docs/active-threads.md` (this repo)
 

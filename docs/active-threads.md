@@ -64,11 +64,11 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Completed** | 2026-05-02 |
 | **Owner** | GitHub Copilot (@copilot) — session c9d4 |
 | **Branch** | `copilot/work-on-active-threads-again` |
-| **Task** | Create the `sync-governance-public.yml` workflow to bootstrap governance files from solidarity-framework into the `NeuroLift-Technologies/.github` public repo |
+| **Task** | Create the `sync-governance-public.yml` workflow to bootstrap governance files from solidarity-framework into the `NeuroLift-Technologies/asfdk` public repo |
 | **Scope** | `.github/workflows/sync-governance-public.yml` — all other governance files (CLAUDE.md, AGENTS.md, docs/, templates/, SOPs/, ISSUE_TEMPLATE/agent-escalation.md, ISSUE_TEMPLATE/governance-proposal.md, .nltotoi/) already existed from prior threads |
-| **Blockers** | None — workflow created. Requires `GOVERNANCE_SYNC_TOKEN` secret (PAT with `contents: write` on NeuroLift-Technologies/.github) to be configured by Joshua W. Dorsey, Sr. before the workflow can push to the target repo |
+| **Blockers** | None — workflow created. Requires `GOVERNANCE_SYNC_TOKEN` secret (PAT with `contents: write` on NeuroLift-Technologies/asfdk) to be configured by Joshua W. Dorsey, Sr. before the workflow can push to the target repo |
 | **Related PR** | `copilot/work-on-active-threads-again` |
-| **Notes** | Resumed and completed by session c9d4 per explicit user instruction. The `sync-governance-public.yml` workflow syncs AGENTS.md, NLT-DEV-OTOI.md, SOPs/, templates/, ISSUE_TEMPLATE/agent-escalation.md, ISSUE_TEMPLATE/governance-proposal.md, PULL_REQUEST_TEMPLATE/agent-contribution.md, and .nltotoi/ to NeuroLift-Technologies/.github on every push to main/master that touches those files, plus supports workflow_dispatch with a dry-run option. A human must add the GOVERNANCE_SYNC_TOKEN secret once before the first run. |
+| **Notes** | Resumed and completed by session c9d4 per explicit user instruction. The `sync-governance-public.yml` workflow syncs AGENTS.md, NLT-DEV-OTOI.md, SOPs/, templates/, ISSUE_TEMPLATE/agent-escalation.md, ISSUE_TEMPLATE/governance-proposal.md, PULL_REQUEST_TEMPLATE/agent-contribution.md, and .nltotoi/ to NeuroLift-Technologies/asfdk on every push to main/master that touches those files, plus supports workflow_dispatch with a dry-run option. A human must add the GOVERNANCE_SYNC_TOKEN secret once before the first run. |
 
 ### THREAD-004 — Solidarity Framework Skills
 | Field | Value |
@@ -108,7 +108,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Started** | 2026-04-28 |
 | **Owner** | GitHub Copilot (@copilot) |
 | **Branch** | `copilot/update-deployment-instructions` |
-| **Task** | Update all governance files pulled in from .github-private to replace generic/template references with solidarity-framework–specific values (repo name, paths, URLs) |
+| **Task** | Update all governance files pulled in from asfdk to replace generic/template references with solidarity-framework–specific values (repo name, paths, URLs) |
 | **Scope** | `AGENTS.md`, `NLT-DEV-OTOI.md`, `SOPs/new-agent-onboarding.md`, `SOPs/repo-governance-setup.md`, `SOPs/incident-response.md`, `SOPs/SOPs/new-agent-onboarding.md`, `SOPs/SOPs/repo-governance-setup.md`, `SOPs/SOPs/incident-response.md`, `agents/nlt-governance-steward.md`, `.nltotoi/index/governance-files.md`, `.nltotoi/.nltotoi/README.md`, `.nltotoi/.nltotoi/index/governance-files.md`, `.nltotoi/.nltotoi/proposals/validation-roadmap.md`, `nltotoi.json`, `docs/agent-log/README.md`, `docs/escalations/README.md`, `ISSUE_TEMPLATE/governance-proposal.md`, `rrt-advocate/CLAUDE.md`, `file-structure.md`, `agents/swe-agent.md` (new) |
 | **Blockers** | None |
 | **Related PR** | Branch `copilot/update-deployment-instructions` |

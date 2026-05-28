@@ -41,7 +41,7 @@
       },
       {
         "decision": "THREAD-001 flagged as stale pending escalation — not closed by this agent",
-        "rationale": "Thread has had no update in 13+ months, no owner assigned, and the target branch does not exist. The task targets the separate NeuroLift-Technologies/.github repo, which is out of scope for this agent. Per OTOI conflict avoidance rules, stale threads must be escalated to Joshua W. Dorsey, Sr.",
+        "rationale": "Thread has had no update in 13+ months, no owner assigned, and the target branch does not exist. The task targets the separate NeuroLift-Technologies/asfdk repo, which is out of scope for this agent. Per OTOI conflict avoidance rules, stale threads must be escalated to Joshua W. Dorsey, Sr.",
         "made_by": "GitHub Copilot (session c9d2)"
       }
     ],
@@ -59,7 +59,7 @@
         "issue_url": null
       }
     ],
-    "next_agent_notes": "All previously in-progress threads (THREAD-003, THREAD-004) are now closed and verified complete. The only remaining active item is THREAD-001, which is stale and flagged for human escalation — do not attempt to work on it without Joshua W. Dorsey, Sr. explicitly assigning it and providing access to the NeuroLift-Technologies/.github repository. The active-threads.md file now accurately reflects the repository state.",
+    "next_agent_notes": "All previously in-progress threads (THREAD-003, THREAD-004) are now closed and verified complete. The only remaining active item is THREAD-001, which is stale and flagged for human escalation — do not attempt to work on it without Joshua W. Dorsey, Sr. explicitly assigning it and providing access to the NeuroLift-Technologies/asfdk repository. The active-threads.md file now accurately reflects the repository state.",
     "files_modified": [
       "docs/active-threads.md"
     ],

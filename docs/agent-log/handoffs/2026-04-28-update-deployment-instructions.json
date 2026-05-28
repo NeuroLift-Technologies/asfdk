@@ -16,7 +16,7 @@
     "branch": "copilot/update-deployment-instructions",
     "active_thread_id": "THREAD-002",
     "work_completed": [
-      "Updated AGENTS.md to reference solidarity-framework instead of .github-private",
+      "Updated AGENTS.md to reference solidarity-framework instead of asfdk",
       "Updated NLT-DEV-OTOI.md repository scope references",
       "Updated SOPs/new-agent-onboarding.md repository-specific references",
       "Updated SOPs/repo-governance-setup.md repository-specific references",
@@ -46,8 +46,8 @@
     ],
     "decisions_made": [
       {
-        "decision": "Replace all .github-private repository references with solidarity-framework throughout governance files",
-        "rationale": "Governance files were copied wholesale from the .github-private template repo and retained source repo references. This made them inaccurate for the solidarity-framework repo and would confuse future agents reading them.",
+        "decision": "Replace all .github-repository references with solidarity-framework throughout governance files",
+        "rationale": "Governance files were copied wholesale from the asfdk template repo and retained source repo references. This made them inaccurate for the solidarity-framework repo and would confuse future agents reading them.",
         "made_by": "GitHub Copilot (scoping correction only — no architectural decisions involved)"
       },
       {

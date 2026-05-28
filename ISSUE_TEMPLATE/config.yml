@@ -4,7 +4,7 @@ contact_links:
     url: https://github.com/orgs/NeuroLift-Technologies/discussions
     about: Ask questions and share ideas with the community
   - name: 🔒 Security Vulnerability
-    url: https://github.com/NeuroLift-Technologies/.github/blob/main/SECURITY.md
+    url: https://github.com/NeuroLift-Technologies/asfdk/blob/main/SECURITY.md
     about: Please report security vulnerabilities responsibly — do not open a public issue
   - name: 📖 Documentation
     url: https://github.com/NeuroLift-Technologies
