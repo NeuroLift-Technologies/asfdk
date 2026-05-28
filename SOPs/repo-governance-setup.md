@@ -1,211 +1,201 @@
-# SOP-NLT-002 — Repository Governance Bootstrap
-> Standard Operating Procedure · ORG-DEV-OTOI-1.0.0
-> Applies to: Any agent bootstrapping NLT governance infrastructure in a new repository
-> Effective: 2025-04-04 · Owner: Joshua W. Dorsey, Sr.
+# SOP: Repository Governance Setup
+
+**SOP ID:** SOP-NLT-002  
+**Version:** 1.1.0  
+**Scope:** Setting up governance stubs in a new or existing NLT repository  
+**Authority:** Joshua W. Dorsey, Sr.  
+**Governed by:** ORG-DEV-OTOI-1.0.0
 
 ---
 
 ## Purpose
 
-This SOP defines the process for setting up ORG-DEV-OTOI-1.0.0-compliant governance infrastructure in a new NeuroLift Technologies repository. It ensures all repositories have a consistent, complete governance foundation before active agent work begins.
+This SOP defines how to add the minimum required governance artifacts to a new or existing NeuroLift Technologies repository so that coding agents — including Claude Code sessions — can operate correctly within it.
 
 ---
 
 ## When to Use This SOP
 
-Use this SOP when:
-- A new repository is being created in the NeuroLift Technologies GitHub organization
-- An existing repository needs governance infrastructure added for the first time
-- A repository is being brought into OTOI compliance retroactively
+- Creating a new NLT repository
+- Adding governance to an existing NLT repository that lacks it
+- Auditing a repo for governance compliance
+- Adding Claude Code session-level governance to an existing repo
 
 ---
 
-## Prerequisites
+## Minimum Required Files per Repo
 
-- You have read and completed SOP-NLT-001 (new agent onboarding) for your session
-- Joshua W. Dorsey, Sr. has approved the repository creation or governance bootstrap
-- You have write access to the target repository
-- You have access to the governance templates in `NeuroLift-Technologies/solidarity-framework/templates/`
+Each NLT repo should have:
 
----
-
-## Required Governance Files
-
-Every NLT repository must have the following governance infrastructure:
-
-### Tier 1 — Required (OTOI mandatory)
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | OTOI Step 3 — repo-specific agent context |
-| `docs/active-threads.md` | OTOI Step 4 — work tracking |
-| `docs/agent-log/README.md` | Agent log directory explanation |
-| `docs/agent-log/registrations/.gitkeep` | Placeholder for registration records |
-| `docs/agent-log/handoffs/.gitkeep` | Placeholder for handoff records |
-
-### Tier 2 — Recommended (strong OTOI alignment)
-| File | Purpose |
-|------|---------|
-| `AGENTS.md` | Local copy of coordination gateway (or symlink reference) |
-| `.nltotoi/index/governance-files.md` | Local governance registry |
-| `.nltotoi/scripts/validate-governance.sh` | Local validation script |
-
-### Tier 3 — Optional (enhance governance quality)
-| File | Purpose |
-|------|---------|
-| `templates/` | Local copies of all governance templates |
-| `SOPs/` | Local copies of relevant SOPs |
-| `ISSUE_TEMPLATE/agent-escalation.md` | Agent escalation issue template |
-| `ISSUE_TEMPLATE/governance-proposal.md` | Governance proposal issue template |
+| File / Directory | Purpose |
+|---|---|
+| `CLAUDE.md` | Agent session directive — points to org-level OTOI |
+| `docs/active-threads.md` | Current work state tracker |
+| `docs/agent-log/` | Directory for agent registration and handoff records |
+| `.claude/` | Claude Code session configuration (synced from `.github-private` once the `governance-auto-propagate.yml` workflow extension is applied) |
 
 ---
 
-## Step-by-Step Process
+## Step-by-Step Procedure
 
-### Phase 1 — Preparation
+### Step 1: Create `CLAUDE.md`
 
-1. **Complete SOP-NLT-001 onboarding** for this session (all 8 steps)
-2. **Confirm scope with Joshua** — get explicit approval that this repo needs governance bootstrap
-3. **Identify the target repository** and note its purpose, primary language(s), and team
-4. **Create a branch** for the governance bootstrap work:
-   ```
-   git checkout -b chore/governance-bootstrap
-   ```
+Create `CLAUDE.md` at the repository root using the following template:
 
-### Phase 2 — Create Directory Structure
+```markdown
+# CLAUDE.md — [REPO NAME]
+
+You are working in a NeuroLift Technologies repository.
+
+**Mandatory reading (in order):**
+1. Org-level governance (private, primary):
+   https://github.com/NeuroLift-Technologies/.github-private/blob/main/NLT-DEV-OTOI.md
+   Public mirror (if the link above returns 404):
+   https://github.com/NeuroLift-Technologies/.github/blob/main/governance/NLT-DEV-OTOI.md
+2. Internal gateway (private, primary):
+   https://github.com/NeuroLift-Technologies/.github-private/blob/main/AGENTS.md
+   Public mirror (if the link above returns 404):
+   https://github.com/NeuroLift-Technologies/.github/blob/main/governance/AGENTS.md
+3. Project context: `docs/context/README_TO_AI.md` (this repo, if present)
+4. Active threads: `docs/active-threads.md` (this repo)
+
+**Non-negotiable:** Joshua W. Dorsey, Sr. is final authority on all architectural,
+deployment, UX, and strategic decisions. Escalate. Do not guess.
+
+**Governed by:** Solidarity Framework | HAIEF | https://elevaitionfoundation.org
+**OTOI Version:** ORG-DEV-OTOI-1.0.0
+```
+
+Replace `[REPO NAME]` with the actual repository name. Add any project-specific context (build commands, gotchas, code paths) below the mandatory reading section.
+
+### Step 2: Create `docs/active-threads.md`
+
+```markdown
+# Active Threads — [REPO NAME]
+
+> This file tracks active work threads. Agents must read this at session start and update it during and at the end of each session.
+
+**Last updated:** [ISO 8601 date]
+
+---
+
+## Active Threads
+
+*(No active threads yet)*
+
+---
+
+## Resolved Threads
+
+*(None yet)*
+```
+
+### Step 3: Create `docs/agent-log/` Directory Structure
+
+```
+docs/
+└── agent-log/
+    ├── README.md
+    ├── registrations/     ← Agent self-registrations
+    └── handoffs/          ← Handoff records between sessions
+```
+
+`docs/agent-log/README.md` content:
+
+```markdown
+# Agent Log
+
+This directory contains agent registration records and session handoff documents.
+
+- `registrations/` — Agent self-registration files (one per session start)
+- `handoffs/` — Session handoff records (written at session end)
+
+Format reference: `NeuroLift-Technologies/.github-private` templates directory.
+```
+
+### Step 4: (Optional) Create `docs/escalations/` Directory
+
+```
+docs/
+└── escalations/
+    └── README.md
+```
+
+### Step 5: Grant GitHub App Access to `.github-private`
+
+Coding agents must be able to read the governance files in `.github-private`. If the GitHub App is scoped to "Selected repositories":
+
+1. Go to `https://github.com/organizations/NeuroLift-Technologies/settings/installations`
+2. Find the GitHub App used by agents (Copilot, Codex, Claude Code) and click **Configure**.
+3. Under **Repository access → Selected repositories**, add **`.github-private`**.
+4. Click **Save**.
+
+> Fallback: The public mirror URLs in the `CLAUDE.md` template above work if access cannot be granted immediately. See `docs/troubleshooting/github-app-access.md` in `.github-private`.
+
+### Step 6: Commit the Governance Setup
+
+Commit using the format:
+
+```
+[AGENT_NAME] chore(governance): add repo governance stubs (ORG-DEV-OTOI-1.0.0)
+```
+
+### Step 7: Verify
+
+Confirm the following exist and contain correct content:
+- [ ] `CLAUDE.md` references `NLT-DEV-OTOI` and `ORG-DEV-OTOI-1.0.0`
+- [ ] `docs/active-threads.md` exists and is readable
+- [ ] `docs/agent-log/` directory structure created
+- [ ] GitHub App has access to `.github-private` (or public mirror fallback is in place)
+
+### Step 8: Provision the `.claude/` Template
+
+The `.claude/` directory holds the canonical Claude Code session configuration: `settings.json`, the SessionStart hook, subagents, skills, and slash commands.
+
+> **Current automation state.** As of SOP-NLT-002 v1.1.0, the live `governance-auto-propagate.yml` workflow in `.github-private` syncs `CLAUDE.md`, `docs/active-threads.md`, and `docs/agent-log/README.md` only. The extension that also syncs `.claude/` is staged at `.nltotoi/proposals/governance-auto-propagate-claude-sync.yml.proposed` and **not yet applied** — it requires a human with `workflows-write` scope to move it into `.github/workflows/`. Until that happens, use the manual path below (8B).
+
+**A. Automated (once the propagation extension is applied).** The nightly `governance-auto-propagate.yml` run (05:00 UTC) opens a PR in this repo combined with any other governance stub remediation. Title pattern: `[GOVERNANCE] Add mandatory NLT governance stubs (ORG-DEV-OTOI-1.0.0)`. The PR body lists the `.claude/` files synced. Review and merge.
 
 ```bash
-mkdir -p docs/agent-log/registrations
-mkdir -p docs/agent-log/handoffs
-mkdir -p .nltotoi/index
-mkdir -p .nltotoi/scripts
-mkdir -p templates
-mkdir -p SOPs
+# Manual trigger (from .github-private repo, only useful after the extension is applied)
+gh workflow run governance-auto-propagate.yml -R NeuroLift-Technologies/.github-private
 ```
 
-Create placeholder files for empty directories:
+**B. Manual (works today).** Copy the entire `.claude/` directory from `NeuroLift-Technologies/.github-private` at `main`:
+
+```
+.claude/
+├── README.md
+├── settings.json
+├── hooks/
+│   ├── session-start.sh
+│   └── README.md
+├── agents/
+├── skills/
+└── commands/
+```
+
+Verify:
+- [ ] `.claude/settings.json` contains the `SessionStart` hook wiring
+- [ ] `.claude/hooks/session-start.sh` is executable (`chmod +x` if filesystem-tracked)
+- [ ] Starting a Claude Code session prints the OTOI reading order and a list of governance file presence checks
+
+**Do not edit `.claude/` files in this repo** — they are overwritten by the next propagation run (once the extension is applied). For repo-specific session overrides, create `.claude/settings.local.json` (which the propagation workflow never overwrites).
+
+---
+
+## Validation
+
+Run the org-level validation script to check `.github-private` is healthy:
+
 ```bash
-touch docs/agent-log/registrations/.gitkeep
-touch docs/agent-log/handoffs/.gitkeep
-```
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): initialize OTOI directory structure (ORG-DEV-OTOI-1.0.0)
-```
-
-### Phase 3 — Create Repo-Specific CLAUDE.md
-
-Copy the `CLAUDE.md` template from `NeuroLift-Technologies/solidarity-framework/CLAUDE.md` and customize:
-- Update the repository name and description
-- Update the purpose section to describe this specific repo
-- Update the in-scope/out-of-scope items for this repo's domain
-- Update the technology stack section
-- Adjust any repo-specific conventions
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): add CLAUDE.md for OTOI Step 3 compliance
-```
-
-### Phase 4 — Create docs/active-threads.md
-
-Copy from `NeuroLift-Technologies/solidarity-framework/docs/active-threads.md` and:
-- Update the repository name in the header
-- Clear any existing threads (start with empty Active Threads section)
-- Update the last-updated date
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): add active-threads.md for OTOI Step 4 compliance
-```
-
-### Phase 5 — Add AGENTS.md (Tier 2)
-
-Either:
-- Copy the org-level `AGENTS.md` from `NeuroLift-Technologies/solidarity-framework` directly, OR
-- Create a minimal `AGENTS.md` that references `NeuroLift-Technologies/solidarity-framework/AGENTS.md` for the canonical version
-
-Add any repo-specific coordination notes at the top.
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): add AGENTS.md coordination gateway
-```
-
-### Phase 6 — Add Templates (Tier 3, if required)
-
-Copy all templates from `NeuroLift-Technologies/solidarity-framework/templates/`:
-- `agent-registration.json`
-- `handoff-record.json`
-- `escalation.md`
-- `intent-log.md`
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): add agent governance templates
-```
-
-### Phase 7 — Add Governance Validation
-
-Copy from `NeuroLift-Technologies/solidarity-framework/.nltotoi/`:
-- `.nltotoi/index/governance-files.md` (customize for this repo)
-- `.nltotoi/scripts/validate-governance.sh`
-
-Run the validation script to confirm all required files are present:
-```bash
+git clone https://github.com/NeuroLift-Technologies/.github-private
+cd .github-private
 bash .nltotoi/scripts/validate-governance.sh
 ```
 
-Fix any issues before proceeding.
-
-**Commit:**
-```
-[AGENT_NAME] chore(governance): add OTOI governance index and validation script
-```
-
-### Phase 8 — Open Pull Request
-
-Create a PR with:
-- **Title:** `chore(governance): bootstrap OTOI governance infrastructure (ORG-DEV-OTOI-1.0.0)`
-- **Description:** Reference this SOP, list all files added, confirm validation script passes
-- **Reviewer:** Joshua W. Dorsey, Sr.
-- **Labels:** `governance`, `chore`
-
-### Phase 9 — Write Handoff Record
-
-Per SOP-NLT-001 Step 8, write your handoff record to `docs/agent-log/handoffs/` before ending the session.
+For a product repo, the same script can be run locally if `.nltotoi/` is provisioned, or the CI workflow `validate-governance.yml` enforces the same checks on every push and PR.
 
 ---
 
-## Validation Checklist
-
-Before closing the bootstrap PR, confirm:
-
-- [ ] `CLAUDE.md` exists and is repo-specific (not a generic copy)
-- [ ] `docs/active-threads.md` exists with empty active threads
-- [ ] `docs/agent-log/README.md` exists
-- [ ] `docs/agent-log/registrations/.gitkeep` exists
-- [ ] `docs/agent-log/handoffs/.gitkeep` exists
-- [ ] `.nltotoi/scripts/validate-governance.sh` runs without errors
-- [ ] Your agent registration record is in `docs/agent-log/registrations/`
-- [ ] Handoff record is written to `docs/agent-log/handoffs/`
-- [ ] All commits use the correct `[AGENT_NAME] type(scope): description` format
-- [ ] Joshua W. Dorsey, Sr. has reviewed and approved the PR
-
----
-
-## Document Control
-
-| Field | Value |
-|-------|-------|
-| **SOP ID** | SOP-NLT-002 |
-| **Version** | 1.0.0 |
-| **Effective Date** | 2025-04-04 |
-| **Owner** | Joshua W. Dorsey, Sr. |
-| **Review Cycle** | Quarterly |
-| **Next Review** | 2025-07-04 |
-| **OTOI Alignment** | ORG-DEV-OTOI-1.0.0 |
-
----
-
-*Maintained in `NeuroLift-Technologies/solidarity-framework`*
+*SOP-NLT-002 v1.1.0 | NeuroLift Technologies | ORG-DEV-OTOI-1.0.0*

@@ -120,6 +120,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Related Projects
 
+- [`nlt-toi`](https://github.com/NeuroLift-Technologies/nlt-toi) — TOI generator, parser, and validator CLI. Use this to author and validate TOI documents before passing them to the OTOI runtime layer.
 - [OTOI Reference Implementation](#) (Coming Soon)
 - [OTOI Browser Extension](#) (Coming Soon)
 - [OTOI for Teams](#) (Coming Soon)

@@ -64,6 +64,8 @@ class RRTAdvocateIntegration:
 
 ### 2. TOI-OTOI Framework Integration
 
+> **Pre-flight:** TOI documents consumed here should be generated and validated with [`nlt-toi`](https://github.com/NeuroLift-Technologies/nlt-toi) before entering the runtime. `nlt-toi` is a companion CLI — it is not a component of ASFDK.
+
 #### Core Capabilities
 - Terms of Interaction (TOI) management and enforcement
 - Orchestrated Terms of Interaction (OTOI) continuous improvement

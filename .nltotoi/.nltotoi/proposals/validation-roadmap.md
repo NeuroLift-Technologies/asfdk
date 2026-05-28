@@ -1,7 +1,7 @@
 # Validation Roadmap — NLT Governance
 
 **Status:** v1.0 — Basic file existence validation implemented  
-**Scope:** `NeuroLift-Technologies/solidarity-framework`  
+**Scope:** `NeuroLift-Technologies/asfdk`  
 **Owner:** Joshua W. Dorsey, Sr.
 
 ---

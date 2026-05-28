@@ -1,6 +1,6 @@
 # .nltotoi — NLT Governance Namespace
 
-This namespace contains internal governance artifacts for the `NeuroLift-Technologies/solidarity-framework` repository.
+This namespace contains internal governance artifacts for the `NeuroLift-Technologies/asfdk` repository.
 
 ## Purpose
 
