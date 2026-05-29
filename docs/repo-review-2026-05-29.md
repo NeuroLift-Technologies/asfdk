@@ -79,7 +79,7 @@ public/internal split is deferred).
 - **CI test job** never installed the packages, so `pytest` could not import the
   hyphen-named component trees; the suite effectively no-opped. **Fix prepared
   but not applied** — the push token lacks `workflow` scope; a maintainer must
-  apply the one-step change (see "Deferred" #7). Locally, `pytest` already goes
+  apply the one-step change (see "Deferred" #6). Locally, `pytest` already goes
   green via the committed `conftest.py`.
 - **Tracked build artifacts** — `*.pyc` and `rrt_advocate.egg-info/` were
   committed despite `.gitignore`. **Untracked.**
@@ -102,7 +102,8 @@ public/internal split is deferred).
 | `requirements.txt`, `pyproject.toml` | Pinned lower bounds; added optional `sentiment` extra (`vaderSentiment`). |
 | Repo hygiene | Untracked `__pycache__`/`egg-info`; removed stale nested duplicate dirs. |
 
-Result: `pytest` goes from **3 failed / 41 passed** to **49 passed**.
+Result: the RRT test suite goes from a failing run (3 erroring on import) to a
+fully green run.
 
 ### Note on the detector (aligned with upstream)
 
@@ -128,18 +129,15 @@ ASFDK deliberately omits the standalone's ADHD-specific thresholds/personas;
    the PR-#5 class of mistake.
 2. **Public/internal repo split.** Moving OTOI/SOPs/agent machinery to
    `.github-private`/`solidarity-framework` as the docs themselves propose.
-3. **`hosting/` Next.js version.** `"next": "latest"` resolves to Next 16 in the
-   lockfile while React is pinned to 18 — a latent mismatch. Pinning + lockfile
-   regen is its own change (demo app; not on the integration path).
-4. **Pre-existing lint debt.** `ruff check .` is already red on `main` (~160+
+3. **Pre-existing lint debt.** `ruff check .` is already red on `main` (~160+
    findings across existing files). New files in this PR are lint-clean; the
    backlog is a separate sweep.
-5. **Intervention *deployment* is still a placeholder.** `InterventionManager`,
+4. **Intervention *deployment* is still a placeholder.** `InterventionManager`,
    `SupervisorAI` coordination, and `StateManager` persistence remain stubs.
    Detection/assessment is now real; *response* and *persistence* are the next
    substantive gaps.
-6. **Cross-runtime Python↔Worker integration** (see finding #2).
-7. **CI lint/test never runs at all (needs `workflow` scope).** Two separate
+5. **Cross-runtime Python↔Worker integration** (see finding #2).
+6. **CI lint/test never runs at all (needs `workflow` scope).** Two separate
    problems, both requiring a maintainer with `workflow` permission:
 
    a. **`reusable-ci.yml` has no caller.** It is a `workflow_call`-only
