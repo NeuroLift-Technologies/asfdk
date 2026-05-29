@@ -29,16 +29,22 @@ classifiers = [
 ]
 dependencies = [
     "pyyaml>=6.0",
-    "jsonschema",
-    "pydantic",
+    "jsonschema>=4.0",
+    "pydantic>=2.0",
 ]
 
 [project.optional-dependencies]
 voice = [
-    "torch",
+    "torch>=2.0",
     "transformers>=4.51.3,<5.0.0",
-    "accelerate",
+    "accelerate>=0.26",
     "vibevoice @ git+https://github.com/NeuroLift-Technologies/VibeVoice.git",
+]
+# Optional sentiment enhancement for the crisis detector's Layer 2. Without it,
+# the detector falls back to a built-in heuristic scorer, so this is not a core
+# dependency.
+sentiment = [
+    "vaderSentiment>=3.3.2",
 ]
 dev = [
     "pytest",

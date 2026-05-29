@@ -82,9 +82,16 @@ class RRTAdvocateIntegration:
             return {"error": "RRT Advocate not available"}
             
         try:
-            # Assess crisis
-            assessment = await self.rrt_advocate.assess_current_state()
-            
+            # If the caller supplied message text, evaluate it directly via the
+            # text entrypoint; otherwise fall back to ambient-state assessment.
+            message = crisis_data.get("text") or crisis_data.get("message")
+            if message and hasattr(self.rrt_advocate, "assess_message"):
+                assessment = await self.rrt_advocate.assess_message(
+                    message, messages=crisis_data.get("messages")
+                )
+            else:
+                assessment = await self.rrt_advocate.assess_current_state()
+
             # Handle based on crisis level
             if assessment.crisis_level != CrisisLevel.GREEN:
                 await self.rrt_advocate._handle_crisis(assessment)

@@ -17,4 +17,4 @@ EXPOSE 8080
 ENV NAME NeuroLift-Agent-Solidarity-Kit
 
 # Run the foundation when the container launches
-CMD ["python", "-u", "unified-core/neurolift_foundation.py"]
+CMD ["python", "-u", "unified_core/neurolift_foundation.py"]
