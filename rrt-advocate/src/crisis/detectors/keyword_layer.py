@@ -152,7 +152,7 @@ class KeywordAnalysisResult:
     matches: list[KeywordMatch] = field(default_factory=list)
     confidence_score: float = 0.0
     self_harm_detected: bool = False
-    primary_field: KeywordSemanticField = None
+    primary_field: KeywordSemanticField | None = None
 
     def has_field(self, semantic_field: KeywordSemanticField) -> bool:
         return semantic_field in self.detected_fields
