@@ -134,21 +134,38 @@ one like the Worker) drops in by subclassing `CrisisDetector`. Crisis-threshold
    Detection/assessment is now real; *response* and *persistence* are the next
    substantive gaps.
 6. **Cross-runtime Python↔Worker integration** (see finding #2).
-7. **CI test-job editable install (needs `workflow` scope).** The automation
-   token here cannot modify `.github/workflows/`. A maintainer should add this
-   step to the `test` job in `.github/workflows/reusable-ci.yml`, before the
-   "Install pytest" step, so CI imports the component packages the way local
-   `pytest` now does:
+7. **CI lint/test never runs at all (needs `workflow` scope).** Two separate
+   problems, both requiring a maintainer with `workflow` permission:
 
-   ```yaml
-         - name: Install ASFDK packages (editable)
-           # unified_core ships as a package; sleepwalker is a separate editable
-           # install. rrt-advocate is made importable by the repo-root conftest.py.
-           if: hashFiles('pyproject.toml') != ''
-           run: |
-             pip install -e .
-             if [ -f sleepwalker/pyproject.toml ]; then pip install -e ./sleepwalker; fi
-   ```
+   a. **`reusable-ci.yml` has no caller.** It is a `workflow_call`-only
+      reusable workflow, and nothing in `.github/workflows/` invokes it — so its
+      `lint` and `test` jobs never execute on push or PR. Add a trigger or a
+      caller. Simplest: a small caller workflow, e.g. `.github/workflows/ci.yml`:
+
+      ```yaml
+      name: CI
+      on: [push, pull_request]
+      jobs:
+        ci:
+          uses: ./.github/workflows/reusable-ci.yml
+      ```
+
+   b. **The `test` job doesn't install the packages.** Add this step to the
+      `test` job in `reusable-ci.yml`, before "Install pytest", so CI imports the
+      component packages the way local `pytest` now does:
+
+      ```yaml
+            - name: Install ASFDK packages (editable)
+              # unified_core ships as a package; sleepwalker is a separate editable
+              # install. rrt-advocate is made importable by the repo-root conftest.py.
+              if: hashFiles('pyproject.toml') != ''
+              run: |
+                pip install -e .
+                if [ -f sleepwalker/pyproject.toml ]; then pip install -e ./sleepwalker; fi
+      ```
+
+   Until (a) is done, the green local `pytest` (50 passed) is the only signal;
+   CI does not exercise the Python suite.
 
 ## Bottom line
 
