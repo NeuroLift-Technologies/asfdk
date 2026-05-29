@@ -2,5 +2,5 @@
 # For voice support, install with: pip install asfdk[voice]
 # (or install the voice deps listed in pyproject.toml [project.optional-dependencies].voice manually)
 pyyaml>=6.0
-jsonschema
-pydantic
+jsonschema>=4.0
+pydantic>=2.0

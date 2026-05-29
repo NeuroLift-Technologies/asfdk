@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-src/rrt_advocate.py
-src/rrt_advocate.egg-info/PKG-INFO
-src/rrt_advocate.egg-info/SOURCES.txt
-src/rrt_advocate.egg-info/dependency_links.txt
-src/rrt_advocate.egg-info/top_level.txt
-tests/test_rrt_advocate.py
