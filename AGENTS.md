@@ -140,4 +140,36 @@ Before ending any significant session:
 
 ---
 
+## Cursor Cloud specific instructions
+
+### Services overview
+
+| Service | Path | How to run | Notes |
+|---|---|---|---|
+| **ASFDK Python core** | `/workspace` | `from unified_core import create_foundation, FoundationMode` | Main product. No external services needed. |
+| **Hosting (Next.js demo)** | `hosting/` | `cd hosting && npm run dev` | Static landing page at `http://localhost:3000` |
+| **Workers (Cloudflare)** | `workers/` | `cd workers && npx wrangler dev` | Requires Cloudflare bindings (KV, D1, AI); optional |
+| **Sleepwalker TS** | `sleepwalker/` | `cd sleepwalker && npm run build` | Dual Python/TS impl; TS side has no dev server |
+
+### Running tests
+
+- **Python (all components):** `python3 -m pytest --tb=short` from repo root. Requires `PYTHONPATH` to include `rrt-advocate/src` for RRT tests to load modules. Sleepwalker must be installed (`pip install -e sleepwalker/`).
+- **Integration tests:** `python3 tests/integration_test.py` (custom async runner, not discovered by pytest).
+- **Sleepwalker TS:** `cd sleepwalker && npm test` (Jest; test files not yet written as of 2026-05).
+
+### Linting
+
+- **Python:** `ruff check .` from repo root (CI uses `ruff`; 164 pre-existing warnings exist).
+- **Hosting:** `cd hosting && npx next lint` (if eslint config present).
+
+### Known gotchas
+
+- `rrt-advocate/tests/test_rrt_advocate.py` has 3 pre-existing failures due to test stubs not registering `CrisisAssessment` for the import `from crisis.assessors.crisis_assessor import CrisisAssessment, CrisisLevel`. This is a known bug in the test fixture, not an environment issue.
+- The component source trees (`rrt-advocate/`, `nlt-otoi/`, `sleepwalker/`) use hyphenated directory names that are not valid Python package identifiers. They are wrapped by adapters under `unified_core/integration/`. To import them directly, add their `src/` paths to `PYTHONPATH`.
+- `pip install -e .` only installs `unified_core`. You must also run `pip install -e sleepwalker/` to get `sleepwalker_protocol` importable for tests.
+- VibeVoice (voice component) is opt-in and requires `pip install -e ".[voice]"` which pulls large deps (torch, transformers). Skip unless specifically needed.
+- `~/.local/bin` must be on `PATH` for user-installed tools (`pytest`, `ruff`) to be found.
+
+---
+
 *Internal governance document — NeuroLift Technologies | ORG-DEV-OTOI-1.0.0*
