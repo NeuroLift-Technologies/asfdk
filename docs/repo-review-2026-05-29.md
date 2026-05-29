@@ -77,7 +77,10 @@ public/internal split is deferred).
 - **`Dockerfile`** ran `unified-core/…` (hyphen) — wrong path; container failed
   on startup. **Fixed.**
 - **CI test job** never installed the packages, so `pytest` could not import the
-  hyphen-named component trees; the suite effectively no-opped. **Fixed.**
+  hyphen-named component trees; the suite effectively no-opped. **Fix prepared
+  but not applied** — the push token lacks `workflow` scope; a maintainer must
+  apply the one-step change (see "Deferred" #7). Locally, `pytest` already goes
+  green via the committed `conftest.py`.
 - **Tracked build artifacts** — `*.pyc` and `rrt_advocate.egg-info/` were
   committed despite `.gitignore`. **Untracked.**
 - **Nested duplicate dirs** — `SOPs/SOPs/`, `templates/templates/`,
@@ -95,7 +98,6 @@ public/internal split is deferred).
 | `unified_core/integration/rrt_integration.py` | `handle_crisis` now evaluates supplied message text via `assess_message` (backward compatible). |
 | `rrt-advocate/tests/test_rrt_advocate.py` | Rewritten to test the real pipeline (benign→GREEN, stress→YELLOW/ORANGE, suicidal→RED/BLACK, empty→no signals). |
 | `conftest.py` (new) | Puts `rrt-advocate/src` on `sys.path` so `pytest` runs from the repo root with no env setup. |
-| `.github/workflows/reusable-ci.yml` | Installs `-e .` and `-e sleepwalker/` so the test job actually imports and runs. |
 | `Dockerfile` | Corrected entrypoint path. |
 | `requirements.txt`, `pyproject.toml` | Pinned lower bounds. |
 | Repo hygiene | Untracked `__pycache__`/`egg-info`; removed stale nested duplicate dirs. |
@@ -132,6 +134,21 @@ one like the Worker) drops in by subclassing `CrisisDetector`. Crisis-threshold
    Detection/assessment is now real; *response* and *persistence* are the next
    substantive gaps.
 6. **Cross-runtime Python↔Worker integration** (see finding #2).
+7. **CI test-job editable install (needs `workflow` scope).** The automation
+   token here cannot modify `.github/workflows/`. A maintainer should add this
+   step to the `test` job in `.github/workflows/reusable-ci.yml`, before the
+   "Install pytest" step, so CI imports the component packages the way local
+   `pytest` now does:
+
+   ```yaml
+         - name: Install ASFDK packages (editable)
+           # unified_core ships as a package; sleepwalker is a separate editable
+           # install. rrt-advocate is made importable by the repo-root conftest.py.
+           if: hashFiles('pyproject.toml') != ''
+           run: |
+             pip install -e .
+             if [ -f sleepwalker/pyproject.toml ]; then pip install -e ./sleepwalker; fi
+   ```
 
 ## Bottom line
 
