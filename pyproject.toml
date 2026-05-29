@@ -40,6 +40,12 @@ voice = [
     "accelerate>=0.26",
     "vibevoice @ git+https://github.com/NeuroLift-Technologies/VibeVoice.git",
 ]
+# Optional sentiment enhancement for the crisis detector's Layer 2. Without it,
+# the detector falls back to a built-in heuristic scorer, so this is not a core
+# dependency.
+sentiment = [
+    "vaderSentiment>=3.3.2",
+]
 dev = [
     "pytest",
     "pytest-asyncio",

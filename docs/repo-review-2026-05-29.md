@@ -92,27 +92,32 @@ public/internal split is deferred).
 
 | Area | Change |
 |---|---|
-| `crisis_detector.py` | Real YAML threshold loading; deterministic, provider-agnostic lexical detector emitting `CrisisSignal`s; safe on empty input. |
-| `crisis_assessor.py` | Real severity assessment (`GREEN..BLACK`) with safety-first suicidal escalation, recommended interventions, confidence and safety scores. |
-| `rrt_advocate.py` | New additive `assess_message()` text entrypoint; fixed a latent missing-field bug in the safe-default assessment. |
-| `unified_core/integration/rrt_integration.py` | `handle_crisis` now evaluates supplied message text via `assess_message` (backward compatible). |
-| `rrt-advocate/tests/test_rrt_advocate.py` | Rewritten to test the real pipeline (benign→GREEN, stress→YELLOW/ORANGE, suicidal→RED/BLACK, empty→no signals). |
+| `crisis_detector.py` + `keyword_layer.py`, `sentiment_layer.py`, `behavioral_layer.py` (new) | **Ported the canonical 3-layer CDE pipeline** from `NeuroLift-Technologies/rrt-advocate` (keyword + sentiment + behavioral → weighted-aggregate `CrisisIndicators`), replacing the stub. |
+| `crisis_assessor.py` | Canonical assessor: aggregate→level mapping, self-harm→BLACK, safety score with penalties, intervention defaults. `CrisisLevel`/`CrisisAssessment` kept defined here for the adapter's imports. |
+| `rrt_advocate.py` | Wired to the 3-layer detector; additive `assess_message(text, messages)` entrypoint (replays history into the sliding windows); fixed a latent missing-field bug in the safe-default assessment. |
+| `unified_core/integration/rrt_integration.py` | `handle_crisis` evaluates supplied message text via `assess_message` (backward compatible). |
+| `rrt-advocate/tests/test_rrt_advocate.py` | Rewritten for the 3-layer contract (benign→GREEN, distress→YELLOW/ORANGE, self-harm→BLACK, empty→GREEN). |
 | `conftest.py` (new) | Puts `rrt-advocate/src` on `sys.path` so `pytest` runs from the repo root with no env setup. |
 | `Dockerfile` | Corrected entrypoint path. |
-| `requirements.txt`, `pyproject.toml` | Pinned lower bounds. |
+| `requirements.txt`, `pyproject.toml` | Pinned lower bounds; added optional `sentiment` extra (`vaderSentiment`). |
 | Repo hygiene | Untracked `__pycache__`/`egg-info`; removed stale nested duplicate dirs. |
 
-Result: `pytest` goes from **3 failed / 41 passed** to **50 passed**.
+Result: `pytest` goes from **3 failed / 41 passed** to **49 passed**.
 
-### Safety note on the new detector
+### Note on the detector (aligned with upstream)
 
-The new detector is a **deterministic lexical baseline**: transparent,
-auditable, and provider-agnostic (it deliberately does **not** select an LLM,
-per the no-LLM-lock-in guardrail in `AGENTS.md` / OTOI §4.4). It is **not** a
-clinical instrument and will miss indirect or coded language. It is designed to
-be replaced: any detector returning `CrisisSignal` objects (e.g. a model-backed
-one like the Worker) drops in by subclassing `CrisisDetector`. Crisis-threshold
-**defaults** in `crisis_thresholds.yaml` were not changed (guardrail).
+An earlier revision of this PR fixed the stub with a *from-scratch single-layer*
+detector. That was then **realigned to the canonical 3-layer pipeline** in the
+standalone `rrt-advocate` repo (the source of truth), rather than maintaining a
+parallel reinvention. The ported layers are **domain-neutral and local-first**:
+transparent regex semantic fields (Layer 1), sentiment trend via VADER with a
+built-in heuristic fallback (Layer 2 — VADER is an **optional** extra, not a
+core dependency), and behavioral timing/complexity/looping (Layer 3). Self-harm
+signals always escalate to BLACK. It remains a **transparent baseline, not a
+clinical instrument** (it will miss indirect/coded language), and stays
+provider-agnostic per the no-LLM-lock-in guardrail (`AGENTS.md` / OTOI §4.4).
+ASFDK deliberately omits the standalone's ADHD-specific thresholds/personas;
+`crisis_thresholds.yaml` defaults were not changed (guardrail).
 
 ## Deferred (needs a human / governance decision)
 

@@ -79,9 +79,7 @@ class RRTAdvocate:
         
         # Initialize core components
         self.crisis_detector = CrisisDetector(config_path)
-        self.crisis_assessor = CrisisAssessor(
-            user_id, thresholds=self.crisis_detector.detection_thresholds
-        )
+        self.crisis_assessor = CrisisAssessor(user_id, config_path=config_path)
         self.intervention_manager = InterventionManager(user_id)
         self.de_escalation_engine = DeEscalationEngine()
         self.pattern_analyzer = PatternAnalyzer(user_id)
@@ -210,9 +208,11 @@ class RRTAdvocate:
         start_time = datetime.now()
         
         try:
-            # Detect crisis indicators
-            indicators = await self.crisis_detector.detect_crisis_indicators()
-            
+            # Ambient poll: no message text available here, so the 3-layer
+            # detector evaluates an empty string (→ GREEN). Use assess_message()
+            # to evaluate a specific user utterance.
+            indicators = await self.crisis_detector.detect_crisis_indicators("")
+
             # Assess crisis level and context
             assessment = await self.crisis_assessor.assess_crisis(indicators)
             
@@ -261,16 +261,25 @@ class RRTAdvocate:
 
         Args:
             text: The latest user utterance to evaluate.
-            messages: Optional recent turns for additional context.
+            messages: Optional recent turns; replayed through the detector first
+                so the sentiment/behavioral sliding windows have context before
+                the latest message is scored.
 
         Returns:
             CrisisAssessment: Assessment for the supplied input.
         """
         try:
-            context: Dict[str, Any] = {"text": text, "source": "user_message"}
+            if not isinstance(text, str):
+                raise TypeError("assess_message requires str text")
+            # Replay prior turns to build the detector's sliding-window state.
             if messages:
-                context["messages"] = messages
-            indicators = await self.crisis_detector.detect_crisis_indicators(context)
+                for prior in messages:
+                    prior_text = prior if isinstance(prior, str) else (
+                        prior.get("content", "") if isinstance(prior, dict) else ""
+                    )
+                    if prior_text:
+                        await self.crisis_detector.detect_crisis_indicators(prior_text)
+            indicators = await self.crisis_detector.detect_crisis_indicators(text)
             return await self.crisis_assessor.assess_crisis(indicators)
         except Exception as e:
             self.logger.error(f"Message assessment failed: {e}")

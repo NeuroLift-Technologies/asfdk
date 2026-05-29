@@ -1,9 +1,9 @@
 """Tests for the RRT Advocate crisis detection/assessment pipeline.
 
-These exercise the *real* detector and assessor (no mock stand-ins): the
-deterministic lexical baseline now produces non-trivial assessments, so we can
-assert on actual behavior. Module imports rely on ``rrt-advocate/src`` being on
-``sys.path``, which the repo-root ``conftest.py`` arranges.
+These exercise the real 3-layer CDE pipeline (keyword + sentiment + behavioral)
+ported from the canonical NeuroLift-Technologies/rrt-advocate. Module imports
+rely on ``rrt-advocate/src`` being on ``sys.path``, which the repo-root
+``conftest.py`` arranges.
 """
 
 import asyncio
@@ -56,13 +56,7 @@ def test_manual_intervention_deploys_and_tracks():
     assert len(advocate.active_interventions) == 1
 
 
-# --- real detection behavior ------------------------------------------------
-
-def test_thresholds_loaded_from_config():
-    # The YAML lists suicidal_thoughts at 0.9; confirm it is actually read.
-    advocate = _advocate()
-    assert advocate.crisis_detector.detection_thresholds["suicidal_thoughts"] == 0.9
-
+# --- real 3-layer detection behavior ---------------------------------------
 
 def test_benign_message_is_green():
     advocate = _advocate()
@@ -70,39 +64,45 @@ def test_benign_message_is_green():
 
     assert assessment.crisis_level == CrisisLevel.GREEN
     assert assessment.recommended_interventions == []
+    assert assessment.context_factors["self_harm_risk"] is False
 
 
-def test_empty_input_produces_no_signals():
+def test_empty_message_is_green():
     advocate = _advocate()
-    signals = asyncio.run(advocate.crisis_detector.detect_crisis_indicators())
-    assert signals == []
-    signals = asyncio.run(advocate.crisis_detector.detect_crisis_indicators({"text": ""}))
-    assert signals == []
+    assessment = asyncio.run(advocate.assess_message(""))
+    assert assessment.crisis_level == CrisisLevel.GREEN
+    assert assessment.confidence_score == 0.0
 
 
-def test_mild_stress_elevates_but_not_critical():
+def test_distress_language_elevates_but_not_critical():
     advocate = _advocate()
     assessment = asyncio.run(
-        advocate.assess_message("I'm feeling really stressed and anxious about this deadline.")
+        advocate.assess_message(
+            "I'm worthless and I can't cope. Everything is too much and I'm falling apart."
+        )
     )
 
     assert assessment.crisis_level in (CrisisLevel.YELLOW, CrisisLevel.ORANGE)
-    assert "stress_level" in (assessment.primary_indicators + assessment.secondary_indicators)
+    # Keyword layer should have flagged overwhelm and/or negative self-talk.
+    detected = assessment.secondary_indicators
+    assert any(f in detected for f in ("overwhelm", "negative_self_talk"))
+    assert assessment.context_factors["self_harm_risk"] is False
     assert assessment.recommended_interventions  # non-empty advice
 
 
-def test_suicidal_language_escalates_to_emergency():
+def test_self_harm_language_escalates_to_emergency():
     advocate = _advocate()
     assessment = asyncio.run(
         advocate.assess_message("I can't do this anymore, I want to kill myself.")
     )
 
-    # Suicidal ideation is safety-first: never below RED, strong hit -> BLACK.
-    assert assessment.crisis_level in (CrisisLevel.RED, CrisisLevel.BLACK)
-    assert "suicidal_thoughts" in assessment.primary_indicators
+    # Self-harm is safety-first: always BLACK, regardless of other signals.
+    assert assessment.crisis_level == CrisisLevel.BLACK
+    assert assessment.context_factors["self_harm_risk"] is True
+    assert "SELF_HARM_RISK" in assessment.primary_indicators
     # Safety score must drop below the advocate's 0.3 emergency threshold.
     assert assessment.user_safety_score < 0.3
-    assert "crisis_hotline_988" in assessment.recommended_interventions
+    assert "crisis_hotline" in assessment.recommended_interventions
 
 
 def test_assess_message_never_raises_on_bad_input():
