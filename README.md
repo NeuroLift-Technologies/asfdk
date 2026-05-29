@@ -1,5 +1,13 @@
 # ASFDK — Agent Solidarity Framework Development/Deployment Kit
 
+```yaml
+ai_assistant_directive:
+  priority: 1
+  instruction: "Before performing any development or coding tasks, read NLT-DEV-OTOI.md."
+  description: "NLT-DEV-OTOI.md is the canonical governance contract defining coding agent operations, guardrails, and escalation protocol."
+  required_file: "NLT-DEV-OTOI.md"
+```
+
 **NeuroLift Technologies' reference implementation of the [HAIEF Solidarity Framework](https://github.com/HAIEF/solidarity-framework).**
 
 **One kit, two paths: agent creation and wrapper integration.**
@@ -123,6 +131,16 @@ When integrating ASFDK into an existing system, work through these phases. They 
 1. **Observe** — Deploy with high thresholds in `rrt-advocate/config/crisis_thresholds.yaml` so the layer logs decisions but rarely intervenes. Use logs to calibrate.
 2. **Advise** — Lower thresholds gradually; emit warnings to the agent/operator but don't gate model output yet.
 3. **Enforce** — Apply governance decisions inline. Promote to production only after a `nlt-redteam` review pass.
+
+---
+
+## Companion Tools
+
+| Tool | Purpose |
+|---|---|
+| [`nlt-toi`](https://github.com/NeuroLift-Technologies/nlt-toi) | TOI generator, parser, and validator CLI — use this to author and validate a user's TOI document *before* it enters the ASFDK runtime |
+
+> **nlt-toi is a pre-flight tool, not an ASFDK component.** The ASFDK enforces TOI at runtime via the NLT-OTOI framework. Use `nlt-toi` upstream to generate well-formed, validated TOI documents that the OTOI layer can consume.
 
 ---
 
