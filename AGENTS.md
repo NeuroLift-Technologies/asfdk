@@ -162,6 +162,12 @@ Before ending any significant session:
 - **Python:** `ruff check .` from repo root (CI uses `ruff`; 164 pre-existing warnings exist).
 - **Hosting:** `cd hosting && npx next lint` (if eslint config present).
 
+### Governance validation
+
+- Run `bash .nltotoi/scripts/validate-governance.sh` to verify all governance files are present and valid (25 checks).
+- The mandatory reading order before any work session is: `NLT-DEV-OTOI.md` then `CLAUDE.md` then `docs/active-threads.md`. See the "Session Start" section above.
+- Commit format is enforced: `[AGENT_NAME] type(scope): description`. See the "Commit Format" section above.
+
 ### Known gotchas
 
 - `rrt-advocate/tests/test_rrt_advocate.py` has 3 pre-existing failures due to test stubs not registering `CrisisAssessment` for the import `from crisis.assessors.crisis_assessor import CrisisAssessment, CrisisLevel`. This is a known bug in the test fixture, not an environment issue.
