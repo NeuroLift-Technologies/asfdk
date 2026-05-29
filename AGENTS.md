@@ -142,11 +142,13 @@ Before ending any significant session:
 
 ## Cursor Cloud specific instructions
 
+> **Note:** This section contains development environment operational notes for Cursor Cloud agents. It does not modify any governance rules, guardrails, or coordination protocols defined above.
+
 ### Services overview
 
 | Service | Path | How to run | Notes |
 |---|---|---|---|
-| **ASFDK Python core** | `/workspace` | `from unified_core import create_foundation, FoundationMode` | Main product. No external services needed. |
+| **ASFDK Python core** | `.` (repo root) | `from unified_core import create_foundation, FoundationMode` | Main product. No external services needed. |
 | **Hosting (Next.js demo)** | `hosting/` | `cd hosting && npm run dev` | Static landing page at `http://localhost:3000` |
 | **Workers (Cloudflare)** | `workers/` | `cd workers && npx wrangler dev` | Requires Cloudflare bindings (KV, D1, AI); optional |
 | **Sleepwalker TS** | `sleepwalker/` | `cd sleepwalker && npm run build` | Dual Python/TS impl; TS side has no dev server |
