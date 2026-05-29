@@ -1,120 +1,29 @@
+"""Tests for the RRT Advocate crisis detection/assessment pipeline.
+
+These exercise the *real* detector and assessor (no mock stand-ins): the
+deterministic lexical baseline now produces non-trivial assessments, so we can
+assert on actual behavior. Module imports rely on ``rrt-advocate/src`` being on
+``sys.path``, which the repo-root ``conftest.py`` arranges.
+"""
+
 import asyncio
-import importlib
-import sys
-import types
-from datetime import datetime
+import os
+
+from rrt_advocate import CrisisLevel, RRTAdvocate
+
+_CONFIG = os.path.join(
+    os.path.dirname(__file__), os.pardir, "config", "crisis_thresholds.yaml"
+)
 
 
-def _install_stub_modules():
-    """Provide local stand-ins for external NeuroLift modules used by rrt_advocate."""
-
-    class CrisisDetector:
-        def __init__(self, config_path):
-            self.config_path = config_path
-
-        async def detect_crisis_indicators(self):
-            return {"signal": "ok"}
-
-    class CrisisAssessor:
-        def __init__(self, user_id):
-            self.user_id = user_id
-
-        async def assess_crisis(self, _indicators):
-            from src.rrt_advocate import CrisisAssessment, CrisisLevel
-
-            return CrisisAssessment(
-                timestamp=datetime.now(),
-                crisis_level=CrisisLevel.GREEN,
-                primary_indicators=[],
-                secondary_indicators=[],
-                confidence_score=0.2,
-                estimated_duration=None,
-                recommended_interventions=[],
-                escalation_threshold=0.8,
-                user_safety_score=1.0,
-            )
-
-    class InterventionManager:
-        def __init__(self, user_id):
-            self.user_id = user_id
-
-        async def deploy_intervention(self, **_kwargs):
-            return None
-
-        async def evaluate_intervention(self, _intervention_id):
-            return 0.8
-
-        async def activate_emergency_protocols(self, _assessment):
-            return None
-
-    class DeEscalationEngine:
-        async def start_de_escalation(self, _assessment):
-            return None
-
-    class SupervisorInterface:
-        async def notify_advocate_status(self, **_kwargs):
-            return None
-
-        async def handle_crisis(self, **_kwargs):
-            return None
-
-        async def emergency_escalation(self, **_kwargs):
-            return None
-
-    class PatternAnalyzer:
-        def __init__(self, user_id):
-            self.user_id = user_id
-
-        async def update_patterns(self, _assessment):
-            return None
-
-        async def save_patterns(self):
-            return None
-
-    module_defs = {
-        "crisis": types.ModuleType("crisis"),
-        "crisis.detectors": types.ModuleType("crisis.detectors"),
-        "crisis.detectors.crisis_detector": types.ModuleType("crisis.detectors.crisis_detector"),
-        "crisis.assessors": types.ModuleType("crisis.assessors"),
-        "crisis.assessors.crisis_assessor": types.ModuleType("crisis.assessors.crisis_assessor"),
-        "response": types.ModuleType("response"),
-        "response.interventions": types.ModuleType("response.interventions"),
-        "response.interventions.intervention_manager": types.ModuleType(
-            "response.interventions.intervention_manager"
-        ),
-        "response.de_escalation": types.ModuleType("response.de_escalation"),
-        "response.de_escalation.de_escalation_engine": types.ModuleType(
-            "response.de_escalation.de_escalation_engine"
-        ),
-        "coordination": types.ModuleType("coordination"),
-        "coordination.supervisor": types.ModuleType("coordination.supervisor"),
-        "coordination.supervisor.supervisor_interface": types.ModuleType(
-            "coordination.supervisor.supervisor_interface"
-        ),
-        "learning": types.ModuleType("learning"),
-        "learning.patterns": types.ModuleType("learning.patterns"),
-        "learning.patterns.pattern_analyzer": types.ModuleType("learning.patterns.pattern_analyzer"),
-    }
-
-    module_defs["crisis.detectors.crisis_detector"].CrisisDetector = CrisisDetector
-    module_defs["crisis.assessors.crisis_assessor"].CrisisAssessor = CrisisAssessor
-    module_defs["response.interventions.intervention_manager"].InterventionManager = InterventionManager
-    module_defs["response.de_escalation.de_escalation_engine"].DeEscalationEngine = DeEscalationEngine
-    module_defs["coordination.supervisor.supervisor_interface"].SupervisorInterface = SupervisorInterface
-    module_defs["learning.patterns.pattern_analyzer"].PatternAnalyzer = PatternAnalyzer
-
-    sys.modules.update(module_defs)
+def _advocate(user_id="user-1"):
+    return RRTAdvocate(user_id=user_id, config_path=_CONFIG)
 
 
-def _load_module():
-    _install_stub_modules()
-    return importlib.import_module("src.rrt_advocate")
-
+# --- structural / safe-default behavior ------------------------------------
 
 def test_get_status_report_has_expected_shape():
-    module = _load_module()
-    advocate = module.RRTAdvocate(user_id="user-1")
-
+    advocate = _advocate("user-1")
     status = asyncio.run(advocate.get_status_report())
 
     assert status["user_id"] == "user-1"
@@ -124,26 +33,80 @@ def test_get_status_report_has_expected_shape():
 
 
 def test_assess_current_state_returns_safe_default_on_detector_failure():
-    module = _load_module()
-    advocate = module.RRTAdvocate(user_id="user-2")
+    advocate = _advocate("user-2")
 
-    async def broken_detector():
+    async def broken_detector(*_args, **_kwargs):
         raise RuntimeError("detector unavailable")
 
     advocate.crisis_detector.detect_crisis_indicators = broken_detector
-
     assessment = asyncio.run(advocate.assess_current_state())
 
-    assert assessment.crisis_level == module.CrisisLevel.GREEN
+    assert assessment.crisis_level == CrisisLevel.GREEN
     assert assessment.user_safety_score == 1.0
     assert assessment.confidence_score == 0.0
 
 
-def test_manual_intervention_false_when_manager_returns_none():
-    module = _load_module()
-    advocate = module.RRTAdvocate(user_id="user-3")
-
+def test_manual_intervention_deploys_and_tracks():
+    advocate = _advocate("user-3")
     ok = asyncio.run(advocate.manual_intervention("grounding"))
 
-    assert ok is False
-    assert advocate.active_interventions == []
+    # The intervention manager returns an active response, so the advocate
+    # reports success and tracks it as an active intervention.
+    assert ok is True
+    assert len(advocate.active_interventions) == 1
+
+
+# --- real detection behavior ------------------------------------------------
+
+def test_thresholds_loaded_from_config():
+    # The YAML lists suicidal_thoughts at 0.9; confirm it is actually read.
+    advocate = _advocate()
+    assert advocate.crisis_detector.detection_thresholds["suicidal_thoughts"] == 0.9
+
+
+def test_benign_message_is_green():
+    advocate = _advocate()
+    assessment = asyncio.run(advocate.assess_message("Thanks, the report looks great!"))
+
+    assert assessment.crisis_level == CrisisLevel.GREEN
+    assert assessment.recommended_interventions == []
+
+
+def test_empty_input_produces_no_signals():
+    advocate = _advocate()
+    signals = asyncio.run(advocate.crisis_detector.detect_crisis_indicators())
+    assert signals == []
+    signals = asyncio.run(advocate.crisis_detector.detect_crisis_indicators({"text": ""}))
+    assert signals == []
+
+
+def test_mild_stress_elevates_but_not_critical():
+    advocate = _advocate()
+    assessment = asyncio.run(
+        advocate.assess_message("I'm feeling really stressed and anxious about this deadline.")
+    )
+
+    assert assessment.crisis_level in (CrisisLevel.YELLOW, CrisisLevel.ORANGE)
+    assert "stress_level" in (assessment.primary_indicators + assessment.secondary_indicators)
+    assert assessment.recommended_interventions  # non-empty advice
+
+
+def test_suicidal_language_escalates_to_emergency():
+    advocate = _advocate()
+    assessment = asyncio.run(
+        advocate.assess_message("I can't do this anymore, I want to kill myself.")
+    )
+
+    # Suicidal ideation is safety-first: never below RED, strong hit -> BLACK.
+    assert assessment.crisis_level in (CrisisLevel.RED, CrisisLevel.BLACK)
+    assert "suicidal_thoughts" in assessment.primary_indicators
+    # Safety score must drop below the advocate's 0.3 emergency threshold.
+    assert assessment.user_safety_score < 0.3
+    assert "crisis_hotline_988" in assessment.recommended_interventions
+
+
+def test_assess_message_never_raises_on_bad_input():
+    advocate = _advocate()
+    # Non-string input should degrade to a safe GREEN default, not raise.
+    assessment = asyncio.run(advocate.assess_message(None))  # type: ignore[arg-type]
+    assert assessment.crisis_level == CrisisLevel.GREEN

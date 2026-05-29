@@ -79,7 +79,9 @@ class RRTAdvocate:
         
         # Initialize core components
         self.crisis_detector = CrisisDetector(config_path)
-        self.crisis_assessor = CrisisAssessor(user_id)
+        self.crisis_assessor = CrisisAssessor(
+            user_id, thresholds=self.crisis_detector.detection_thresholds
+        )
         self.intervention_manager = InterventionManager(user_id)
         self.de_escalation_engine = DeEscalationEngine()
         self.pattern_analyzer = PatternAnalyzer(user_id)
@@ -240,7 +242,49 @@ class RRTAdvocate:
                 estimated_duration=None,
                 recommended_interventions=[],
                 escalation_threshold=0.8,
-                user_safety_score=1.0
+                user_safety_score=1.0,
+                context_factors={}
+            )
+
+    async def assess_message(
+        self, text: str, messages: Optional[List[Any]] = None
+    ) -> CrisisAssessment:
+        """Assess a specific user message (and optional recent history) for crisis.
+
+        This is the text-driven entrypoint that mirrors the level contract
+        (GREEN..BLACK) used by the Cloudflare Worker implementation in
+        ``workers/src/rrt-advocate.ts``. Unlike :meth:`assess_current_state`
+        (which polls ambient data sources), this evaluates the supplied text
+        directly, so callers integrating a chat/agent runtime have a concrete
+        hook. Detection failures degrade to a safe GREEN default rather than
+        raising.
+
+        Args:
+            text: The latest user utterance to evaluate.
+            messages: Optional recent turns for additional context.
+
+        Returns:
+            CrisisAssessment: Assessment for the supplied input.
+        """
+        try:
+            context: Dict[str, Any] = {"text": text, "source": "user_message"}
+            if messages:
+                context["messages"] = messages
+            indicators = await self.crisis_detector.detect_crisis_indicators(context)
+            return await self.crisis_assessor.assess_crisis(indicators)
+        except Exception as e:
+            self.logger.error(f"Message assessment failed: {e}")
+            return CrisisAssessment(
+                timestamp=datetime.now(),
+                crisis_level=CrisisLevel.GREEN,
+                primary_indicators=[],
+                secondary_indicators=[],
+                confidence_score=0.0,
+                estimated_duration=None,
+                recommended_interventions=[],
+                escalation_threshold=0.8,
+                user_safety_score=1.0,
+                context_factors={},
             )
 
     async def _handle_crisis(self, assessment: CrisisAssessment):
