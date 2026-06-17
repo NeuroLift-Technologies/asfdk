@@ -11,12 +11,17 @@ let validatorPromise: Promise<ReturnType<Ajv['getSchema']>> | undefined;
 
 async function getValidator() {
   if (!validatorPromise) {
-    validatorPromise = readFile(schemaPath, 'utf-8').then((raw) => {
-      const schema = JSON.parse(raw) as object;
-      const ajv = new Ajv({ allErrors: true, strict: false, validateSchema: false });
-      ajv.addSchema(schema, 'toi');
-      return ajv.getSchema('toi');
-    });
+    validatorPromise = readFile(schemaPath, 'utf-8')
+      .then((raw) => {
+        const schema = JSON.parse(raw) as object;
+        const ajv = new Ajv({ allErrors: true, strict: false, validateSchema: false });
+        ajv.addSchema(schema, 'toi');
+        return ajv.getSchema('toi');
+      })
+      .catch((err) => {
+        validatorPromise = undefined;
+        throw err;
+      });
   }
   return validatorPromise;
 }

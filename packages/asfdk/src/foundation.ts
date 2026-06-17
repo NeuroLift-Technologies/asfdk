@@ -22,7 +22,7 @@ function componentsForMode(mode: FoundationMode, overrides?: FoundationConfig['c
     [FoundationMode.FRAMEWORK_ONLY]: { toi: true, swp: false, rrt: false },
     [FoundationMode.DEVELOPMENT]: { toi: true, swp: true, rrt: false },
   };
-  const base = defaults[mode];
+  const base = defaults[mode] ?? { toi: false, swp: false, rrt: false };
   return {
     toi: overrides?.toi_otoi_framework ?? base.toi,
     swp: overrides?.sleepwalker_protocol ?? base.swp,
@@ -53,7 +53,7 @@ export class NeuroLiftFoundation {
     const content: Record<string, unknown> = {};
 
     if (this.active.swp && interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT) {
-      const input = String((interaction.data as Record<string, unknown>).text ?? '');
+      const input = String(interaction.data?.['text'] ?? '');
       const state = sleepwalker.detectEmotionalState(input);
       content.emotionalState = state;
       components.push('sleepwalker_protocol');
@@ -65,7 +65,7 @@ export class NeuroLiftFoundation {
     }
 
     if (this.active.toi && interaction.interactionType === InteractionType.PREFERENCE_UPDATE) {
-      const result = await toiOtoi.validateTOI(interaction.data.toi);
+      const result = await toiOtoi.validateTOI(interaction.data?.['toi']);
       content.toiValidation = result;
       components.push('toi_otoi_framework');
     }
@@ -89,7 +89,10 @@ export class NeuroLiftFoundation {
 
   async updatePreferences(prefs: Record<string, unknown>): Promise<void> {
     if (this.active.toi) {
-      await toiOtoi.validateTOI(prefs);
+      const result = await toiOtoi.validateTOI(prefs);
+      if (!result.valid) {
+        throw new Error('TOI validation failed: ' + JSON.stringify(result.errors));
+      }
     }
   }
 
