@@ -30,6 +30,15 @@ function componentsForMode(mode: FoundationMode, overrides?: FoundationConfig['c
   };
 }
 
+/**
+ * Central orchestrator for the Solidarity Framework.
+ *
+ * Routes user interactions to the active Solidarity Framework components
+ * (TOI-OTOI, Sleepwalker Protocol, RRT Advocate) according to the
+ * configured {@link FoundationMode}.
+ *
+ * Obtain an instance via {@link createFoundation} rather than constructing directly.
+ */
 export class NeuroLiftFoundation {
   private readonly config: FoundationConfig;
   private readonly active: ReturnType<typeof componentsForMode>;
@@ -40,14 +49,25 @@ export class NeuroLiftFoundation {
     this.active = componentsForMode(config.mode, config.components);
   }
 
+  /** Marks the foundation as initialized. Called automatically by {@link createFoundation}. */
   async initialize(): Promise<void> {
     this.initialized = true;
   }
 
+  /** Alias for {@link initialize}; ensures the foundation is ready before use. */
   async start(): Promise<void> {
     if (!this.initialized) await this.initialize();
   }
 
+  /**
+   * Routes a {@link UserInteraction} to the appropriate active components and
+   * returns a {@link FoundationResponse} with aggregated content.
+   *
+   * - `EMOTIONAL_ASSESSMENT` → Sleepwalker Protocol (+ RRT handoff if crisis indicated)
+   * - `PREFERENCE_UPDATE` → TOI-OTOI schema validation
+   * - `CRISIS_ALERT` / `EMERGENCY_ESCALATION` → RRT Advocate stub
+   * - All other types → empty `componentsInvolved` array with `success: true`
+   */
   async processInteraction(interaction: UserInteraction): Promise<FoundationResponse> {
     const components: string[] = [];
     const content: Record<string, unknown> = {};
@@ -89,6 +109,10 @@ export class NeuroLiftFoundation {
     };
   }
 
+  /**
+   * Assesses the emotional state of a free-text input via the Sleepwalker Protocol.
+   * Returns `null` when Sleepwalker is not active for the current mode.
+   */
   async assessEmotionalState(
     input: string,
     _context?: Record<string, unknown>,
@@ -97,6 +121,12 @@ export class NeuroLiftFoundation {
     return sleepwalker.assessInteraction(input);
   }
 
+  /**
+   * Validates a preference object against the TOI schema and throws if invalid.
+   * No-op when TOI-OTOI is not active for the current mode.
+   *
+   * @throws {Error} If the preference object fails TOI schema validation.
+   */
   async updatePreferences(prefs: Record<string, unknown>): Promise<void> {
     if (this.active.toi) {
       const result = await toiOtoi.validateTOI(prefs);
@@ -106,6 +136,7 @@ export class NeuroLiftFoundation {
     }
   }
 
+  /** Returns the current mode, userId, initialization state, and per-component status. */
   getSystemStatus(): Record<string, unknown> {
     return {
       mode: this.config.mode,
@@ -119,6 +150,10 @@ export class NeuroLiftFoundation {
     };
   }
 
+  /**
+   * Returns a structured health report for all components.
+   * RRT Advocate always reports as `stub-python-only` regardless of mode.
+   */
   async healthCheck(): Promise<HealthCheckResult> {
     return {
       healthy: true,
@@ -135,6 +170,7 @@ export class NeuroLiftFoundation {
     };
   }
 
+  /** Resets Sleepwalker state and marks the foundation as uninitialized. */
   async shutdown(): Promise<void> {
     sleepwalker.reset();
     this.initialized = false;

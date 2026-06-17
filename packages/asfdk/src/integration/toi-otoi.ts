@@ -26,16 +26,23 @@ async function getValidator() {
   return validatorPromise;
 }
 
+/** Result of a TOI v1.0.0 schema validation. */
 export interface TOIValidationResult {
   valid: boolean;
   errors?: Array<{ message: string; instancePath: string }>;
   toi?: unknown;
 }
 
+/**
+ * Validates `candidate` against the TOI v1.0.0 JSON Schema.
+ * Lazy-loads and caches the AJV validator on first call.
+ *
+ * @throws {Error} If the schema file cannot be read or parsed.
+ */
 export async function validateTOI(candidate: unknown): Promise<TOIValidationResult> {
   const validate = await getValidator();
   if (!validate) throw new Error('TOI schema failed to initialize.');
-  const valid = validate(candidate) as boolean;
+  const valid = validate(candidate);
   if (valid) return { valid: true, toi: candidate };
   return {
     valid: false,
@@ -46,6 +53,7 @@ export async function validateTOI(candidate: unknown): Promise<TOIValidationResu
   };
 }
 
+/** Returns the active TOI-OTOI component status. */
 export function getStatus(): { active: boolean; mode: string } {
   return { active: true, mode: 'schema-validation' };
 }
