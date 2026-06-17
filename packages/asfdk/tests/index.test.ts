@@ -89,6 +89,19 @@ describe('NeuroLiftFoundation.processInteraction', () => {
     ).rejects.toThrow('TOI validation failed');
   });
 
+  it('CRISIS_ALERT routes to rrt_advocate in CRISIS_ONLY mode', async () => {
+    const f = await createFoundation('u1', FoundationMode.CRISIS_ONLY);
+    const response = await f.processInteraction({
+      timestamp: new Date(),
+      interactionType: InteractionType.CRISIS_ALERT,
+      data: { text: 'I need help now' },
+      userId: 'u1',
+    });
+    expect(response.success).toBe(true);
+    expect(response.componentsInvolved).toContain('rrt_advocate');
+    expect(response.content).toHaveProperty('rrt');
+  });
+
   it('unknown interaction type returns empty components array', async () => {
     const f = await createFoundation('u1', FoundationMode.UNIFIED);
     const response = await f.processInteraction({

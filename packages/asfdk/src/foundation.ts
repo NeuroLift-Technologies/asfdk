@@ -70,6 +70,16 @@ export class NeuroLiftFoundation {
       components.push('toi_otoi_framework');
     }
 
+    if (
+      this.active.rrt &&
+      (interaction.interactionType === InteractionType.CRISIS_ALERT ||
+        interaction.interactionType === InteractionType.EMERGENCY_ESCALATION)
+    ) {
+      const input = String(interaction.data?.['text'] ?? '');
+      content.rrt = rrt.assess(input);
+      components.push('rrt_advocate');
+    }
+
     return {
       timestamp: new Date(),
       responseType: interaction.interactionType,
