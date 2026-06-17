@@ -29,7 +29,12 @@ async function getValidator() {
 /** Result of a TOI v1.0.0 schema validation. */
 export interface TOIValidationResult {
   valid: boolean;
-  errors?: Array<{ message: string; instancePath: string }>;
+  errors?: Array<{
+    message: string;
+    instancePath: string;
+    keyword: string;
+    schemaPath: string;
+  }>;
   toi?: unknown;
 }
 
@@ -49,6 +54,8 @@ export async function validateTOI(candidate: unknown): Promise<TOIValidationResu
     errors: (validate.errors ?? []).map((e) => ({
       message: e.message ?? 'Unknown validation error',
       instancePath: e.instancePath,
+      keyword: e.keyword,
+      schemaPath: e.schemaPath,
     })),
   };
 }

@@ -6,8 +6,10 @@ import { NeuroLiftFoundation } from './foundation.js';
  *
  * Two call signatures are supported:
  * - `createFoundation(userId, mode?)` — shorthand; `mode` defaults to `UNIFIED`.
- * - `createFoundation(config)` — full config object; the `mode` argument is ignored.
+ * - `createFoundation(config)` — full config object.
  */
+export async function createFoundation(userId: string, mode?: FoundationMode): Promise<NeuroLiftFoundation>;
+export async function createFoundation(config: FoundationConfig): Promise<NeuroLiftFoundation>;
 export async function createFoundation(
   userIdOrConfig: string | FoundationConfig,
   mode: FoundationMode = FoundationMode.UNIFIED,

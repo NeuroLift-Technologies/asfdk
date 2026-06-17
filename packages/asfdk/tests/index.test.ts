@@ -114,3 +114,35 @@ describe('NeuroLiftFoundation.processInteraction', () => {
     expect(response.componentsInvolved).toHaveLength(0);
   });
 });
+
+describe('NeuroLiftFoundation.assessEmotionalState', () => {
+  it('returns an assessment when sleepwalker is active', async () => {
+    const f = await createFoundation('u1', FoundationMode.CONTINUITY_ONLY);
+    const result = await f.assessEmotionalState('I am feeling overwhelmed');
+    expect(result).not.toBeNull();
+  });
+
+  it('returns null when sleepwalker is not active', async () => {
+    const f = await createFoundation('u1', FoundationMode.FRAMEWORK_ONLY);
+    const result = await f.assessEmotionalState('I am feeling overwhelmed');
+    expect(result).toBeNull();
+  });
+});
+
+describe('NeuroLiftFoundation.updatePreferences', () => {
+  it('resolves without error for a valid TOI document', async () => {
+    const f = await createFoundation('u1', FoundationMode.FRAMEWORK_ONLY);
+    await expect(
+      f.updatePreferences({ $toi: '1.0.0', $tier: 'personal', identity: { author: 'test-user' } }),
+    ).resolves.toBeUndefined();
+  });
+});
+
+describe('NeuroLiftFoundation.shutdown', () => {
+  it('marks the foundation as uninitialized', async () => {
+    const f = await createFoundation('u1', FoundationMode.DEVELOPMENT);
+    expect((f.getSystemStatus() as { initialized: boolean }).initialized).toBe(true);
+    await f.shutdown();
+    expect((f.getSystemStatus() as { initialized: boolean }).initialized).toBe(false);
+  });
+});

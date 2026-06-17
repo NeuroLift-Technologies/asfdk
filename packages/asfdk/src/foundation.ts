@@ -73,20 +73,28 @@ export class NeuroLiftFoundation {
     const content: Record<string, unknown> = {};
 
     if (this.active.swp && interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT) {
-      const input = String(interaction.data?.['text'] ?? '');
-      const state = sleepwalker.detectEmotionalState(input);
-      content.emotionalState = state;
-      components.push('sleepwalker_protocol');
+      try {
+        const input = String(interaction.data?.['text'] ?? '');
+        const state = sleepwalker.detectEmotionalState(input);
+        content.emotionalState = state;
 
-      if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
-        content.rrt = rrt.assess(input);
-        components.push('rrt_advocate');
+        if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
+          content.rrt = rrt.assess(input);
+          components.push('rrt_advocate');
+        }
+      } catch (err) {
+        content.error = { component: 'sleepwalker_protocol', message: String(err) };
       }
+      components.push('sleepwalker_protocol');
     }
 
     if (this.active.toi && interaction.interactionType === InteractionType.PREFERENCE_UPDATE) {
-      const result = await toiOtoi.validateTOI(interaction.data?.['toi']);
-      content.toiValidation = result;
+      try {
+        const result = await toiOtoi.validateTOI(interaction.data?.['toi']);
+        content.toiValidation = result;
+      } catch (err) {
+        content.toiValidation = { valid: false, errors: [{ message: String(err), instancePath: '', keyword: 'error', schemaPath: '' }] };
+      }
       components.push('toi_otoi_framework');
     }
 
@@ -112,6 +120,9 @@ export class NeuroLiftFoundation {
   /**
    * Assesses the emotional state of a free-text input via the Sleepwalker Protocol.
    * Returns `null` when Sleepwalker is not active for the current mode.
+   *
+   * @param input - Free-text user input to assess.
+   * @param _context - Reserved for future context enrichment; currently unused.
    */
   async assessEmotionalState(
     input: string,
