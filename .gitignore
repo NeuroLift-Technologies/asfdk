@@ -9,3 +9,5 @@ __pycache__/
 build/
 dist/
 .eggs/
+node_modules/
+packages/asfdk/node_modules/

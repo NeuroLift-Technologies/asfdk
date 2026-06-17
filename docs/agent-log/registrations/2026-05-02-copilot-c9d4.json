@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§3 — Agent Registration",
     "sop_reference": "SOP-NLT-001 Step 5"
   },
@@ -13,7 +13,7 @@
     "entry_date": "2026-05-02",
     "entry_point": "Task prompt: 'Continue with #001' — resume THREAD-001 Governance File Bootstrap",
     "acknowledged_otoi": true,
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "working_repo": "NeuroLift-Technologies/solidarity-framework",
     "working_branch": "copilot/work-on-active-threads-again",
     "task_summary": "Create the sync-governance-public.yml workflow to bootstrap governance files from solidarity-framework into the NeuroLift-Technologies/.github public repo",

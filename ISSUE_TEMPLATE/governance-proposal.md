@@ -16,8 +16,8 @@ All approved governance changes should be made directly in NeuroLift-Technologie
 
 **Proposed by:** <!-- Your name or agent name -->
 **Date:** <!-- YYYY-MM-DD -->
-**Target Document(s):** <!-- e.g. AGENTS.md, SOPs/new-agent-onboarding.md, ORG-DEV-OTOI-1.0.0 -->
-**OTOI Version Affected:** <!-- ORG-DEV-OTOI-1.0.0 -->
+**Target Document(s):** <!-- e.g. AGENTS.md, SOPs/new-agent-onboarding.md, ORG-DEV-OTOI-1.0.2 -->
+**OTOI Version Affected:** <!-- ORG-DEV-OTOI-1.0.2 -->
 **Type of Change:**
 - [ ] New governance document
 - [ ] Amendment to existing document

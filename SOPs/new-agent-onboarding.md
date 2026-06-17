@@ -1,5 +1,5 @@
 # SOP-NLT-001 — New Agent Onboarding
-> Standard Operating Procedure · ORG-DEV-OTOI-1.0.0
+> Standard Operating Procedure · ORG-DEV-OTOI-1.0.2
 > Applies to: All AI coding agents working in any NeuroLift Technologies repository
 > Effective: 2025-04-04 · Owner: Joshua W. Dorsey, Sr.
 
@@ -173,7 +173,7 @@ You are now cleared to begin work. Every commit must follow this exact format:
 ```
 [CLAUDE] feat(auth): add OAuth2 login flow
 [CLAUDE] fix(api): resolve null pointer in user endpoint
-[CLAUDE] chore(governance): add repo governance stubs (ORG-DEV-OTOI-1.0.0)
+[CLAUDE] chore(governance): add repo governance stubs (ORG-DEV-OTOI-1.0.2)
 [CODEX] docs(readme): update setup instructions
 ```
 
@@ -242,7 +242,7 @@ Before beginning substantive work, confirm all 8 steps are complete:
 ```
 === NLT AGENT ORIENTATION ===
 
-OTOI Version:   ORG-DEV-OTOI-1.0.0
+OTOI Version:   ORG-DEV-OTOI-1.0.2
 SOP:            SOP-NLT-001
 
 COMMIT FORMAT:  [AGENT_NAME] type(scope): description
@@ -277,7 +277,7 @@ KEY DOCS:
 | **Owner** | Joshua W. Dorsey, Sr. |
 | **Review Cycle** | Quarterly |
 | **Next Review** | 2025-07-04 |
-| **OTOI Alignment** | ORG-DEV-OTOI-1.0.0 |
+| **OTOI Alignment** | ORG-DEV-OTOI-1.0.2 |
 
 ---
 

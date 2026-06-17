@@ -16,7 +16,7 @@ Closes #
 - [ ] 📖 Documentation update
 - [ ] 🔧 Refactor / chore (no functional change)
 
-## Governance Checklist (ORG-DEV-OTOI-1.0.0)
+## Governance Checklist (ORG-DEV-OTOI-1.0.2)
 
 - [ ] Governance validation script passed: `bash .nltotoi/scripts/validate-governance.sh`
 - [ ] Agent self-registration filed to `docs/agent-log/registrations/` before work began

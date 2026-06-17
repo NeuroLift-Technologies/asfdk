@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 GOVERNANCE_MODEL = "@cf/meta/llama-4-scout-17b-instruct-fp8"
-ASFDK_VERSION = "ORG-DEV-OTOI-1.0.0"
+ASFDK_VERSION = "ORG-DEV-OTOI-1.0.2"
 
 [ai]
 binding = "AI"

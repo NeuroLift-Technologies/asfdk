@@ -4,7 +4,7 @@ These instructions guide GitHub Copilot when working on any repository in the Ne
 
 ---
 
-## ⚠️ GOVERNANCE PROTOCOL — MANDATORY (ORG-DEV-OTOI-1.0.0)
+## ⚠️ GOVERNANCE PROTOCOL — MANDATORY (ORG-DEV-OTOI-1.0.2)
 
 **Before writing any code or making any file change**, you must complete the following session start protocol. This is non-negotiable for all agents (including GitHub Copilot) in every NLT repository.
 

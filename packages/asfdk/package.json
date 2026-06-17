@@ -1,0 +1,50 @@
+{
+  "name": "@neurolift-technologies/asfdk",
+  "version": "0.1.0",
+  "description": "Agent Solidarity Framework Development Kit — TypeScript/JavaScript package",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "schemas/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "solidarity-framework",
+    "haief",
+    "neurodivergent",
+    "toi",
+    "otoi",
+    "sleepwalker",
+    "rrt-advocate",
+    "agent-governance"
+  ],
+  "author": "NeuroLift Technologies <info@neuroliftsolutions.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NeuroLift-Technologies/asfdk.git",
+    "directory": "packages/asfdk"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "sleepwalker-protocol": "file:../../sleepwalker"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.0"
+  }
+}

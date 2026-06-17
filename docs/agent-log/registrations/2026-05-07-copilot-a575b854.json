@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§3 — Agent Registration",
     "sop_reference": "SOP-NLT-001 Step 5"
   },
@@ -13,7 +13,7 @@
     "entry_date": "2026-05-07",
     "entry_point": "Direct task prompt — fix PostCSS XSS vulnerability (Dependabot alert #10)",
     "acknowledged_otoi": true,
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "working_repo": "NeuroLift-Technologies/solidarity-framework",
     "working_branch": "copilot/fix-postcss-xss-vulnerability",
     "task_summary": "Fix PostCSS XSS vulnerability (Dependabot alert #10) by updating postcss to >=8.5.10 in hosting/package-lock.json",

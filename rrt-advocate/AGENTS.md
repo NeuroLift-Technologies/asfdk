@@ -1,6 +1,6 @@
 # AGENTS.md — Agent Coordination Protocol for `rrt-advocate`
 
-**Governance Standard**: ORG-DEV-OTOI-1.0.0
+**Governance Standard**: ORG-DEV-OTOI-1.0.2
 **Repository**: NeuroLift-Technologies/rrt-advocate
 
 ---

@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§3 — Agent Registration",
     "sop_reference": "SOP-NLT-001 Step 5",
     "note": "RETROACTIVE — registration filed after session work was completed. All other fields are accurate."
@@ -14,7 +14,7 @@
     "entry_date": "2026-04-28",
     "entry_point": "Branch copilot/update-deployment-instructions — task to update all governance files pulled from .github-private to reference solidarity-framework repository specifically",
     "acknowledged_otoi": true,
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "working_repo": "NeuroLift-Technologies/solidarity-framework",
     "working_branch": "copilot/update-deployment-instructions",
     "task_summary": "Update all governance files that were pulled in from .github-private to be repository-specific (solidarity-framework) rather than referencing the source template repo.",

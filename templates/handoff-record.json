@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§5 — Handoff Protocol",
     "sop_reference": "SOP-NLT-001 Step 8",
     "instructions": "Complete ALL fields before ending your session. Save to docs/agent-log/handoffs/{YYYY-MM-DD}-{session-id}.json. A partial handoff is a governance violation. No session ends without this record.",
@@ -12,7 +12,7 @@
     "agent_name": "REPLACE_WITH_AGENT_NAME",
     "platform": "REPLACE_WITH_PLATFORM",
     "date": "REPLACE_WITH_ISO_8601_DATE",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "repo": "REPLACE_WITH_REPO (e.g. NeuroLift-Technologies/.github)",
     "branch": "REPLACE_WITH_BRANCH",
     "active_thread_id": "REPLACE_WITH_THREAD_ID",

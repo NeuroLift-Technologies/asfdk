@@ -8,7 +8,7 @@
 
 ## Summary
 
-Copilot PR #5 ran a global find/replace `.github-private` → `asfdk` across every governance doc as part of an "ORG-DEV-OTOI-1.0.0 compliance baseline." Some changes correctly localized repo-scoped artifacts, but most destroyed legitimate org-level framing references (the canonical org contract, the org-wide agent gateway, the 3-tier architecture description, canonical SOP URLs, the public security URL, and the historical audit trail). This PR starts from current `main` and applies only the correct portions.
+Copilot PR #5 ran a global find/replace `.github-private` → `asfdk` across every governance doc as part of an "ORG-DEV-OTOI-1.0.2 compliance baseline." Some changes correctly localized repo-scoped artifacts, but most destroyed legitimate org-level framing references (the canonical org contract, the org-wide agent gateway, the 3-tier architecture description, canonical SOP URLs, the public security URL, and the historical audit trail). This PR starts from current `main` and applies only the correct portions.
 
 ## Kept (correct repo-local scoping)
 

@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§3 — Agent Registration",
     "sop_reference": "SOP-NLT-001 Step 5",
     "instructions": "Complete all fields. Save to docs/agent-log/registrations/{YYYY-MM-DD}-{agent-name}-{session-id}.json. This file must be committed as your first action in any session.",
@@ -15,7 +15,7 @@
     "entry_date": "REPLACE_WITH_ISO_8601_DATE (e.g. 2025-04-04)",
     "entry_point": "REPLACE_WITH_ENTRY_POINT (e.g. GitHub Issue #42, PR review request, direct task prompt)",
     "acknowledged_otoi": true,
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "working_repo": "REPLACE_WITH_REPO (e.g. NeuroLift-Technologies/.github)",
     "working_branch": "REPLACE_WITH_BRANCH (e.g. feature/my-feature)",
     "task_summary": "REPLACE_WITH_ONE_SENTENCE_TASK_DESCRIPTION",
