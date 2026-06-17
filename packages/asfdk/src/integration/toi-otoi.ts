@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import Ajv from 'ajv';
+import { Ajv } from 'ajv';
 
 const schemaPath = fileURLToPath(new URL(
   '../../schemas/toi-1.0.0.schema.json',
