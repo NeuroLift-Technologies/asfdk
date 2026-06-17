@@ -13,9 +13,7 @@
   },
   "files": [
     "dist/**/*",
-    "schemas/**/*",
-    "README.md",
-    "LICENSE"
+    "schemas/**/*"
   ],
   "scripts": {
     "build": "tsc",

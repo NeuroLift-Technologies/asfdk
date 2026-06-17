@@ -102,8 +102,8 @@ export class NeuroLiftFoundation {
       userId: this.config.userId,
       initialized: this.initialized,
       components: {
-        toi_otoi_framework: this.active.toi ? toiOtoi.getStatus() : { active: false },
-        sleepwalker_protocol: this.active.swp ? sleepwalker.getStatus() : { active: false },
+        toi_otoi_framework: this.active.toi ? toiOtoi.getStatus() : { active: false, mode: 'disabled' },
+        sleepwalker_protocol: this.active.swp ? sleepwalker.getStatus() : { active: false, mode: 'disabled' },
         rrt_advocate: rrt.getStatus(),
       },
     };

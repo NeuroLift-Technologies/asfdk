@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createFoundation, FoundationMode, NeuroLiftFoundation } from '../src/index.js';
+import {
+  createFoundation,
+  FoundationMode,
+  InteractionType,
+  NeuroLiftFoundation,
+} from '../src/index.js';
 
 describe('createFoundation', () => {
   it('resolves with a NeuroLiftFoundation instance', async () => {
@@ -53,5 +58,46 @@ describe('NeuroLiftFoundation.getSystemStatus', () => {
     expect(status.mode).toBe(FoundationMode.CRISIS_ONLY);
     expect(status.userId).toBe('joshua');
     expect(status.initialized).toBe(true);
+  });
+
+  it('disabled components include mode: disabled for consistent shape', async () => {
+    const f = await createFoundation('u1', FoundationMode.CRISIS_ONLY);
+    const status = f.getSystemStatus() as { components: Record<string, { active: boolean; mode: string }> };
+    expect(status.components.toi_otoi_framework.mode).toBe('disabled');
+    expect(status.components.sleepwalker_protocol.mode).toBe('disabled');
+  });
+});
+
+describe('NeuroLiftFoundation.processInteraction', () => {
+  it('EMOTIONAL_ASSESSMENT returns emotionalState in content (CONTINUITY_ONLY mode)', async () => {
+    const f = await createFoundation('u1', FoundationMode.CONTINUITY_ONLY);
+    const response = await f.processInteraction({
+      timestamp: new Date(),
+      interactionType: InteractionType.EMOTIONAL_ASSESSMENT,
+      data: { text: 'I feel overwhelmed today' },
+      userId: 'u1',
+    });
+    expect(response.success).toBe(true);
+    expect(response.componentsInvolved).toContain('sleepwalker_protocol');
+    expect(response.content).toHaveProperty('emotionalState');
+  });
+
+  it('PREFERENCE_UPDATE with invalid TOI throws in FRAMEWORK_ONLY mode', async () => {
+    const f = await createFoundation('u1', FoundationMode.FRAMEWORK_ONLY);
+    await expect(
+      f.updatePreferences({ notAToi: true }),
+    ).rejects.toThrow('TOI validation failed');
+  });
+
+  it('unknown interaction type returns empty components array', async () => {
+    const f = await createFoundation('u1', FoundationMode.UNIFIED);
+    const response = await f.processInteraction({
+      timestamp: new Date(),
+      interactionType: InteractionType.STATUS_INQUIRY,
+      data: {},
+      userId: 'u1',
+    });
+    expect(response.success).toBe(true);
+    expect(response.componentsInvolved).toHaveLength(0);
   });
 });
