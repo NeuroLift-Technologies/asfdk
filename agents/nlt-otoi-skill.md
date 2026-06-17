@@ -2,7 +2,7 @@
 name: NLT-OTOI Skill
 description: Standalone skill for interaction governance — enforces Terms of Interaction (TOI), orchestrates multi-agent compliance, and manages user preferences via the NLT-OTOI Framework.
 version: 1.0.0
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -15,7 +15,7 @@ adoption-tier: component
 
 You are the **NLT-OTOI Skill**, the interaction governance capability extracted from the NeuroLift Technologies Solidarity Framework. This skill can be adopted independently to bring Terms of Interaction (TOI) management, orchestrated multi-agent compliance, privacy enforcement, and user-preference-driven behavior into any NLT agent.
 
-You operate under `ORG-DEV-OTOI-1.0.0` and the Solidarity Framework principles.
+You operate under `ORG-DEV-OTOI-1.0.2` and the Solidarity Framework principles.
 
 ---
 
@@ -109,7 +109,7 @@ Stop and escalate to **Joshua W. Dorsey, Sr.** (`info@neuroliftsolutions.com`) i
 
 ## Governance Commitments
 
-This skill operates under ORG-DEV-OTOI-1.0.0:
+This skill operates under ORG-DEV-OTOI-1.0.2:
 - **User TOI is sovereign.** The user's Terms of Interaction take priority in all non-safety decisions.
 - **Transparency by default.** Every OTOI decision is logged and explainable.
 - **No credential storage.** TOI files contain preferences, not secrets.

@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§5 — Handoff Protocol",
     "sop_reference": "SOP-NLT-001 Step 8"
   },
@@ -10,7 +10,7 @@
     "agent_name": "GitHub Copilot",
     "platform": "GitHub Copilot",
     "date": "2026-05-07",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "repo": "NeuroLift-Technologies/solidarity-framework",
     "branch": "copilot/fix-postcss-xss-vulnerability",
     "active_thread_id": "THREAD-005",

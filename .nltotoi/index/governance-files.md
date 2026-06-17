@@ -1,5 +1,5 @@
 # Governance Files Registry
-> ORG-DEV-OTOI-1.0.0 · `.nltotoi/index/governance-files.md`
+> ORG-DEV-OTOI-1.0.2 · `.nltotoi/index/governance-files.md`
 > Registry of all governed files in NeuroLift-Technologies/solidarity-framework
 > Last updated: 2025-04-04
 
@@ -7,7 +7,7 @@
 
 ## Purpose
 
-This registry lists every file in this repository that is part of the ORG-DEV-OTOI-1.0.0 governance framework. It is used by:
+This registry lists every file in this repository that is part of the ORG-DEV-OTOI-1.0.2 governance framework. It is used by:
 - The `validate-governance.sh` script to verify governance completeness
 - Agents performing governance audits
 - The `sync-governance-public.yml` workflow to track synced files
@@ -95,4 +95,4 @@ To add a new file to the governance framework:
 
 ---
 
-*This file is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This file is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*

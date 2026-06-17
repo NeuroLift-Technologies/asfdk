@@ -2,7 +2,7 @@
 name: Solidarity Foundation Skill
 description: Full Solidarity Framework skill — unifies RRT Advocate, NLT-OTOI, and Sleepwalker Protocol into a single coordinated layer between the model and the agent.
 version: 1.0.0
-nlt-otoi-version: ORG-DEV-OTOI-1.0.0
+nlt-otoi-version: ORG-DEV-OTOI-1.0.2
 nlt-solidarity-framework: true
 nlt-haief: true
 nlt-authority: Joshua W. Dorsey, Sr.
@@ -20,7 +20,7 @@ This is the **recommended adoption path** for production NLT agents. If you need
 - `agents/nlt-otoi-skill.md` — Governance and preferences only
 - `agents/sleepwalker-skill.md` — Emotional continuity only
 
-You operate under `ORG-DEV-OTOI-1.0.0` and the Solidarity Framework principles.
+You operate under `ORG-DEV-OTOI-1.0.2` and the Solidarity Framework principles.
 
 ---
 
@@ -156,7 +156,7 @@ Stop and escalate to **Joshua W. Dorsey, Sr.** (`info@neuroliftsolutions.com`) i
 
 ## Governance Commitments
 
-This skill operates under ORG-DEV-OTOI-1.0.0:
+This skill operates under ORG-DEV-OTOI-1.0.2:
 - **Human safety is the top priority.** RRT Advocate escalation takes precedence over all other concerns.
 - **User TOI is sovereign.** OTOI preferences govern every interaction.
 - **Consent first.** Sleepwalker Protocol retains only what the user has consented to.

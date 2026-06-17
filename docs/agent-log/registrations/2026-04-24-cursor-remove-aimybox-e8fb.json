@@ -1,7 +1,7 @@
 {
   "_template_info": {
     "template_version": "1.0.0",
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "otoi_section": "§3 — Agent Registration",
     "sop_reference": "SOP-NLT-001 Step 5",
     "instructions": "Complete all fields. Save to docs/agent-log/registrations/{YYYY-MM-DD}-{agent-name}-{session-id}.json. This file must be committed as your first action in any session.",
@@ -15,7 +15,7 @@
     "entry_date": "2026-04-24",
     "entry_point": "User request: remove aimybox voice",
     "acknowledged_otoi": true,
-    "otoi_version": "ORG-DEV-OTOI-1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
     "working_repo": "NeuroLift-Technologies/solidarity-framework",
     "working_branch": "cursor/review-fix-refresh-and-build-repo-5f72",
     "task_summary": "Remove Aimybox/voice interface layer from unified core and documentation.",

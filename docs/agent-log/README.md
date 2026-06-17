@@ -1,6 +1,6 @@
 # Agent Log — NeuroLift-Technologies/solidarity-framework
 
-This directory contains the persistent audit trail of all AI agent sessions that have worked in this repository. It is a core component of the ORG-DEV-OTOI-1.0.0 governance framework.
+This directory contains the persistent audit trail of all AI agent sessions that have worked in this repository. It is a core component of the ORG-DEV-OTOI-1.0.2 governance framework.
 
 ---
 
@@ -88,4 +88,4 @@ Handoffs document:
 
 ---
 
-*This directory is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This directory is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*

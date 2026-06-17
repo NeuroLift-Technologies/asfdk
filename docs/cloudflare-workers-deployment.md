@@ -1,6 +1,6 @@
 # Cloudflare Workers Deployment — ASFDK Governance Worker
 
-**OTOI Version:** ORG-DEV-OTOI-1.0.0  
+**OTOI Version:** ORG-DEV-OTOI-1.0.2  
 **Governed by:** Solidarity Framework | HAIEF | https://elevaitionfoundation.org  
 **Authority:** Joshua W. Dorsey, Sr. (`info@neuroliftsolutions.com`)
 

@@ -1,5 +1,5 @@
 # SOP-NLT-003 — Incident Response
-> Standard Operating Procedure · ORG-DEV-OTOI-1.0.0
+> Standard Operating Procedure · ORG-DEV-OTOI-1.0.2
 > Applies to: All AI coding agents and human contributors at NeuroLift Technologies
 > Effective: 2025-04-04 · Owner: Joshua W. Dorsey, Sr.
 
@@ -177,7 +177,7 @@ If credentials, tokens, API keys, or secrets are committed to any repository:
 | **Owner** | Joshua W. Dorsey, Sr. |
 | **Review Cycle** | Quarterly |
 | **Next Review** | 2025-07-04 |
-| **OTOI Alignment** | ORG-DEV-OTOI-1.0.0 |
+| **OTOI Alignment** | ORG-DEV-OTOI-1.0.2 |
 
 ---
 

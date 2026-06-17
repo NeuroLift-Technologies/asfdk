@@ -10,7 +10,7 @@ Purpose: Unified agent development platform — ASFDK core layer (RRT Advocate, 
          workflows), and Cloudflare agent development resources (links, MCP configs, hosting)
 Owner: NeuroLift Technologies
 Organization: NeuroLift Technologies
-Governance: ORG-DEV-OTOI-1.0.0
+Governance: ORG-DEV-OTOI-1.0.2
 """
 
 import os
@@ -53,7 +53,7 @@ class RepositoryTopography:
     """
     
     # Governance
-    governance_contract: str = "ORG-DEV-OTOI-1.0.0"
+    governance_contract: str = "ORG-DEV-OTOI-1.0.2"
     authority: str = "Joshua W. Dorsey, Sr."
     escalation_email: str = "info@neuroliftsolutions.com"
     
@@ -146,7 +146,7 @@ class RepositoryTopography:
         "root": {
             "README.md": "Agent Solidarity Kit documentation and usage guide",
             "GEMINI_TOPOGRAPHY.py": "Repository structure and metadata (this file)",
-            "AGENTS.md": "Agent coordination protocol (ORG-DEV-OTOI-1.0.0)",
+            "AGENTS.md": "Agent coordination protocol (ORG-DEV-OTOI-1.0.2)",
             "CLAUDE.md": "AI assistant guide for OTOI compliance",
             "CONTRIBUTING.md": "Contribution guidelines",
             "CODE_OF_CONDUCT.md": "Community code of conduct",

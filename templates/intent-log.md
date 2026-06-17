@@ -1,5 +1,5 @@
 # Intent Log
-> ORG-DEV-OTOI-1.0.0 · Agent Intent Transparency Record
+> ORG-DEV-OTOI-1.0.2 · Agent Intent Transparency Record
 > Use this template to document your planned actions before executing them for significant or irreversible changes.
 
 ---
@@ -89,4 +89,4 @@ REPLACE_WITH_EXECUTION_NOTES
 
 ---
 
-*This intent log is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This intent log is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*

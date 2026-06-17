@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # validate-governance.sh
-# ORG-DEV-OTOI-1.0.0 · Governance Compliance Validation Script
+# ORG-DEV-OTOI-1.0.2 · Governance Compliance Validation Script
 # NeuroLift Technologies · .nltotoi/scripts/validate-governance.sh
 #
 # Usage: bash .nltotoi/scripts/validate-governance.sh [--strict] [--repo-root PATH]
@@ -18,7 +18,7 @@ set -euo pipefail
 # ─── Configuration ────────────────────────────────────────────────────────────
 
 SCRIPT_VERSION="1.0.0"
-OTOI_VERSION="ORG-DEV-OTOI-1.0.0"
+OTOI_VERSION="ORG-DEV-OTOI-1.0.2"
 
 # Colors (only if stdout is a terminal)
 if [ -t 1 ]; then

@@ -433,7 +433,7 @@ export default function Page() {
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section style={styles.hero}>
-        <div style={styles.heroBadge}>ORG-DEV-OTOI-1.0.0 · v2.0.0</div>
+        <div style={styles.heroBadge}>ORG-DEV-OTOI-1.0.2 · v2.0.0</div>
         <h1 style={styles.heroTitle}>
           NeuroLift Technologies&apos;
           <br />
@@ -685,7 +685,7 @@ pip install -r requirements.txt`}</code>
 
       {/* ── Governance ─────────────────────────────────────────────────────── */}
       <section id="governance" style={styles.section}>
-        <h2 style={styles.sectionTitle}>🔐 Governance (ORG-DEV-OTOI-1.0.0)</h2>
+        <h2 style={styles.sectionTitle}>🔐 Governance (ORG-DEV-OTOI-1.0.2)</h2>
         <p style={styles.sectionSubtitle}>
           All NLT agents are bound by the Orchestrated Terms of Interaction
           contract.
@@ -903,7 +903,7 @@ pip install -r requirements.txt`}</code>
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "1.5rem" }}>
           <p style={styles.footerCopy}>
             © {new Date().getFullYear()} NeuroLift Technologies · Apache 2.0
-            License · Framework v2.0.0 · Governance ORG-DEV-OTOI-1.0.0
+            License · Framework v2.0.0 · Governance ORG-DEV-OTOI-1.0.2
           </p>
           <p style={styles.footerTagline}>
             &ldquo;Tech That Gets You, Nothing About Us Without Us, ElevAIte

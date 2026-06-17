@@ -167,4 +167,4 @@ When adding a new thread, copy this template:
 
 ---
 
-*This file is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This file is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*

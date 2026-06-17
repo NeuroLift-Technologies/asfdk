@@ -1,5 +1,5 @@
 # Escalation Record
-> ORG-DEV-OTOI-1.0.0 · OTOI §4.3 — Escalation Protocol
+> ORG-DEV-OTOI-1.0.2 · OTOI §4.3 — Escalation Protocol
 > Use this template when filing an escalation. Also file a GitHub Issue using `ISSUE_TEMPLATE/agent-escalation.md`.
 
 ---
@@ -92,4 +92,4 @@ I have **stopped work** on the following until this is resolved:
 
 ---
 
-*This escalation record is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This escalation record is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*

@@ -1,6 +1,6 @@
 # Active Threads — `rrt-advocate`
 
-**Governance Standard**: ORG-DEV-OTOI-1.0.0
+**Governance Standard**: ORG-DEV-OTOI-1.0.2
 **Last Updated**: 2026-04-05
 
 > ⚠️ All agents MUST read this file before starting any work (OTOI Section 4.1 Step 4).

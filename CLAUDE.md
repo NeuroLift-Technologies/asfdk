@@ -98,7 +98,7 @@ For external contributions, use Conventional Commits (`feat:`, `fix:`, `docs:`, 
 
 ## 🔒 If You Are an NLT-Internal Agent Working on ASFDK
 
-You're a coding agent operating under `ORG-DEV-OTOI-1.0.0` working on ASFDK as part of NLT's internal development. Full governance machinery applies.
+You're a coding agent operating under `ORG-DEV-OTOI-1.0.2` working on ASFDK as part of NLT's internal development. Full governance machinery applies.
 
 ### NLT Session Start (SOP-NLT-001)
 
@@ -116,7 +116,7 @@ You're a coding agent operating under `ORG-DEV-OTOI-1.0.0` working on ASFDK as p
 | **Audience** | External AI developers adopting the Solidarity Framework |
 | **Upstream standard** | [`NeuroLift-Technologies/haief`](https://github.com/NeuroLift-Technologies/haief) |
 | **Canonical impl (internal)** | `NeuroLift-Technologies/solidarity-framework` |
-| **OTOI Version** | ORG-DEV-OTOI-1.0.0 |
+| **OTOI Version** | ORG-DEV-OTOI-1.0.2 |
 | **Governing SOP** | SOP-NLT-001 (`SOPs/new-agent-onboarding.md`) |
 
 ### Public-Surface vs Internal-Machinery — Critical for This Repo
@@ -155,4 +155,4 @@ Types: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`. Enforced by `.g
 
 ---
 
-*This file is part of the ORG-DEV-OTOI-1.0.0 governance framework for NeuroLift Technologies.*
+*This file is part of the ORG-DEV-OTOI-1.0.2 governance framework for NeuroLift Technologies.*
