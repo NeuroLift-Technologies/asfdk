@@ -4,6 +4,10 @@ import {
   FoundationMode,
   InteractionType,
   NeuroLiftFoundation,
+  toi,
+  otoi,
+  rrt,
+  sleepwalker,
 } from '../src/index.js';
 
 describe('createFoundation', () => {
@@ -43,11 +47,18 @@ describe('NeuroLiftFoundation.healthCheck', () => {
     expect(result.components.sleepwalker_protocol.active).toBe(true);
   });
 
-  it('rrt_advocate is always a stub', async () => {
+  it('rrt_advocate is active with crisis detection in UNIFIED mode', async () => {
     const f = await createFoundation('u1', FoundationMode.UNIFIED);
     const result = await f.healthCheck();
+    expect(result.components.rrt_advocate.active).toBe(true);
+    expect(result.components.rrt_advocate.mode).toBe('crisis-detection');
+  });
+
+  it('rrt_advocate is disabled in FRAMEWORK_ONLY mode', async () => {
+    const f = await createFoundation('u1', FoundationMode.FRAMEWORK_ONLY);
+    const result = await f.healthCheck();
     expect(result.components.rrt_advocate.active).toBe(false);
-    expect(result.components.rrt_advocate.mode).toBe('stub-python-only');
+    expect(result.components.rrt_advocate.mode).toBe('disabled');
   });
 });
 
@@ -144,5 +155,26 @@ describe('NeuroLiftFoundation.shutdown', () => {
     expect((f.getSystemStatus() as { initialized: boolean }).initialized).toBe(true);
     await f.shutdown();
     expect((f.getSystemStatus() as { initialized: boolean }).initialized).toBe(false);
+  });
+});
+
+describe('pillar umbrella re-exports', () => {
+  it('surfaces the four Solidarity Framework pillar packages', async () => {
+    // @neurolift-technologies/toi
+    const good = toi.safeParseToi({ $toi: '1.0.0', $tier: 'personal', identity: { author: 'u1' } });
+    expect(good.success).toBe(true);
+    expect(typeof toi.parseToi).toBe('function');
+
+    // @neurolift-technologies/otoi
+    expect(typeof otoi.honor).toBe('function');
+    expect(typeof otoi.propagate).toBe('function');
+
+    // @neurolift-technologies/rrt-advocate
+    expect(typeof rrt.CrisisEngine).toBe('function');
+    const assessment = await new rrt.CrisisEngine('u1').assess('just checking in, doing fine');
+    expect(assessment).toHaveProperty('crisisLevel');
+
+    // @neurolift-technologies/sleepwalker-protocol
+    expect(typeof sleepwalker.SleepwalkerProtocol).toBe('function');
   });
 });
