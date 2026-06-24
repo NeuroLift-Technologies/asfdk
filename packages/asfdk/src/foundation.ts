@@ -181,7 +181,7 @@ export class NeuroLiftFoundation {
   /** Resets Sleepwalker and RRT Advocate state and marks the foundation as uninitialized. */
   async shutdown(): Promise<void> {
     sleepwalker.reset();
-    rrt.reset();
+    rrt.reset(this.config.userId);
     this.initialized = false;
   }
 }
