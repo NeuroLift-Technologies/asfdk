@@ -83,10 +83,12 @@ export class NeuroLiftFoundation {
           // (not sleepwalker) and does not discard the emotional-state result.
           try {
             content.rrt = await rrt.assess(this.config.userId, input);
-            components.push('rrt_advocate');
           } catch (err) {
             content.error = { component: 'rrt_advocate', message: String(err) };
           }
+          // Listed whenever attempted (success or failure), consistent with the
+          // crisis/emergency route and with sleepwalker_protocol.
+          components.push('rrt_advocate');
         }
       } catch (err) {
         content.error = { component: 'sleepwalker_protocol', message: String(err) };
