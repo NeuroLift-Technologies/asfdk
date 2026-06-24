@@ -79,8 +79,14 @@ export class NeuroLiftFoundation {
         content.emotionalState = state;
 
         if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
-          content.rrt = await rrt.assess(this.config.userId, input);
-          components.push('rrt_advocate');
+          // Own error boundary so an RRT failure is attributed to rrt_advocate
+          // (not sleepwalker) and does not discard the emotional-state result.
+          try {
+            content.rrt = await rrt.assess(this.config.userId, input);
+            components.push('rrt_advocate');
+          } catch (err) {
+            content.error = { component: 'rrt_advocate', message: String(err) };
+          }
         }
       } catch (err) {
         content.error = { component: 'sleepwalker_protocol', message: String(err) };
@@ -99,7 +105,12 @@ export class NeuroLiftFoundation {
         interaction.interactionType === InteractionType.EMERGENCY_ESCALATION)
     ) {
       const input = String(interaction.data?.['text'] ?? '');
-      content.rrt = await rrt.assess(this.config.userId, input);
+      // Error boundary: an RRT failure must not abort a crisis/emergency route.
+      try {
+        content.rrt = await rrt.assess(this.config.userId, input);
+      } catch (err) {
+        content.error = { component: 'rrt_advocate', message: String(err) };
+      }
       components.push('rrt_advocate');
     }
 
