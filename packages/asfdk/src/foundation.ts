@@ -65,7 +65,7 @@ export class NeuroLiftFoundation {
    *
    * - `EMOTIONAL_ASSESSMENT` → Sleepwalker Protocol (+ RRT handoff if crisis indicated)
    * - `PREFERENCE_UPDATE` → TOI-OTOI schema validation
-   * - `CRISIS_ALERT` / `EMERGENCY_ESCALATION` → RRT Advocate stub
+   * - `CRISIS_ALERT` / `EMERGENCY_ESCALATION` → RRT Advocate crisis detection
    * - All other types → empty `componentsInvolved` array with `success: true`
    */
   async processInteraction(interaction: UserInteraction): Promise<FoundationResponse> {
@@ -79,7 +79,7 @@ export class NeuroLiftFoundation {
         content.emotionalState = state;
 
         if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
-          content.rrt = rrt.assess(input);
+          content.rrt = await rrt.assess(this.config.userId, input);
           components.push('rrt_advocate');
         }
       } catch (err) {
@@ -89,12 +89,7 @@ export class NeuroLiftFoundation {
     }
 
     if (this.active.toi && interaction.interactionType === InteractionType.PREFERENCE_UPDATE) {
-      try {
-        const result = await toiOtoi.validateTOI(interaction.data?.['toi']);
-        content.toiValidation = result;
-      } catch (err) {
-        content.toiValidation = { valid: false, errors: [{ message: String(err), instancePath: '', keyword: 'error', schemaPath: '' }] };
-      }
+      content.toiValidation = toiOtoi.validateTOI(interaction.data?.['toi']);
       components.push('toi_otoi_framework');
     }
 
@@ -104,7 +99,7 @@ export class NeuroLiftFoundation {
         interaction.interactionType === InteractionType.EMERGENCY_ESCALATION)
     ) {
       const input = String(interaction.data?.['text'] ?? '');
-      content.rrt = rrt.assess(input);
+      content.rrt = await rrt.assess(this.config.userId, input);
       components.push('rrt_advocate');
     }
 
@@ -140,7 +135,7 @@ export class NeuroLiftFoundation {
    */
   async updatePreferences(prefs: Record<string, unknown>): Promise<void> {
     if (this.active.toi) {
-      const result = await toiOtoi.validateTOI(prefs);
+      const result = toiOtoi.validateTOI(prefs);
       if (!result.valid) {
         throw new Error('TOI validation failed: ' + JSON.stringify(result.errors));
       }
@@ -156,14 +151,14 @@ export class NeuroLiftFoundation {
       components: {
         toi_otoi_framework: this.active.toi ? toiOtoi.getStatus() : { active: false, mode: 'disabled' },
         sleepwalker_protocol: this.active.swp ? sleepwalker.getStatus() : { active: false, mode: 'disabled' },
-        rrt_advocate: rrt.getStatus(),
+        rrt_advocate: this.active.rrt ? rrt.getStatus() : { active: false, mode: 'disabled' },
       },
     };
   }
 
   /**
-   * Returns a structured health report for all components.
-   * RRT Advocate always reports as `stub-python-only` regardless of mode.
+   * Returns a structured health report for all components, reflecting which are
+   * active for the current {@link FoundationMode}.
    */
   async healthCheck(): Promise<HealthCheckResult> {
     return {
@@ -171,19 +166,22 @@ export class NeuroLiftFoundation {
       timestamp: new Date(),
       components: {
         toi_otoi_framework: this.active.toi
-          ? { active: true, mode: 'schema-validation' }
+          ? { active: true, mode: 'toi-otoi-validation' }
           : { active: false, mode: 'disabled' },
         sleepwalker_protocol: this.active.swp
           ? { active: true, mode: 'emotional-continuity' }
           : { active: false, mode: 'disabled' },
-        rrt_advocate: { active: false, mode: 'stub-python-only' },
+        rrt_advocate: this.active.rrt
+          ? { active: true, mode: 'crisis-detection' }
+          : { active: false, mode: 'disabled' },
       },
     };
   }
 
-  /** Resets Sleepwalker state and marks the foundation as uninitialized. */
+  /** Resets Sleepwalker and RRT Advocate state and marks the foundation as uninitialized. */
   async shutdown(): Promise<void> {
     sleepwalker.reset();
+    rrt.reset();
     this.initialized = false;
   }
 }

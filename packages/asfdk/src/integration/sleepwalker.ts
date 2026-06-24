@@ -1,5 +1,5 @@
-import { SleepwalkerProtocol } from 'sleepwalker-protocol';
-import type { EmotionalState } from 'sleepwalker-protocol';
+import { SleepwalkerProtocol } from '@neurolift-technologies/sleepwalker-protocol';
+import type { EmotionalState } from '@neurolift-technologies/sleepwalker-protocol';
 
 export type { EmotionalState };
 

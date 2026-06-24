@@ -1,7 +1,7 @@
 {
   "name": "@neurolift-technologies/asfdk",
-  "version": "0.1.0",
-  "description": "Agent Solidarity Framework Development Kit — TypeScript/JavaScript package",
+  "version": "0.2.0",
+  "description": "Agent Solidarity Framework Development Kit — TypeScript umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol).",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,7 @@
   },
   "files": [
     "dist/**/*",
-    "schemas/**/*"
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",
@@ -39,8 +39,10 @@
     "directory": "packages/asfdk"
   },
   "dependencies": {
-    "ajv": "^8.20.0",
-    "sleepwalker-protocol": "file:../../sleepwalker"
+    "@neurolift-technologies/toi": "^1.0.1",
+    "@neurolift-technologies/otoi": "^1.1.0",
+    "@neurolift-technologies/rrt-advocate": "^0.1.1",
+    "@neurolift-technologies/sleepwalker-protocol": "^1.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
