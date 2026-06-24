@@ -474,7 +474,7 @@ export default function Page() {
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://img.shields.io/badge/governance-ORG--DEV--OTOI--1.0.0-green.svg"
+            src="https://img.shields.io/badge/governance-ORG--DEV--OTOI--1.0.2-green.svg"
             alt="OTOI Governance"
             style={styles.badge}
           />

@@ -127,7 +127,7 @@ solidarity-framework/
 
 **Agent:** [Name]  
 **Session:** [Branch/session ID]  
-**Governed by:** DEV-OTOI-1.0.0
+**Governed by:** ORG-DEV-OTOI-1.0.2
 
 ### Before Merging
 - [ ] Governance validation script passed (`.nltotoi/scripts/validate-governance.sh`)
