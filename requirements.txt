@@ -1,16 +1,8 @@
 # ASFDK Python runtime dependencies — the four Solidarity Framework pillars.
-#
-# ASFDK is the umbrella: it does NOT vendor the pillars, it depends on the
-# published pillar distributions. Until the pillar ports are published to PyPI,
-# these resolve from the sibling repos' Python-port branches so CI can install
-# and import them. Once the pillars publish, replace these with plain version
-# pins (see pyproject.toml [project].dependencies):
-#   nlt-toi>=1.0.0
-#   nlt-otoi>=1.1.0
-#   rrt-advocate>=0.1.1
-#   sleepwalker-protocol>=1.0.1
-nlt-toi @ git+https://github.com/NeuroLift-Technologies/nlt-toi.git@claude/toi-python-port
-nlt-otoi @ git+https://github.com/NeuroLift-Technologies/nlt-otoi.git@claude/nlt-otoi-python-port
-rrt-advocate @ git+https://github.com/NeuroLift-Technologies/rrt-advocate.git@claude/rrt-advocate-python-port
-sleepwalker-protocol @ git+https://github.com/NeuroLift-Technologies/sleepwalker.git@claude/sleepwalker-python-port
+# ASFDK is the umbrella: it depends on the published pillar distributions on
+# PyPI (it does not vendor them). Keep in sync with pyproject.toml [project].dependencies.
+nlt-toi>=1.0.0
+nlt-otoi>=1.1.0
+rrt-advocate>=0.1.1
+sleepwalker-protocol>=1.0.1
 pytest-asyncio>=0.21
