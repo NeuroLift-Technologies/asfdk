@@ -8,7 +8,7 @@ way the npm suite runs against the npm pillars.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -22,7 +22,7 @@ from asfdk import (
     sleepwalker,
     toi,
 )
-from asfdk.types import FoundationConfig, UserInteraction
+from asfdk.types import FoundationComponents, FoundationConfig, UserInteraction
 
 
 # --- createFoundation ---------------------------------------------------------
@@ -210,3 +210,84 @@ class TestPillarUmbrellaReExports:
 
         # sleepwalker_protocol
         assert callable(sleepwalker.SleepwalkerProtocol)
+
+
+# --- FoundationConfig component overrides --------------------------------------
+class TestComponentOverrides:
+    """The docs show ``components`` passed as a plain dict
+    (e.g. ``components={"rrt_advocate": False}``). Both a dict and a
+    :class:`FoundationComponents` must be accepted without crashing.
+    """
+
+    def test_dict_components_are_coerced_to_dataclass(self):
+        config = FoundationConfig(
+            user_id="u1",
+            mode=FoundationMode.UNIFIED,
+            components={"rrt_advocate": False},
+        )
+        assert isinstance(config.components, FoundationComponents)
+        assert config.components.rrt_advocate is False
+        # Unspecified keys remain ``None`` so the mode default applies.
+        assert config.components.toi_otoi_framework is None
+
+    def test_dataclass_components_pass_through_unchanged(self):
+        comps = FoundationComponents(rrt_advocate=False)
+        config = FoundationConfig(
+            user_id="u1", mode=FoundationMode.UNIFIED, components=comps
+        )
+        assert config.components is comps
+
+    def test_unknown_component_keys_are_ignored(self):
+        # Legacy/future keys (e.g. ``vibevoice``, ``supervisor_ai``) must not raise.
+        config = FoundationConfig(
+            user_id="u1",
+            mode=FoundationMode.UNIFIED,
+            components={"vibevoice": True, "rrt_advocate": False},
+        )
+        assert isinstance(config.components, FoundationComponents)
+        assert config.components.rrt_advocate is False
+        assert not hasattr(config.components, "vibevoice")
+
+    @pytest.mark.asyncio
+    async def test_dict_override_disables_component_at_runtime(self):
+        # ``rrt_advocate: False`` in UNIFIED must actually disable RRT.
+        f = await create_foundation(
+            FoundationConfig(
+                user_id="u1",
+                mode=FoundationMode.UNIFIED,
+                components={"rrt_advocate": False},
+            )
+        )
+        result = await f.health_check()
+        assert result.components["rrt_advocate"].active is False
+        # Other UNIFIED components stay on.
+        assert result.components["toi_otoi_framework"].active is True
+        assert result.components["sleepwalker_protocol"].active is True
+
+    def test_invalid_components_type_raises_typeerror(self):
+        with pytest.raises(TypeError):
+            FoundationConfig(
+                user_id="u1", mode=FoundationMode.UNIFIED, components=42  # type: ignore[arg-type]
+            )
+
+
+# --- timezone-aware timestamps ------------------------------------------------
+class TestTimezoneAwareTimestamps:
+    @pytest.mark.asyncio
+    async def test_process_interaction_timestamp_is_utc_aware(self):
+        f = await create_foundation("u1", FoundationMode.UNIFIED)
+        response = await f.process_interaction(
+            UserInteraction(
+                timestamp=datetime.now(timezone.utc),
+                interaction_type=InteractionType.STATUS_INQUIRY,
+                data={},
+                user_id="u1",
+            )
+        )
+        assert response.timestamp.tzinfo is not None
+
+    @pytest.mark.asyncio
+    async def test_health_check_timestamp_is_utc_aware(self):
+        f = await create_foundation("u1", FoundationMode.UNIFIED)
+        result = await f.health_check()
+        assert result.timestamp.tzinfo is not None

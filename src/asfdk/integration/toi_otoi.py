@@ -52,9 +52,16 @@ def validate_toi(candidate: Any) -> TOIValidationResult:
                 for issue in error.issues
             ],
         )
+    # ``error`` is not guaranteed to be a ``ToiValidationError`` (a future
+    # nlt_toi could surface a different exception). Read ``code`` defensively so
+    # the adapter stays non-throwing, mirroring ``validate_charter`` below.
     return TOIValidationResult(
         valid=False,
-        errors=[ValidationIssue(message=str(error), path="", code=error.code)],
+        errors=[
+            ValidationIssue(
+                message=str(error), path="", code=getattr(error, "code", "error")
+            )
+        ],
     )
 
 

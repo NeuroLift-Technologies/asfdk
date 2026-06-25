@@ -63,7 +63,7 @@ ASFDK installs the missing layer:
 Use this track when you are building a new agent.
 
 1. Read `docs/dev/quickstart.md`.
-2. Select a base profile (`core_only` or `voice_enabled`).
+2. Install the kit (`pip install asfdk`) and pick a `FoundationMode`.
 3. Implement your agent on top of ASFDK interfaces.
 4. Run local validation against the Solidarity Layer test suite.
 5. Submit to `nlt-redteam` review before production deployment.
@@ -77,46 +77,41 @@ Use this track when you already have a claw (Agent Wrapper) implementation and w
 1. Identify your existing wrapper boundary (model call ↔ agent orchestration).
 2. Insert ASFDK at that boundary as a middleware layer.
 3. Map wrapper inputs/outputs to ASFDK interfaces.
-4. Start with the `core_only` profile and `FoundationMode.CRISIS_ONLY` (lowest-impact starting point).
+4. Start with `FoundationMode.CRISIS_ONLY` (lowest-impact starting point).
 5. Roll out incrementally — see "Rollout Phases" below.
 6. Validate against `nlt-redteam` before promoting to production.
 
 ---
 
-## Deployment Profiles
+## Install
 
-Profiles control which dependency set you install. Combine with `FoundationMode` (below) to select which components run at runtime.
+This Python port is the umbrella over the four Solidarity Framework pillars
+(TOI, OTOI, RRT Advocate, Sleepwalker Protocol). A single install pulls in every
+pillar transitively:
 
-**`core_only`** *(recommended default)*
+```bash
+pip install asfdk
+```
 
-- No voice dependencies
-- Full Solidarity Layer functionality (RRT Advocate, NLT-OTOI, Sleepwalker)
-- Install: `pip install asfdk`
-
-**`voice_enabled`** *(optional)*
-
-- Adds voice interface path on top of the core layer (built on the NLT VibeVoice fork of `microsoft/VibeVoice`)
-- Pulls in `torch`, `transformers`, `accelerate`, `vibevoice` — large download
-- Install: `pip install asfdk[voice]`
-- Enable after core integration is stable
-
-Voice is **opt-in** by design:
-
-- The `vibevoice` component defaults to `False` in `FoundationConfig.components` — you have to explicitly enable it.
-- Core install (`pip install asfdk`) does not pull torch/transformers/vibevoice.
-- Enabling `vibevoice=True` without installing the `[voice]` extras raises a clear `RuntimeError` at startup, not a cryptic ImportError.
-
-If you never want voice, you do not need to think about it — `pip install asfdk` and ignore.
+> **Note:** This Python port ships the core Solidarity Layer only (RRT Advocate,
+> NLT-OTOI, Sleepwalker Protocol). The voice path (VibeVoice) is **not** part of
+> this package — there is no `asfdk[voice]` extra. If you need voice, integrate
+> the NLT VibeVoice fork (`microsoft/VibeVoice`) separately.
 
 ---
 
 ## Foundation Modes
 
-`FoundationMode` (in `unified_core.neurolift_foundation`) controls which Solidarity Layer components are active at runtime. Pick one when constructing the foundation:
+`FoundationMode` (imported from `asfdk`) controls which Solidarity Layer
+components are active at runtime. Pick one when constructing the foundation:
+
+```python
+from asfdk import create_foundation, FoundationMode
+```
 
 | Mode | Components active | Use for |
 |---|---|---|
-| `UNIFIED` | All (RRT + OTOI + Sleepwalker + optional VibeVoice) | Production deployments wanting the full layer |
+| `UNIFIED` | All (RRT + OTOI + Sleepwalker) | Production deployments wanting the full layer |
 | `CRISIS_ONLY` | RRT Advocate only | Adding crisis detection to an existing agent without the full layer |
 | `CONTINUITY_ONLY` | Sleepwalker Protocol only | Adding session continuity to an existing agent |
 | `FRAMEWORK_ONLY` | NLT-OTOI only | Adding interaction governance without crisis or continuity layers |

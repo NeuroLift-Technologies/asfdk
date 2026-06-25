@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from .integration import rrt, sleepwalker, toi_otoi
@@ -99,11 +99,8 @@ class NeuroLiftFoundation:
             and interaction.interaction_type == InteractionType.EMOTIONAL_ASSESSMENT
         ):
             try:
-                user_input = str(
-                    (interaction.data or {}).get("text", "")
-                    if (interaction.data or {}).get("text") is not None
-                    else ""
-                )
+                text_val = (interaction.data or {}).get("text")
+                user_input = str(text_val) if text_val is not None else ""
                 state = sleepwalker.detect_emotional_state(user_input)
                 content["emotionalState"] = state
 
@@ -143,11 +140,8 @@ class NeuroLiftFoundation:
             InteractionType.CRISIS_ALERT,
             InteractionType.EMERGENCY_ESCALATION,
         ):
-            user_input = str(
-                (interaction.data or {}).get("text", "")
-                if (interaction.data or {}).get("text") is not None
-                else ""
-            )
+            text_val = (interaction.data or {}).get("text")
+            user_input = str(text_val) if text_val is not None else ""
             # Error boundary: an RRT failure must not abort a crisis/emergency route.
             try:
                 content["rrt"] = await rrt.assess(self._config.user_id, user_input)
@@ -156,7 +150,7 @@ class NeuroLiftFoundation:
             components.append("rrt_advocate")
 
         return FoundationResponse(
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             response_type=interaction.interaction_type.value
             if isinstance(interaction.interaction_type, InteractionType)
             else str(interaction.interaction_type),
@@ -225,7 +219,7 @@ class NeuroLiftFoundation:
         """
         return HealthCheckResult(
             healthy=True,
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             components={
                 "toi_otoi_framework": ComponentStatus(active=True, mode="toi-otoi-validation")
                 if self._active.toi

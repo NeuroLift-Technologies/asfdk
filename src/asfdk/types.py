@@ -9,7 +9,8 @@ implementation is accepted by the other.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import fields as dataclass_fields
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -48,6 +49,27 @@ class FoundationComponents:
     sleepwalker_protocol: Optional[bool] = None
     rrt_advocate: Optional[bool] = None
 
+    @classmethod
+    def coerce(
+        cls, value: "FoundationComponents | Dict[str, Any] | None"
+    ) -> "Optional[FoundationComponents]":
+        """Normalize ``components`` into a :class:`FoundationComponents`.
+
+        The docs show callers passing a plain ``dict`` (e.g.
+        ``components={"rrt_advocate": False}``); both forms are accepted. Only
+        the recognized component keys are read — any extra keys (legacy or
+        future component names) are ignored rather than raising.
+        """
+        if value is None or isinstance(value, cls):
+            return value
+        if isinstance(value, dict):
+            known = {f.name for f in dataclass_fields(cls)}
+            return cls(**{k: v for k, v in value.items() if k in known})
+        raise TypeError(
+            "components must be a FoundationComponents, a dict, or None; "
+            f"got {type(value).__name__}"
+        )
+
 
 @dataclass
 class FoundationConfig:
@@ -56,6 +78,11 @@ class FoundationConfig:
     user_id: str
     mode: FoundationMode
     components: Optional[FoundationComponents] = None
+
+    def __post_init__(self) -> None:
+        # Accept a plain dict for ``components`` (per the documented usage) and
+        # coerce it to a FoundationComponents so downstream attribute access is safe.
+        self.components = FoundationComponents.coerce(self.components)
 
 
 @dataclass
@@ -98,7 +125,7 @@ class HealthCheckResult:
 
     healthy: bool
     components: Dict[str, ComponentStatus]
-    timestamp: datetime = field(default_factory=datetime.now)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 __all__ = [

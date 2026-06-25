@@ -26,17 +26,15 @@ ASFDK-Dev gives you a development path where your agent runtime is mediated by t
 
 - Repository cloned locally (`git clone https://github.com/NeuroLift-Technologies/asfdk.git`) — or `pip install asfdk` once published
 - Python 3.10+ and Node.js 18+ installed
-- Dependencies installed via `pip install -r requirements.txt` (or `pip install asfdk[voice]` for the voice extras)
+- Dependencies installed via `pip install asfdk` (pulls in the four pillars transitively)
 - Basic understanding of your agent runtime entrypoint
-- A target profile decision:
-  - `core_only` (recommended)
-  - `voice_enabled` (optional)
+- A target `FoundationMode` decision (e.g. `CRISIS_ONLY` to start small, `UNIFIED` for the full layer)
 
 ---
 
 ## Quick Start Steps
 
-1. Choose a profile (`core_only` first, then optional `voice_enabled`).
+1. Choose a `FoundationMode` (`CRISIS_ONLY` first, then widen to `UNIFIED`).
 2. Define your minimum agent contract:
    - Input envelope
    - TOI preference payload

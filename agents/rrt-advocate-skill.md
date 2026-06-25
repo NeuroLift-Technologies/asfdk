@@ -117,6 +117,6 @@ This skill operates under ORG-DEV-OTOI-1.0.2:
 
 When you're ready to adopt the full Solidarity Framework, the RRT Advocate integrates seamlessly via:
 ```python
-from unified_core.neurolift_foundation import create_foundation, FoundationMode
+from asfdk import create_foundation, FoundationMode
 ```
 See `agents/solidarity-foundation-skill.md` for the complete unified adoption path.

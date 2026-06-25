@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Agent Solidarity Framework Development Kit — Python umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol). Faithful port of @neurolift-technologies/asfdk."
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "NeuroLift Technologies", email = "info@neuroliftsolutions.com" }]
 keywords = [
@@ -25,7 +25,7 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -58,14 +58,14 @@ Issues = "https://github.com/NeuroLift-Technologies/asfdk/issues"
 
 # --- Build backend (Hatchling) -------------------------------------------------
 # src/ layout: the importable package is src/asfdk, published as ``asfdk``.
-# The repo VENDORS copies of the pillar repos (nlt-otoi/, rrt-advocate/,
-# sleepwalker/) and a divergent unified_core/ — none of those are bundled. The
-# package depends on the published pillars; it does not ship them.
+# The repo also holds checked-in copies of the pillar repos (nlt-otoi/,
+# rrt-advocate/, sleepwalker/) — none of those are bundled. The package depends
+# on the published pillars; it does not ship them.
 [tool.hatch.build.targets.wheel]
 packages = ["src/asfdk"]
 
 # Lean sdist: only what the package and its conformance suite need. This also
-# keeps every vendored pillar tree and unified_core/ out of the distribution.
+# keeps every checked-in pillar tree out of the distribution.
 [tool.hatch.build.targets.sdist]
 only-include = ["src", "tests", "README.md", "LICENSE"]
 
