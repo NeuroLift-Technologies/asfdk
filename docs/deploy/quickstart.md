@@ -26,13 +26,11 @@ ASFDK-Deploy inserts governance/protection middleware at your existing boundary:
 
 - ASFDK repository cloned locally (`git clone https://github.com/NeuroLift-Technologies/asfdk.git`) — or `pip install asfdk` once published
 - Python 3.10+ and Node.js 18+ installed
-- Dependencies installed via `pip install -r requirements.txt` (or `pip install asfdk[voice]` for the voice extras)
+- Dependencies installed via `pip install asfdk` (pulls in the four pillars transitively)
 - Existing wrapper runtime with identifiable model↔agent boundary
 - Request/response schema visibility
 - Rollout strategy (staging/canary/production)
-- Profile decision:
-  - `core_only` (recommended initial rollout)
-  - `voice_enabled` (optional)
+- A `FoundationMode` decision (`CRISIS_ONLY` for the lowest-impact initial rollout)
 
 ---
 
@@ -45,7 +43,7 @@ ASFDK-Deploy inserts governance/protection middleware at your existing boundary:
    - normalized request context
    - governed directives
    - trace metadata
-3. Start with `core_only` profile.
+3. Start with `FoundationMode.CRISIS_ONLY`.
 4. Roll out in phases:
    - Passive
    - Advisory

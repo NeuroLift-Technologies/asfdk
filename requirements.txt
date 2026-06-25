@@ -1,6 +1,8 @@
-# Core ASFDK runtime dependencies.
-# For voice support, install with: pip install asfdk[voice]
-# (or install the voice deps listed in pyproject.toml [project.optional-dependencies].voice manually)
-pyyaml>=6.0
-jsonschema>=4.0
-pydantic>=2.0
+# ASFDK Python runtime dependencies — the four Solidarity Framework pillars.
+# ASFDK is the umbrella: it depends on the published pillar distributions on
+# PyPI (it does not vendor them). Keep in sync with pyproject.toml [project].dependencies.
+nlt-toi>=1.0.0
+nlt-otoi>=1.1.0
+rrt-advocate>=0.1.1
+sleepwalker-protocol>=1.0.1
+pytest-asyncio>=0.21

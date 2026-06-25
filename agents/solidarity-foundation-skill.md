@@ -101,7 +101,7 @@ response = await foundation.process_interaction(interaction)
 ### Minimal Quick Start (UNIFIED mode)
 
 ```python
-from unified_core.neurolift_foundation import create_foundation, FoundationMode
+from asfdk import create_foundation, FoundationMode
 
 foundation = await create_foundation(
     user_id="user-123",
