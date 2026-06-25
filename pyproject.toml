@@ -1,78 +1,76 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
 
 [project]
 name = "asfdk"
-version = "0.1.0"
-description = "Agent Solidarity Framework Development/Deployment Kit — middleware between AI model and agent runtime, implementing the HAIEF Solidarity Framework standard."
+version = "0.2.0"
+description = "Agent Solidarity Framework Development Kit — Python umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol). Faithful port of @neurolift-technologies/asfdk."
 readme = "README.md"
-requires-python = ">=3.10"
-license = { file = "LICENSE" }
-authors = [
-    { name = "NeuroLift Technologies" }
-]
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "NeuroLift Technologies", email = "info@neuroliftsolutions.com" }]
 keywords = [
-    "ai", "agent", "governance", "solidarity-framework", "haief",
-    "rrt-advocate", "sleepwalker", "toi", "otoi", "crisis-intervention"
+    "ai",
+    "solidarity-framework",
+    "haief",
+    "neurodivergent",
+    "toi",
+    "otoi",
+    "sleepwalker",
+    "rrt-advocate",
+    "agent-governance",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
-    "pyyaml>=6.0",
-    "jsonschema>=4.0",
-    "pydantic>=2.0",
+    "nlt-toi>=1.0.0",
+    "nlt-otoi>=1.1.0",
+    "rrt-advocate>=0.1.1",
+    "sleepwalker-protocol>=1.0.1",
 ]
 
 [project.optional-dependencies]
-voice = [
-    "torch>=2.0",
-    "transformers>=4.51.3,<5.0.0",
-    "accelerate>=0.26",
-    "vibevoice @ git+https://github.com/NeuroLift-Technologies/VibeVoice.git",
-]
-# Optional sentiment enhancement for the crisis detector's Layer 2. Without it,
-# the detector falls back to a built-in heuristic scorer, so this is not a core
-# dependency.
-sentiment = [
-    "vaderSentiment>=3.3.2",
-]
 dev = [
-    "pytest",
-    "pytest-asyncio",
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
 ]
 
 [project.urls]
 Homepage = "https://github.com/NeuroLift-Technologies/asfdk"
 Documentation = "https://github.com/NeuroLift-Technologies/asfdk#readme"
 Repository = "https://github.com/NeuroLift-Technologies/asfdk"
-"HAIEF Standard" = "https://github.com/NeuroLift-Technologies/haief"
 Issues = "https://github.com/NeuroLift-Technologies/asfdk/issues"
+"HAIEF Standard" = "https://github.com/NeuroLift-Technologies/haief"
 
-# Only unified_core ships as an installable Python package today.
-# The component source trees (rrt-advocate/, nlt-otoi/, sleepwalker/) use
-# hyphenated directory names that aren't valid Python package identifiers;
-# they are wrapped by adapters under unified_core/integration/ and currently
-# require PYTHONPATH manipulation to import directly. See docs/dev/quickstart.md
-# for the integration entry points.
-[tool.setuptools.packages.find]
-include = ["unified_core*"]
-exclude = [
-    "tests*",
-    "docs*",
-    "hosting*",
-    "archive*",
-    "scripts*",
-    "rrt-advocate*",
-    "nlt-otoi*",
-    "sleepwalker*",
-]
+# --- Build backend (Hatchling) -------------------------------------------------
+# src/ layout: the importable package is src/asfdk, published as ``asfdk``.
+# The repo VENDORS copies of the pillar repos (nlt-otoi/, rrt-advocate/,
+# sleepwalker/) and a divergent unified_core/ — none of those are bundled. The
+# package depends on the published pillars; it does not ship them.
+[tool.hatch.build.targets.wheel]
+packages = ["src/asfdk"]
+
+# Lean sdist: only what the package and its conformance suite need. This also
+# keeps every vendored pillar tree and unified_core/ out of the distribution.
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "tests", "README.md", "LICENSE"]
+
+# --- Test config ---------------------------------------------------------------
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
