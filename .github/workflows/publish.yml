@@ -1,0 +1,37 @@
+name: Publish asfdk to PyPI
+
+# Publishes the asfdk distribution to PyPI using PyPI Trusted Publishing
+# (GitHub OIDC) — no API token/secret is stored. The upload runs from GitHub's
+# runners, which also sidesteps per-account/IP upload rate limits.
+#
+# Setup required once on PyPI (Account → Publishing → Add a pending publisher,
+# since the project does not exist yet):
+#   PyPI Project Name : asfdk
+#   Owner             : NeuroLift-Technologies
+#   Repository name   : asfdk
+#   Workflow name     : publish.yml
+#   Environment name  : pypi
+# The Environment name MUST match the `environment:` below (or omit it in both).
+
+on:
+  workflow_dispatch: {}        # run manually from the Actions tab
+  release:
+    types: [published]         # or automatically when a GitHub Release is published
+
+jobs:
+  pypi-publish:
+    name: Build and publish (Trusted Publishing)
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write          # REQUIRED: mints the OIDC token PyPI trusts
+      contents: read           # for actions/checkout (a permissions block defaults the rest to none)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build sdist + wheel
+        run: pipx run build
+      - name: Publish to PyPI via OIDC (no token)
+        uses: pypa/gh-action-pypi-publish@release/v1
