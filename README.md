@@ -1,4 +1,4 @@
-# ASFDK — Agent Solidarity Framework Development/Deployment Kit
+# ASFDK — Agent Solidarity Framework Development Kit
 
 ```yaml
 ai_assistant_directive:
@@ -8,24 +8,13 @@ ai_assistant_directive:
   required_file: "NLT-DEV-OTOI.md"
 ```
 
-**NeuroLift Technologies' reference implementation of the [HAIEF Solidarity Framework](https://github.com/HAIEF/solidarity-framework).**
+**NeuroLift Technologies' reference implementation of the [HAIEF Solidarity Framework](https://github.com/NeuroLift-Technologies/solidarity-framework).**
 
-**One kit, two paths: agent creation and wrapper integration.**
+**One kit, two runtimes: TypeScript (npm) and Python (PyPI).**
 
-ASFDK is governance and protection middleware that sits between the model and the agent runtime. It implements the Solidarity Framework standard maintained by HAIEF and packages it with development scaffolding, deployment middleware, runtime profiles, and claw integration patterns.
+ASFDK is governance and protection middleware that sits between the model and the agent runtime. It implements the Solidarity Framework standard maintained by HAIEF and packages it with a high-level orchestrator (`NeuroLiftFoundation`) and re-exports of all four pillar packages.
 
-ASFDK gives you two paths:
-
-- **ASFDK-Dev** → Build new agents with Solidarity Framework patterns from day one.
-- **ASFDK-Deploy** → Integrate Solidarity controls into existing claws (Agent Wrappers) as a model ↔ agent layer.
-
----
-
-## Why ASFDK
-
-Agent ecosystems are scaling faster than the control surfaces around them. Wrappers and claws ship without explicit user-preference enforcement, without multi-agent coordination contracts, and without continuity guarantees across model versions. The cost of skipping that layer doesn't show up at demo time — it shows up at scale, in production, and at the boundaries between agents.
-
-ASFDK installs the missing layer:
+ASFDK gives you a single install that surfaces every layer of the model ↔ agent boundary:
 
 ```text
 [Model Provider]
@@ -33,7 +22,7 @@ ASFDK installs the missing layer:
 [ASFDK Solidarity Layer]
    • User-preference governance (TOI)
    • Multi-agent coordination (OTOI)
-   • Crisis detection & response (RRT AIdvocAIte)
+   • Crisis detection & response (RRT Advocate)
    • Continuity across drift (Sleepwalker Protocol)
       ↓
 [Agent Runtime or Claws (Agent Wrappers)]
@@ -41,81 +30,110 @@ ASFDK installs the missing layer:
 [Tools, APIs, Actions]
 ```
 
-**Pick your path:**
-- Want only the open governance standard? → Use the [HAIEF Solidarity Framework](https://github.com/HAIEF/solidarity-framework) directly.
-- Want a reference implementation with development and deployment tooling on top? → You're in the right place.
+**Pick your runtime:**
+- **TypeScript/Node.js** → `npm install @neurolift-technologies/asfdk` (primary, published from `packages/asfdk/`)
+- **Python** → `pip install asfdk` (faithful port, published from `src/asfdk/`)
 
----
-
-## Choose Your Path
-
-| Path | Best for | You get |
-|---|---|---|
-| **ASFDK-Dev** | Developers creating new agents | Solidarity-native development patterns, governance templates, integration-ready architecture |
-| **ASFDK-Deploy** | Teams with existing **claws (Agent Wrappers)** | Drop-in integration layer, adapter patterns, deployment profiles, compatibility guidance |
-
-> **Note on “claws” (Agent Wrappers):** In ASFDK documentation, *claws* refers to wrapper implementations that orchestrate model calls, tools, and runtime behavior. ASFDK-Deploy is the integration track for existing claws.
-
----
-
-## ASFDK-Dev (Development Kit)
-
-Use this track when you are building a new agent.
-
-1. Read `docs/dev/quickstart.md`.
-2. Install the kit (`pip install asfdk`) and pick a `FoundationMode`.
-3. Implement your agent on top of ASFDK interfaces.
-4. Run local validation against the Solidarity Layer test suite.
-5. Submit to `nlt-redteam` review before production deployment.
-
----
-
-## ASFDK-Deploy (Deployment/Integration Kit)
-
-Use this track when you already have a claw (Agent Wrapper) implementation and want ASFDK as the model ↔ agent middleware layer.
-
-1. Identify your existing wrapper boundary (model call ↔ agent orchestration).
-2. Insert ASFDK at that boundary as a middleware layer.
-3. Map wrapper inputs/outputs to ASFDK interfaces.
-4. Start with `FoundationMode.CRISIS_ONLY` (lowest-impact starting point).
-5. Roll out incrementally — see "Rollout Phases" below.
-6. Validate against `nlt-redteam` before promoting to production.
+> **Note on “claws” (Agent Wrappers):** In ASFDK documentation, *claws* refers to wrapper implementations that orchestrate model calls, tools, and runtime behavior.
 
 ---
 
 ## Install
 
-This Python port is the umbrella over the four Solidarity Framework pillars
-(TOI, OTOI, RRT Advocate, Sleepwalker Protocol). A single install pulls in every
-pillar transitively:
+### TypeScript (npm) — Primary
+
+```bash
+npm install @neurolift-technologies/asfdk
+```
+
+The four pillar packages are declared as dependencies, so they are installed transitively:
+
+| Pillar | Package | Role |
+|---|---|---|
+| **TOI** | [`@neurolift-technologies/toi`](https://www.npmjs.com/package/@neurolift-technologies/toi) | Terms of Interaction — user-preference governance |
+| **OTOI** | [`@neurolift-technologies/otoi`](https://www.npmjs.com/package/@neurolift-technologies/otoi) | Orchestrated TOI — multi-agent honoring layer |
+| **RRT Advocate** | [`@neurolift-technologies/rrt-advocate`](https://www.npmjs.com/package/@neurolift-technologies/rrt-advocate) | Crisis detection ⚠️ *prototype* |
+| **Sleepwalker Protocol** | [`@neurolift-technologies/sleepwalker-protocol`](https://www.npmjs.com/package/@neurolift-technologies/sleepwalker-protocol) | Emotional continuity across drift |
+
+### Python (PyPI) — Faithful Port
 
 ```bash
 pip install asfdk
 ```
 
-> **Note:** This Python port ships the core Solidarity Layer only (RRT Advocate,
-> NLT-OTOI, Sleepwalker Protocol). The voice path (VibeVoice) is **not** part of
-> this package — there is no `asfdk[voice]` extra. If you need voice, integrate
-> the NLT VibeVoice fork (`microsoft/VibeVoice`) separately.
+The Python package mirrors the TypeScript API and depends on the Python equivalents of the pillars:
+
+| Pillar | Package | Role |
+|---|---|---|
+| **TOI** | `nlt-toi` | Terms of Interaction — user-preference governance |
+| **OTOI** | `nlt-otoi` | Orchestrated TOI — multi-agent honoring layer |
+| **RRT Advocate** | `rrt-advocate` | Crisis detection ⚠️ *prototype* |
+| **Sleepwalker Protocol** | `sleepwalker-protocol` | Emotional continuity across drift |
+
+---
+
+## Quick Start (Both Runtimes)
+
+### TypeScript
+
+```ts
+import { createFoundation, FoundationMode, InteractionType, toi } from '@neurolift-technologies/asfdk';
+
+async function main() {
+  // Orchestrator: route interactions through the active components for a mode.
+  const foundation = await createFoundation('user-123', FoundationMode.UNIFIED);
+
+  const response = await foundation.processInteraction({
+    timestamp: new Date(),
+    interactionType: InteractionType.PREFERENCE_UPDATE,
+    data: { toi: { $toi: '1.0.0', $tier: 'personal', identity: { author: 'user-123' } } },
+    userId: 'user-123',
+  });
+
+  // Pillars are also available directly as namespaces.
+  const parsed = toi.safeParseToi(myPreferences);
+}
+
+main();
+```
+
+### Python
+
+```python
+import asyncio
+from asfdk import create_foundation, FoundationMode, InteractionType, toi
+
+async def main():
+    foundation = await create_foundation("user-123", FoundationMode.UNIFIED)
+
+    response = await foundation.process_interaction({
+        "timestamp": datetime.now(timezone.utc),
+        "interaction_type": InteractionType.PREFERENCE_UPDATE,
+        "data": {"toi": {"$toi": "1.0.0", "$tier": "personal", "identity": {"author": "user-123"}}},
+        "user_id": "user-123",
+    })
+
+    # Pillars are also available directly as namespaces.
+    result = toi.safe_parse_toi(my_preferences)
+
+asyncio.run(main())
+```
 
 ---
 
 ## Foundation Modes
 
-`FoundationMode` (imported from `asfdk`) controls which Solidarity Layer
-components are active at runtime. Pick one when constructing the foundation:
+`FoundationMode` controls which Solidarity Framework components are active at runtime.
 
-```python
-from asfdk import create_foundation, FoundationMode
-```
+| Mode | TOI/OTOI | Sleepwalker | RRT Advocate | Use for |
+|---|---|---|---|---|
+| `UNIFIED` | ✅ | ✅ | ✅ | Production deployments wanting the full layer |
+| `CRISIS_ONLY` | — | — | ✅ | Adding crisis detection to an existing agent without the full layer |
+| `CONTINUITY_ONLY` | — | ✅ | — | Adding session continuity to an existing agent |
+| `FRAMEWORK_ONLY` | ✅ | — | — | Adding interaction governance without crisis or continuity layers |
+| `DEVELOPMENT` | ✅ | ✅ | — | Local development and testing |
 
-| Mode | Components active | Use for |
-|---|---|---|
-| `UNIFIED` | All (RRT + OTOI + Sleepwalker) | Production deployments wanting the full layer |
-| `CRISIS_ONLY` | RRT Advocate only | Adding crisis detection to an existing agent without the full layer |
-| `CONTINUITY_ONLY` | Sleepwalker Protocol only | Adding session continuity to an existing agent |
-| `FRAMEWORK_ONLY` | NLT-OTOI only | Adding interaction governance without crisis or continuity layers |
-| `DEVELOPMENT` | All, with debug logging | Local development and testing |
+Per-component overrides are available via `FoundationConfig.components`.
 
 ---
 
@@ -123,9 +141,15 @@ from asfdk import create_foundation, FoundationMode
 
 When integrating ASFDK into an existing system, work through these phases. They are operator-applied via component config and thresholds — not separate runtime modes.
 
-1. **Observe** — Deploy with high thresholds in `rrt-advocate/config/crisis_thresholds.yaml` so the layer logs decisions but rarely intervenes. Use logs to calibrate.
+1. **Observe** — Deploy with high thresholds so the layer logs decisions but rarely intervenes. Use logs to calibrate.
 2. **Advise** — Lower thresholds gradually; emit warnings to the agent/operator but don't gate model output yet.
-3. **Enforce** — Apply governance decisions inline. Promote to production only after a `nlt-redteam` review pass.
+3. **Enforce** — Apply governance decisions inline. Promote to production only after an `nlt-redteam` review pass.
+
+---
+
+## ⚠️ Crisis detection is a prototype — not a safety system
+
+The RRT Advocate layer wraps an **experimental** crisis-*detection* library with stubbed intervention layers. It is **not medical advice, not a crisis service**, performs no real-time monitoring, and **can miss real crisis signals**. Never rely on it as the sole safety mechanism. If you or someone else needs help now, in the US call or text **988** or chat [988lifeline.org](https://988lifeline.org).
 
 ---
 
@@ -136,6 +160,34 @@ When integrating ASFDK into an existing system, work through these phases. They 
 | [`nlt-toi`](https://github.com/NeuroLift-Technologies/nlt-toi) | TOI generator, parser, and validator CLI — use this to author and validate a user's TOI document *before* it enters the ASFDK runtime |
 
 > **nlt-toi is a pre-flight tool, not an ASFDK component.** The ASFDK enforces TOI at runtime via the NLT-OTOI framework. Use `nlt-toi` upstream to generate well-formed, validated TOI documents that the OTOI layer can consume.
+
+---
+
+## Repository Structure
+
+```
+asfdk/
+├── packages/asfdk/          # npm @neurolift-technologies/asfdk (TypeScript source)
+├── src/asfdk/               # PyPI asfdk (Python source, faithful port)
+├── hosting/                 # Next.js landing page (separate deliverable)
+├── workers/                 # Cloudflare Workers deployment (separate deliverable)
+├── legacy/                  # Archived Python-era implementation (v0.1.x)
+│   ├── unified_core/        # Old ASFDK Python core
+│   ├── nlt-otoi/            # Vendored NLT-OTOI (superseded by npm @neurolift-technologies/otoi)
+│   ├── rrt-advocate/        # Vendored RRT Advocate (superseded by npm @neurolift-technologies/rrt-advocate)
+│   ├── sleepwalker/         # Vendored Sleepwalker (superseded by npm @neurolift-technologies/sleepwalker-protocol)
+│   ├── config/              # Python-era config
+│   ├── scripts/             # Python sync scripts
+│   ├── tests/               # Python-era tests
+│   ├── DEPRECATED.md        # Archive index and migration guide
+│   └── ...                  # Dockerfile, pyproject.toml.v0.1.0, requirements.txt, GEMINI_TOPOGRAPHY.py
+├── docs/                    # Documentation (dev/deploy quickstarts, etc.)
+├── .nltotoi/                # NLT governance namespace
+├── NLT-DEV-OTOI.md          # Org-level coding agent contract
+├── AGENTS.md                # Repo-specific agent guidance
+├── CLAUDE.md                # Project-specific context
+└── LICENSE                  # Apache-2.0
+```
 
 ---
 
