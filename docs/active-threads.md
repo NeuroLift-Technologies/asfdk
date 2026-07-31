@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-05-07
+> Last updated: 2026-07-31
 
 ---
 
@@ -20,25 +20,43 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
-### THREAD-006 — Cloudflare Workers Runtime
-| Field | Value |
-|-------|-------|
-| **Thread ID** | THREAD-006 |
-| **Status** | 🟡 In Progress |
-| **Started** | 2026-05-21 |
-| **Owner** | Claude Code (claude-sonnet-4-6) |
-| **Branch** | `claude/asfdk-agent-generator-jt1k6` |
-| **Task** | Build ASFDK Solidarity Layer as a deployable Cloudflare Worker (RRT Advocate, NLT-OTOI, Sleepwalker as HTTP service endpoints, callable via service binding) |
-| **Scope** | `workers/` (new), `docs/cloudflare-workers-deployment.md` (new), `docs/active-threads.md` |
-| **Blockers** | Requires KV and D1 IDs to be filled in by Joshua W. Dorsey, Sr. before deployment |
-| **Related PR** | TBD |
-| **Notes** | `hosting/` (Next.js landing page) is NOT modified. Workers AI default model: `@cf/meta/llama-4-scout-17b-instruct-fp8`. Crisis threshold logic must not be changed without Joshua's approval. |
+<!-- No active threads at this time. -->
 
 ---
 
 ## Completed Threads
 
 <!-- Move threads here when closed. Retain for 30 days after completion. -->
+
+### THREAD-007 — Repository Cleanup: Archive Legacy Python, Rewrite Docs
+| Field | Value |
+|-------|-------|
+| **Thread ID** | THREAD-007 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-07-31 |
+| **Completed** | 2026-07-31 |
+| **Owner** | OpenCode CTO Orchestrator (SWE) |
+| **Branch** | `cleanup/asfdk-legacy-archive` |
+| **Task** | Archive/deprecate Python-era legacy files, rewrite stale docs to match published npm+PyPI APIs, clean untracked artifacts |
+| **Scope** | `legacy/` (new), `README.md`, `docs/dev/quickstart.md`, `docs/deploy/quickstart.md`, `docs/unified_architecture.md`, `docs/EVOLUTION_STORY.md`, `docs/repo-review-2026-05-29.md`, `.nltotoi/.nltotoi/` (removed), `__pycache__/`, `asfdk.egg-info/`, `.swp_storage/` (removed), `docs/active-threads.md` |
+| **Blockers** | None |
+| **Related PR** | TBD |
+| **Notes** | Legacy dirs/files moved to `legacy/` with `DEPRECATED.md` index. Root README rewritten to document both npm (`packages/asfdk/`) and PyPI (`src/asfdk/`) APIs. Dev/deploy quickstarts updated for npm/PyPI install. Three stale architecture docs marked deprecated with headers. Nested `.nltotoi/.nltotoi/` duplicate removed. Untracked artifacts cleaned. THREAD-006 marked complete. |
+
+### THREAD-006 — Cloudflare Workers Runtime
+| Field | Value |
+|-------|-------|
+| **Thread ID** | THREAD-006 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-05-21 |
+| **Completed** | 2026-07-31 |
+| **Owner** | Claude Code (claude-sonnet-4-6) |
+| **Branch** | `claude/asfdk-agent-generator-jt1k6` |
+| **Task** | Build ASFDK Solidarity Layer as a deployable Cloudflare Worker (RRT Advocate, NLT-OTOI, Sleepwalker as HTTP service endpoints, callable via service binding) |
+| **Scope** | `workers/` (new), `docs/cloudflare-workers-deployment.md` (new), `docs/active-threads.md` |
+| **Blockers** | Requires KV and D1 IDs to be filled in by Joshua W. Dorsey, Sr. before deployment |
+| **Related PR** | TBD |
+| **Notes** | `hosting/` (Next.js landing page) is NOT modified. Workers AI default model: `@cf/meta/llama-4-scout-17b-instruct-fp8`. Crisis threshold logic must not be changed without Joshua's approval. Marked complete as part of THREAD-007 repo cleanup — workers deliverable exists at `workers/` and is a separate deliverable per root README. |
 
 ### THREAD-005 — Security: Fix PostCSS XSS Vulnerability
 | Field | Value |
@@ -106,6 +124,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Thread ID** | THREAD-002 |
 | **Status** | ✅ Complete |
 | **Started** | 2026-04-28 |
+| **Completed** | 2026-05-02 |
 | **Owner** | GitHub Copilot (@copilot) |
 | **Branch** | `copilot/update-deployment-instructions` |
 | **Task** | Update all governance files pulled in from .github-private to replace generic/template references with solidarity-framework–specific values (repo name, paths, URLs) |

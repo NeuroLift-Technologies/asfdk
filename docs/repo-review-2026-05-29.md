@@ -1,3 +1,14 @@
+# ⚠️ DEPRECATED — ASFDK Repository Review — 2026-05-29
+
+> **This document reviews the Python-era ASFDK v0.1.x repository state (May 2026).**
+> It has been superseded by the published npm (`@neurolift-technologies/asfdk` v0.2.1+) and PyPI (`asfdk` v0.2.0+) packages.
+>
+> **Current repository state:** See the root [README.md](../README.md) and `file-structure.md`.
+>
+> **Archived source:** The implementation reviewed here was moved to `legacy/unified_core/`, `legacy/nlt-otoi/`, `legacy/rrt-advocate/`, `legacy/sleepwalker/`, `legacy/config/`, `legacy/scripts/`, `legacy/tests/`, `legacy/Dockerfile`, `legacy/pyproject.toml.v0.1.0`, `legacy/requirements.txt`, `legacy/GEMINI_TOPOGRAPHY.py`.
+
+---
+
 # ASFDK Repository Review — 2026-05-29
 
 > Scope: a candid assessment of the state of `NeuroLift-Technologies/asfdk`, plus
@@ -167,8 +178,8 @@ ASFDK deliberately omits the standalone's ADHD-specific thresholds/personas;
                 if [ -f sleepwalker/pyproject.toml ]; then pip install -e ./sleepwalker; fi
       ```
 
-   Until (a) is done, the green local `pytest` (50 passed) is the only signal;
-   CI does not exercise the Python suite.
+      Until (a) is done, the green local `pytest` (50 passed) is the only signal;
+      CI does not exercise the Python suite.
 
 ## Bottom line
 

@@ -1,3 +1,14 @@
+# ⚠️ DEPRECATED — Agent Solidarity Kit — Evolution Story
+
+> **This document describes the Python-era ASFDK v0.1.x evolution (pre-July 2026).**
+> It has been superseded by the published npm (`@neurolift-technologies/asfdk`) and PyPI (`asfdk`) packages.
+>
+> **Current project status:** See the root [README.md](../README.md).
+>
+> **Archived source:** The implementation described here was moved to `legacy/unified_core/`, `legacy/nlt-otoi/`, `legacy/rrt-advocate/`, `legacy/sleepwalker/`.
+
+---
+
 # Agent Solidarity Kit — Evolution Story
 
 **From core project work to the universal layer between model and agent**
@@ -17,13 +28,13 @@ Those needs turned out not to be niche. They are baseline expectations for human
 
 ## What this repository is today
 
-This repository is the **Agent Solidarity Kit** — the required integration and governance layer for NLT agents. It is not a single “app”; it is the shared substrate (RRT Advocate, NLT-OTOI, Sleepwalker Protocol, unified core) that sits **between the model and the agent**.
+This repository is the **Agent Solidarity Kit** — the required integration and governance layer for NLT agents. It is not a single "app"; it is the shared substrate (RRT Advocate, NLT-OTOI, Sleepwalker Protocol, unified core) that sits **between the model and the agent**.
 
 The kit **evolved out of our core project** and is now the foundation for **everything we build** at NeuroLift Technologies (excluding product-specific surfaces like the Avatar). It stays modular so new Advocates and domains can plug in without rewriting safety and coordination.
 
 ## Naming and scope
 
-We retired the framing of this repo as a standalone “NeuroLift Foundation” product in favor of language that matches **main**: an **Agent Solidarity Kit** inside the **Solidarity Framework**. Historical references to “foundation” in code (`neurolift_foundation`, `foundation.yml`) refer to the **unified runtime** of that kit, not a separate branding line.
+We retired the framing of this repo as a standalone "NeuroLift Foundation" product in favor of language that matches **main**: an **Agent Solidarity Kit** inside the **Solidarity Framework**. Historical references to "foundation" in code (`neurolift_foundation`, `foundation.yml`) refer to the **unified runtime** of that kit, not a separate branding line.
 
 ## Looking ahead
 

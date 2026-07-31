@@ -1,3 +1,16 @@
+# ⚠️ DEPRECATED — Agent Solidarity Framework Development Kit (ASFDK) - Unified Architecture Design
+
+> **This document describes the Python-era ASFDK v0.1.x architecture (pre-July 2026).**
+> It has been superseded by the published npm (`@neurolift-technologies/asfdk`) and PyPI (`asfdk`) packages.
+>
+> **Current architecture:** See the root [README.md](../README.md) and the package READMEs:
+> - TypeScript: `packages/asfdk/README.md`
+> - Python: `src/asfdk/__init__.py`
+>
+> **Archived source:** The implementation described here was moved to `legacy/unified_core/`, `legacy/nlt-otoi/`, `legacy/rrt-advocate/`, `legacy/sleepwalker/`.
+
+---
+
 # Agent Solidarity Framework Development Kit (ASFDK) - Unified Architecture Design
 
 ## Overview
@@ -136,37 +149,7 @@ class NeuroLiftFoundation:
     
     def __init__(self, user_id: str, config_path: str):
         self.user_id = user_id
-        self.config = self.load_unified_config(config_path)
-        
-        # Initialize core components
-        self.rrt = RRTAdvocateIntegration(self)
-        self.framework = TOIOTOIIntegration(self)
-        self.voice = VoiceInterfaceIntegration(self)
-        
-        # Supervisor AI coordination
-        self.supervisor = SupervisorAI(self)
-        
-        # Unified state management
-        self.state = UnifiedStateManager(user_id)
-        
-    async def initialize_foundation(self):
-        """Initialize all foundation components"""
-        await self.rrt.start_monitoring()
-        await self.framework.load_user_preferences()
-        await self.voice.initialize_voice_interface()
-        await self.supervisor.activate_coordination()
-        
-    async def process_user_interaction(self, interaction_type: str, data: dict):
-        """Process user interactions across all components"""
-        # Route interaction to appropriate component(s)
-        if interaction_type == "voice_command":
-            return await self.voice.process_command(data)
-        elif interaction_type == "crisis_alert":
-            return await self.rrt.handle_crisis(data)
-        elif interaction_type == "preference_update":
-            return await self.framework.update_preferences(data)
-        else:
-            return await self.supervisor.coordinate_response(interaction_type, data)
+        self.config = self.load_unified_config(config_path? Wait, we need to use the published packages instead
 ```
 
 ### Data Flow Architecture
