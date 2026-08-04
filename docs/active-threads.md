@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-07-31
+> Last updated: 2026-08-04
 
 ---
 
@@ -20,7 +20,20 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
-<!-- No active threads at this time. -->
+### THREAD-008 — asfdk provenance defense — channel classification
+| Field | Value |
+|-------|-------|
+| **Thread ID** | THREAD-008 |
+| **Status** | 🟡 In Progress |
+| **Started** | 2026-08-04 |
+| **Owner** | OpenCode CTO Orchestrator (SWE) |
+| **Branch** | `nlt/asfdk-provenance-defense` |
+| **Task** | Add channel/provenance classification at the ASFDK foundation boundary (C1: types + foundation; C2: sink adapters) so the RRT Advocate / Sleepwalker Protocol sinks can distinguish genuine user input from model/system-derived text — Observe-phase tag-only + gate-up escalation; version 0.2.1 → 0.2.2 (non-breaking patch) |
+| **Scope** | `packages/asfdk/src/types.ts`, `packages/asfdk/src/foundation.ts`, `packages/asfdk/src/integration/sleepwalker.ts`, `packages/asfdk/src/integration/rrt.ts`, `packages/asfdk/tests/index.test.ts`, `packages/asfdk/package.json`, `packages/asfdk/package-lock.json`, `docs/active-threads.md`, `docs/agent-log/intents/` |
+| **Blockers** | None |
+| **Related PR** | TBD (plan steps 13–14, later session) |
+| **Notes** | Decision-complete plan: `.omo/plans/asfdk-provenance-defense.md` (approved 2026-08-04). This session executes plan steps 1–7 (foundation package only). Harness C5 wiring, deploy-kit C3, and dual-repo delivery (D8) are later steps 8–12. Gate-up predicate per locked D5 (untrusted channel + high-severity crisis signal). No overlap with THREAD-007 (completed — legacy archive) or THREAD-006 (completed — Workers runtime). Do not touch `src/asfdk/` (Python core; parity deferred). |
+
 
 ---
 
