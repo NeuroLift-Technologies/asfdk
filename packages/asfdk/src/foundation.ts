@@ -1,9 +1,11 @@
 import {
+  Channel,
   FoundationConfig,
   FoundationMode,
   FoundationResponse,
   HealthCheckResult,
   InteractionType,
+  normalizeChannel,
   UserInteraction,
 } from './types.js';
 import * as toiOtoi from './integration/toi-otoi.js';
@@ -22,7 +24,12 @@ function componentsForMode(mode: FoundationMode, overrides?: FoundationConfig['c
     [FoundationMode.FRAMEWORK_ONLY]: { toi: true, swp: false, rrt: false },
     [FoundationMode.DEVELOPMENT]: { toi: true, swp: true, rrt: false },
   };
-  const base = defaults[mode] ?? { toi: false, swp: false, rrt: false };
+  const base = defaults[mode];
+  // Fail-loud (T16): an unrecognized mode must never silently disable every
+  // component — that would look like "governance off" instead of "bad config".
+  if (!base) {
+    throw new Error(`Unrecognized foundation mode: '${String(mode)}'`);
+  }
   return {
     toi: overrides?.toi_otoi_framework ?? base.toi,
     swp: overrides?.sleepwalker_protocol ?? base.swp,
@@ -72,17 +79,29 @@ export class NeuroLiftFoundation {
     const components: string[] = [];
     const content: Record<string, unknown> = {};
 
+    // Provenance (D2/D4/D6): resolve the channel from the TOP-LEVEL field only —
+    // values nested inside data/context are ignored for trust (anti-spoofing).
+    // Absent → 'unknown'; trusted := channel === 'user_input'.
+    const channel = normalizeChannel(interaction.channel ?? undefined);
+    const trusted = channel === Channel.USER_INPUT;
+
+    // D5 gate-up predicate: untrusted channel AND high-severity crisis signal.
+    let highSeverity = false;
+
     if (this.active.swp && interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT) {
       try {
         const input = String(interaction.data?.['text'] ?? '');
-        const state = sleepwalker.detectEmotionalState(input);
+        const state = sleepwalker.detectEmotionalState(input, [], channel);
+        // Emotional-path high-severity: explicit crisis flags on the state.
+        highSeverity =
+          state.explicitSuicidalIdeation || state.selfHarmIndicators || state.inabilityToEnsureSafety;
         content.emotionalState = state;
 
         if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
           // Own error boundary so an RRT failure is attributed to rrt_advocate
           // (not sleepwalker) and does not discard the emotional-state result.
           try {
-            content.rrt = await rrt.assess(this.config.userId, input);
+            content.rrt = await rrt.assess(this.config.userId, input, channel);
           } catch (err) {
             content.error = { component: 'rrt_advocate', message: String(err) };
           }
@@ -109,12 +128,36 @@ export class NeuroLiftFoundation {
       const input = String(interaction.data?.['text'] ?? '');
       // Error boundary: an RRT failure must not abort a crisis/emergency route.
       try {
-        content.rrt = await rrt.assess(this.config.userId, input);
+        content.rrt = await rrt.assess(this.config.userId, input, channel);
+        // CRISIS_ALERT is high-severity only on an actual RED/BLACK reading; a
+        // failed detection is not evidence of severity, so it does not gate up.
+        if (interaction.interactionType === InteractionType.CRISIS_ALERT) {
+          const level = (content.rrt as { crisisLevel?: rrt.CrisisLevel } | undefined)?.crisisLevel;
+          highSeverity = level === rrt.CrisisLevel.RED || level === rrt.CrisisLevel.BLACK;
+        }
       } catch (err) {
         content.error = { component: 'rrt_advocate', message: String(err) };
       }
       components.push('rrt_advocate');
     }
+
+    // D5 high-severity fallbacks:
+    // - EMERGENCY_ESCALATION is always high-severity.
+    // - CRISIS_ALERT with RRT inactive is high-severity by interaction type
+    //   alone (fail-safe: never silently ignored when detection is off).
+    if (interaction.interactionType === InteractionType.EMERGENCY_ESCALATION) {
+      highSeverity = true;
+    }
+    if (
+      interaction.interactionType === InteractionType.CRISIS_ALERT &&
+      !this.active.rrt
+    ) {
+      highSeverity = true;
+    }
+
+    content.channel = channel;
+    content.trusted = trusted;
+    content.gateUp = !trusted && highSeverity;
 
     return {
       timestamp: new Date(),
@@ -129,15 +172,35 @@ export class NeuroLiftFoundation {
    * Assesses the emotional state of a free-text input via the Sleepwalker Protocol.
    * Returns `null` when Sleepwalker is not active for the current mode.
    *
+   * Channel provenance (D4) is recorded additively on the returned assessment —
+   * no envelope — so existing consumers see the same shape plus `channel`,
+   * `trusted`, and `gateUp` properties. Absent channel → `unknown`/untrusted.
+   *
    * @param input - Free-text user input to assess.
    * @param _context - Reserved for future context enrichment; currently unused.
+   * @param channel - Optional channel the interaction arrived on; absent → `unknown`.
    */
   async assessEmotionalState(
     input: string,
     _context?: Record<string, unknown>,
+    channel?: Channel,
   ): Promise<unknown> {
     if (!this.active.swp) return null;
-    return sleepwalker.assessInteraction(input);
+    const resolved = normalizeChannel(channel ?? undefined);
+    const trusted = resolved === Channel.USER_INPUT;
+    const result = sleepwalker.assessInteraction(input) as Record<string, unknown>;
+    // assessInteraction nests the state; read the crisis flags from it (falling
+    // back to the top level for flat-shaped callers).
+    const inner = (result.emotionalState ?? result) as Record<string, unknown>;
+    const highSeverity = Boolean(
+      inner.explicitSuicidalIdeation ||
+        inner.selfHarmIndicators ||
+        inner.inabilityToEnsureSafety,
+    );
+    result.channel = resolved;
+    result.trusted = trusted;
+    result.gateUp = !trusted && highSeverity;
+    return result;
   }
 
   /**
