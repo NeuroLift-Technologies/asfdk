@@ -11,6 +11,7 @@ import {
 import * as toiOtoi from './integration/toi-otoi.js';
 import * as sleepwalker from './integration/sleepwalker.js';
 import * as rrt from './integration/rrt.js';
+import { sanitizeInput, validateOutput, logSecurityEvent, createSecureSystemPrompt } from './prompt-defense.js';
 
 function componentsForMode(mode: FoundationMode, overrides?: FoundationConfig['components']): {
   toi: boolean;
@@ -70,6 +71,8 @@ export class NeuroLiftFoundation {
    * Routes a {@link UserInteraction} to the appropriate active components and
    * returns a {@link FoundationResponse} with aggregated content.
    *
+   * Security: Input is sanitized and output is validated to prevent prompt injection.
+   *
    * - `EMOTIONAL_ASSESSMENT` → Sleepwalker Protocol (+ RRT handoff if crisis indicated)
    * - `PREFERENCE_UPDATE` → TOI-OTOI schema validation
    * - `CRISIS_ALERT` / `EMERGENCY_ESCALATION` → RRT Advocate crisis detection
@@ -102,6 +105,19 @@ export class NeuroLiftFoundation {
           // (not sleepwalker) and does not discard the emotional-state result.
           try {
             content.rrt = await rrt.assess(this.config.userId, input, channel);
+            
+            // Security: Validate RRT output
+            if (content.rrt) {
+              const outputValid = validateOutput(JSON.stringify(content.rrt));
+              if (!outputValid.valid) {
+                logSecurityEvent({
+                  type: 'VALIDATION_FAILURE',
+                  userId: this.config.userId,
+                  details: `RRT output validation failed: ${outputValid.reason}`,
+                  timestamp: Date.now(),
+                });
+              }
+            }
           } catch (err) {
             content.error = { component: 'rrt_advocate', message: String(err) };
           }

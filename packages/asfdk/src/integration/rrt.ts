@@ -1,5 +1,6 @@
 import { CrisisEngine, CrisisLevel, type CrisisAssessment } from '@neurolift-technologies/rrt-advocate';
 import { Channel, normalizeChannel } from '../types.js';
+import { sanitizeInput, logSecurityEvent } from '../prompt-defense.js';
 
 export { CrisisLevel, Channel, normalizeChannel };
 export type { CrisisAssessment };
@@ -32,6 +33,8 @@ function getEngine(userId: string): CrisisEngine {
  * Runs the 3-layer crisis-detection engine on a free-text input and returns a
  * {@link CrisisAssessment} (crisis level, safety score, recommended interventions).
  *
+ * Security: Input is sanitized to prevent prompt injection attacks before assessment.
+ *
  * Channel provenance (D4): the resolved channel and its derived `trusted` flag
  * are recorded additively on the returned assessment. The assessment object is
  * fresh per call, so provenance never bleeds between responses.
@@ -51,7 +54,39 @@ export async function assess(
   channel?: Channel,
 ): Promise<CrisisAssessment> {
   const resolved = normalizeChannel(channel ?? undefined);
-  const assessment = await getEngine(userId).assess(input);
+  
+  // Sanitize input before processing
+  const sanitizationResult = sanitizeInput(input);
+  if (!sanitizationResult.clean) {
+    logSecurityEvent({
+      type: sanitizationResult.riskLevel === 'HIGH' ? 'INJECTION_ATTEMPT' : 'VALIDATION_FAILURE',
+      userId,
+      details: sanitizationResult.reason || 'Input sanitization failed in RRT assessment',
+      timestamp: Date.now(),
+    });
+    
+    // Return safe default assessment for suspicious input
+    const safeAssessment: CrisisAssessment & { channel: Channel; trusted: boolean; flagged: boolean; flagReason?: string } = {
+      timestamp: new Date(),
+      crisisLevel: CrisisLevel.GREEN,
+      primaryIndicators: [],
+      secondaryIndicators: [],
+      confidenceScore: 0,
+      estimatedDuration: null,
+      recommendedInterventions: [],
+      escalationThreshold: 0,
+      userSafetyScore: 1.0,
+      contextFactors: {},
+      flagged: true,
+      flagReason: sanitizationResult.reason,
+      channel: resolved,
+      trusted: resolved === Channel.USER_INPUT,
+    };
+    
+    return safeAssessment;
+  }
+  
+  const assessment = await getEngine(userId).assess(sanitizationResult.content);
   const withProvenance = assessment as CrisisAssessment & { channel: Channel; trusted: boolean };
   withProvenance.channel = resolved;
   withProvenance.trusted = resolved === Channel.USER_INPUT;
