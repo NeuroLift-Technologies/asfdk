@@ -41,7 +41,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Scope** | `packages/asfdk/src/types.ts`, `packages/asfdk/src/foundation.ts`, `packages/asfdk/src/integration/sleepwalker.ts`, `packages/asfdk/src/integration/rrt.ts`, `packages/asfdk/src/index.ts`, `packages/asfdk/tests/index.test.ts`, `packages/asfdk/package.json`, `packages/asfdk/package-lock.json` |
 | **Blockers** | None |
 | **Related PR** | #24 — merged to `main` (`a5cc746`) |
-| **Notes** | 32/32 vitest green, tsc strict + declarations clean, version 0.2.2. npm pack tarball install verified in both `~/.config/opencode` and `asfdk-harness` (real dirs, NOT symlinks). Post-restart runtime verified (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS. Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
+| **Notes** | 32/32 vitest green, tsc strict + declarations clean, version 0.2.2. npm pack tarball install verified in both `~/.config/opencode` and `asfdk-harness` (real dirs, NOT symlinks). Post-restart runtime verified (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS. NLT-DEV-OTOI.md version bump to ORG-DEV-OTOI-1.0.3 in PR #26. Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
 
 ### THREAD-009 — ASFDK harness provenance defense: channel classification (C5 harness wiring)
 | Field | Value |
@@ -56,7 +56,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Scope** | `src/harness.ts`, `src/mcp-server.ts`, `src/index.ts`, `src/tools.ts`, `test/harness.test.ts`, `test/tools.test.ts`, `test/asfdk-wiring.test.ts`, `docs/active-threads.md` |
 | **Blockers** | None |
 | **Related PR** | #20 — merged to `main` (`e3bc1b6`) |
-| **Notes** | 67/67 npm test green, npm run check + npm run build clean. D8 dependency bump ^0.2.2. Post-restart control plane verified live (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS (prerequisite asfdk PR #24 landed first). Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
+| **Notes** | 67/67 npm test green, npm run check + npm run build clean. D8 dependency bump ^0.2.2. Post-restart control plane verified live (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS (prerequisite asfdk PR #24 landed first). NLT-DEV-OTOI.md version bump to ORG-DEV-OTOI-1.0.3 in PR #26. Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
 
 ### THREAD-007 — Repository Cleanup: Archive Legacy Python, Rewrite Docs
 | Field | Value |
