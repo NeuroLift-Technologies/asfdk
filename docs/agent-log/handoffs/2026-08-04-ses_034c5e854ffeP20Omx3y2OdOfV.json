@@ -20,14 +20,16 @@
       "D8 delivery: npm pack → neurolift-technologies-asfdk-0.2.2.tgz; installed --no-save into BOTH ~/.config/opencode and asfdk-harness; both node_modules copies verified 0.2.2, real dirs, NOT symlinks (step-12 Joshua sign-off recorded in ledger)",
       "Post-restart runtime verification: log run 4520e8d3 shows foundation-ready mode=unified phase=observe health.healthy=true + message-assessment channel=model_output success=true (C3 deploy-kit changes live after session-server recycle); gate-up 0 real events (correct — no RED/BLACK crisis assessed); TOI auto-create 0 writes since restart (fail-closed holding)",
       "Committed + pushed branch; opened PR #24 (https://github.com/NeuroLift-Technologies/asfdk/pull/24)",
+      "PR #24 MERGED at a5cc746 (2026-08-04T11:28:47Z)",
+      "npm publish @neurolift-technologies/asfdk@0.2.2 to registry — SUCCESS",
       "docs/active-threads.md THREAD-008 marked ✅ Complete with PR link",
       "OTOI §7 intent log: docs/agent-log/intents/2026-08-04-asfdk-provenance-defense.md"
     ],
     "work_in_progress": [
-      "None in this repo — PR #24 awaiting review/merge (merge order: asfdk #24 first, then harness #20)"
+      "None in this repo — all PRs merged, npm publish complete"
     ],
     "blockers": [
-      "None. npm publish of 0.2.2 is OUT OF SCOPE — requires separate explicit Joshua approval"
+      "None"
     ],
     "decisions_made": [
       {
@@ -48,11 +50,6 @@
     ],
     "decisions_pending": [
       {
-        "decision": "npm publish of @neurolift-technologies/asfdk 0.2.2 to the registry (restores registry-only wiring assertion; dated TODO in harness test)",
-        "owner": "Joshua W. Dorsey, Sr.",
-        "urgency": "MEDIUM"
-      },
-      {
         "decision": "OTOI charter policy block for channel/provenance semantics (deferred, separate repo)",
         "owner": "Joshua W. Dorsey, Sr.",
         "urgency": "LOW"
@@ -65,7 +62,7 @@
         "issue_url": null
       }
     ],
-    "next_agent_notes": "PR #24 is decision-complete, fully verified (32/32 tests, tsc clean, live runtime proof in log run 4520e8d3). Merge BEFORE harness PR #20 (harness wiring test asserts asfdk >= 0.2.2). After merge: no follow-up work required in this repo until Enforce phase. Python core src/asfdk/ untouched (parity deferred, tracked). Deploy-kit C3 changes live in ~/.config/opencode/plugins/ (backups: asfdk-deploy.ts.bak-20260804043712, a2a-task-watch.ts.bak-20260804043712). Rollback: revert PR #24, reinstall 0.2.0/0.2.1 into both consumers, restart.",
+    "next_agent_notes": "PR #24 MERGED at a5cc746 (2026-08-04T11:28:47Z). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS. asfdk PR #24 and harness PR #20 both merged. Harness PR #20 merged at e3bc1b6 (2026-08-04T11:29:57Z). All verification passed (asfdk 32/32, harness 67/67, wrangler dev healthy). No follow-up work required in this repo until Enforce phase. Python core src/asfdk/ untouched (parity deferred, tracked). Deploy-kit C3 changes live in ~/.config/opencode/plugins/ (backups: asfdk-deploy.ts.bak-20260804043712, a2a-task-watch.ts.bak-20260804043712). Rollback: revert PR #24 + PR #20, reinstall 0.2.0/0.2.1 into both consumers, restart.",
     "files_modified": [
       "packages/asfdk/src/types.ts",
       "packages/asfdk/src/foundation.ts",
@@ -88,7 +85,8 @@
     "tests_passing": true,
     "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/24",
     "commit_shas": [
-      "1523121"
+      "1523121",
+      "a5cc7463ba6ecba65e68fed42a14cfc851e194d5"
     ]
   }
 }
