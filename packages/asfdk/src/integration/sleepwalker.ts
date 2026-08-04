@@ -1,6 +1,8 @@
 import { SleepwalkerProtocol } from '@neurolift-technologies/sleepwalker-protocol';
 import type { EmotionalState } from '@neurolift-technologies/sleepwalker-protocol';
+import { Channel, normalizeChannel } from '../types.js';
 
+export { Channel, normalizeChannel };
 export type { EmotionalState };
 
 let instance: SleepwalkerProtocol | undefined;
@@ -12,17 +14,42 @@ function getInstance(): SleepwalkerProtocol {
   return instance;
 }
 
-/** Classifies the emotional state expressed in a user's free-text input. */
+/**
+ * Classifies the emotional state expressed in a user's free-text input.
+ * The resolved channel and its derived `trusted` flag are recorded additively
+ * on the returned state (absent channel → `unknown`).
+ */
 export function detectEmotionalState(
   userInput: string,
   sessionHistory: unknown[] = [],
+  channel?: Channel,
 ): EmotionalState {
-  return getInstance().detectEmotionalState(userInput, sessionHistory);
+  const resolved = normalizeChannel(channel ?? undefined);
+  const state = getInstance().detectEmotionalState(userInput, sessionHistory);
+  const withProvenance = state as EmotionalState & { channel: Channel; trusted: boolean };
+  withProvenance.channel = resolved;
+  withProvenance.trusted = resolved === Channel.USER_INPUT;
+  return withProvenance;
 }
 
-/** Returns a full interaction assessment object for the given input. */
-export function assessInteraction(userInput: string, sessionHistory: unknown[] = []): unknown {
-  return getInstance().assessInteraction(userInput, sessionHistory);
+/**
+ * Returns a full interaction assessment object for the given input.
+ * The resolved channel and its derived `trusted` flag are recorded additively
+ * on the returned assessment (absent channel → `unknown`).
+ */
+export function assessInteraction(
+  userInput: string,
+  sessionHistory: unknown[] = [],
+  channel?: Channel,
+): unknown {
+  const resolved = normalizeChannel(channel ?? undefined);
+  const result = getInstance().assessInteraction(
+    userInput,
+    sessionHistory,
+  ) as Record<string, unknown>;
+  result.channel = resolved;
+  result.trusted = resolved === Channel.USER_INPUT;
+  return result;
 }
 
 /** Returns `true` when the assessed emotional state warrants an RRT Advocate handoff. */
