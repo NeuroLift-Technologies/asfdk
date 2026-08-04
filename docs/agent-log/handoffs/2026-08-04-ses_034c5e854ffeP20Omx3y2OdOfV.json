@@ -1,0 +1,92 @@
+{
+  "_template_info": {
+    "template_version": "1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "otoi_section": "§5 — Handoff Protocol",
+    "sop_reference": "SOP-NLT-001 Step 8"
+  },
+  "handoff_record": {
+    "session_id": "ses_034c5e854ffeP20Omx3y2OdOfV",
+    "agent_name": "OpenCode CTO Orchestrator (big-pickle)",
+    "platform": "opencode",
+    "date": "2026-08-04",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "nlt/asfdk-provenance-defense",
+    "active_thread_id": "THREAD-008",
+    "work_completed": [
+      "Executed plan `asfdk-provenance-defense` steps 1–7, 12–13, 15–16 (foundation package lane): C1 types + foundation (Channel enum D3, optional channel field D2, normalizeChannel M3, trusted D6, gateUp D5, anti-spoofing D4, mode fail-loud), C2 sink adapters (sleepwalker detectEmotionalState/assessInteraction + rrt.assess channel threading, rrt.resetSession surface), 32/32 vitest green, tsc strict + declaration emit clean",
+      "Bumped packages/asfdk version 0.2.1 → 0.2.2 (package.json + package-lock.json)",
+      "D8 delivery: npm pack → neurolift-technologies-asfdk-0.2.2.tgz; installed --no-save into BOTH ~/.config/opencode and asfdk-harness; both node_modules copies verified 0.2.2, real dirs, NOT symlinks (step-12 Joshua sign-off recorded in ledger)",
+      "Post-restart runtime verification: log run 4520e8d3 shows foundation-ready mode=unified phase=observe health.healthy=true + message-assessment channel=model_output success=true (C3 deploy-kit changes live after session-server recycle); gate-up 0 real events (correct — no RED/BLACK crisis assessed); TOI auto-create 0 writes since restart (fail-closed holding)",
+      "Committed + pushed branch; opened PR #24 (https://github.com/NeuroLift-Technologies/asfdk/pull/24)",
+      "PR #24 MERGED at a5cc746 (2026-08-04T11:28:47Z)",
+      "npm publish @neurolift-technologies/asfdk@0.2.2 to registry — SUCCESS",
+      "docs/active-threads.md THREAD-008 marked ✅ Complete with PR link",
+      "OTOI §7 intent log: docs/agent-log/intents/2026-08-04-asfdk-provenance-defense.md"
+    ],
+    "work_in_progress": [
+      "None in this repo — all PRs merged, npm publish complete"
+    ],
+    "blockers": [
+      "None"
+    ],
+    "decisions_made": [
+      {
+        "decision": "Channel enum closed to user_input | model_output | tool_result | system | unknown (D3); optional additive channel field (D2); channel read ONLY from top-level interaction field, never data/context (D4)",
+        "rationale": "Non-breaking patch 0.2.2; trust must be seam-assigned, never content-derived",
+        "made_by": "Joshua W. Dorsey, Sr. (plan approval) + OpenCode CTO Orchestrator"
+      },
+      {
+        "decision": "Observe-phase semantics: tag-only + gate-up escalation (D5), trusted := channel === user_input (D6), assessEmotionalState additive-property return (no envelope, swe C2)",
+        "rationale": "Auditability + human-visible escalation without sink behavior change; additive avoids breaking existing consumers",
+        "made_by": "Joshua W. Dorsey, Sr. (plan approval)"
+      },
+      {
+        "decision": "D8 delivery via npm pack tarball install into both consumers, NOT folder/symlink install",
+        "rationale": "Folder installs create symlinks the harness wiring test forbids; tarball is the correct unpublished-window mechanism",
+        "made_by": "OpenCode CTO Orchestrator (swe I1 fold)"
+      }
+    ],
+    "decisions_pending": [
+      {
+        "decision": "OTOI charter policy block for channel/provenance semantics (deferred, separate repo)",
+        "owner": "Joshua W. Dorsey, Sr.",
+        "urgency": "LOW"
+      }
+    ],
+    "escalations": [
+      {
+        "topic": "None — no escalations raised during this lane",
+        "status": "not-required",
+        "issue_url": null
+      }
+    ],
+    "next_agent_notes": "PR #24 MERGED at a5cc746 (2026-08-04T11:28:47Z). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS. asfdk PR #24 and harness PR #20 both merged. Harness PR #20 merged at e3bc1b6 (2026-08-04T11:29:57Z). All verification passed (asfdk 32/32, harness 67/67, wrangler dev healthy). No follow-up work required in this repo until Enforce phase. Python core src/asfdk/ untouched (parity deferred, tracked). Deploy-kit C3 changes live in ~/.config/opencode/plugins/ (backups: asfdk-deploy.ts.bak-20260804043712, a2a-task-watch.ts.bak-20260804043712). Rollback: revert PR #24 + PR #20, reinstall 0.2.0/0.2.1 into both consumers, restart.",
+    "files_modified": [
+      "packages/asfdk/src/types.ts",
+      "packages/asfdk/src/foundation.ts",
+      "packages/asfdk/src/integration/sleepwalker.ts",
+      "packages/asfdk/src/integration/rrt.ts",
+      "packages/asfdk/src/index.ts",
+      "packages/asfdk/tests/index.test.ts",
+      "packages/asfdk/package.json",
+      "packages/asfdk/package-lock.json",
+      "docs/active-threads.md"
+    ],
+    "files_created": [
+      "docs/agent-log/intents/2026-08-04-asfdk-provenance-defense.md"
+    ],
+    "files_deleted": [],
+    "tests_run": [
+      "npx vitest run (packages/asfdk) — 32/32 green",
+      "npx tsc --noEmit strict + build with declaration emit — clean"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/24",
+    "commit_shas": [
+      "1523121",
+      "a5cc7463ba6ecba65e68fed42a14cfc851e194d5"
+    ]
+  }
+}

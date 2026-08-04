@@ -1,6 +1,7 @@
 import { CrisisEngine, CrisisLevel, type CrisisAssessment } from '@neurolift-technologies/rrt-advocate';
+import { Channel, normalizeChannel } from '../types.js';
 
-export { CrisisLevel };
+export { CrisisLevel, Channel, normalizeChannel };
 export type { CrisisAssessment };
 
 /**
@@ -31,11 +32,39 @@ function getEngine(userId: string): CrisisEngine {
  * Runs the 3-layer crisis-detection engine on a free-text input and returns a
  * {@link CrisisAssessment} (crisis level, safety score, recommended interventions).
  *
+ * Channel provenance (D4): the resolved channel and its derived `trusted` flag
+ * are recorded additively on the returned assessment. The assessment object is
+ * fresh per call, so provenance never bleeds between responses.
+ *
+ * Observe-phase caveat: the per-user engine is shared across channels, so an
+ * untrusted assessment may still mutate engine state here. Per-channel engines
+ * are deferred to Enforce; `resetSession` is the documented re-baseline hook
+ * Enforce will call when an untrusted assessment is discarded.
+ *
  * @param userId - The user the assessment is scored against.
  * @param input - Free-text user input to assess.
+ * @param channel - Optional channel the interaction arrived on; absent → `unknown`.
  */
-export async function assess(userId: string, input: string): Promise<CrisisAssessment> {
-  return getEngine(userId).assess(input);
+export async function assess(
+  userId: string,
+  input: string,
+  channel?: Channel,
+): Promise<CrisisAssessment> {
+  const resolved = normalizeChannel(channel ?? undefined);
+  const assessment = await getEngine(userId).assess(input);
+  const withProvenance = assessment as CrisisAssessment & { channel: Channel; trusted: boolean };
+  withProvenance.channel = resolved;
+  withProvenance.trusted = resolved === Channel.USER_INPUT;
+  return withProvenance;
+}
+
+/**
+ * Re-baselines a single user's crisis-detection engine (delegates to
+ * {@link CrisisEngine.resetSession}). Enforce-phase hook: call after discarding
+ * an untrusted assessment so engine state cannot carry it forward.
+ */
+export function resetSession(userId: string): void {
+  getEngine(userId).resetSession();
 }
 
 /** Returns the active RRT Advocate component status. */
