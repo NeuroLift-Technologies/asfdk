@@ -52,44 +52,36 @@ export async function assess(
   userId: string,
   input: string,
   channel?: Channel,
-): Promise<CrisisAssessment> {
+): Promise<CrisisAssessment & { channel: Channel; trusted: boolean; flagged?: boolean; flagReason?: string }> {
   const resolved = normalizeChannel(channel ?? undefined);
-  
-  // Sanitize input before processing
+
+  // Sanitize input before processing; a flagged result is logged but still
+  // assessed defensively so a genuine crisis signal is never silently
+  // suppressed by an injection heuristic (fail-open on detection).
   const sanitizationResult = sanitizeInput(input);
-  if (!sanitizationResult.clean) {
+  const flagged = !sanitizationResult.clean;
+  if (flagged) {
     logSecurityEvent({
       type: sanitizationResult.riskLevel === 'HIGH' ? 'INJECTION_ATTEMPT' : 'VALIDATION_FAILURE',
       userId,
-      details: sanitizationResult.reason || 'Input sanitization failed in RRT assessment',
+      details: sanitizationResult.reason || 'Input sanitization flagged in RRT assessment',
       timestamp: Date.now(),
     });
-    
-    // Return safe default assessment for suspicious input
-    const safeAssessment: CrisisAssessment & { channel: Channel; trusted: boolean; flagged: boolean; flagReason?: string } = {
-      timestamp: new Date(),
-      crisisLevel: CrisisLevel.GREEN,
-      primaryIndicators: [],
-      secondaryIndicators: [],
-      confidenceScore: 0,
-      estimatedDuration: null,
-      recommendedInterventions: [],
-      escalationThreshold: 0,
-      userSafetyScore: 1.0,
-      contextFactors: {},
-      flagged: true,
-      flagReason: sanitizationResult.reason,
-      channel: resolved,
-      trusted: resolved === Channel.USER_INPUT,
-    };
-    
-    return safeAssessment;
   }
-  
+
   const assessment = await getEngine(userId).assess(sanitizationResult.content);
-  const withProvenance = assessment as CrisisAssessment & { channel: Channel; trusted: boolean };
+  const withProvenance = assessment as CrisisAssessment & {
+    channel: Channel;
+    trusted: boolean;
+    flagged?: boolean;
+    flagReason?: string;
+  };
   withProvenance.channel = resolved;
   withProvenance.trusted = resolved === Channel.USER_INPUT;
+  if (flagged) {
+    withProvenance.flagged = true;
+    withProvenance.flagReason = sanitizationResult.reason;
+  }
   return withProvenance;
 }
 

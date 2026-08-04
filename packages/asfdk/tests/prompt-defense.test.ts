@@ -2,7 +2,7 @@
  * Tests for Prompt Injection Defense Utilities
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   sanitizeInput,
   validateOutput,
@@ -103,16 +103,36 @@ describe('Prompt Injection Defense', () => {
   });
 
   describe('logSecurityEvent', () => {
-    it('should structure security events correctly', () => {
+    it('should structure and emit security events to stderr', () => {
       const event = {
         type: 'INJECTION_ATTEMPT' as const,
         userId: 'test-user',
         details: 'Test injection attempt',
-        timestamp: Date.now(),
+        timestamp: 1234567890,
       };
-      
-      // Should not throw
-      expect(() => logSecurityEvent(event)).not.toThrow();
+      const spy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+      try {
+        logSecurityEvent(event);
+        const written = spy.mock.calls.map((c) => c[0] as string).join('');
+        expect(written).toContain('SECURITY_EVENT');
+        expect(written).toContain('"event":"SECURITY_AUDIT"');
+        expect(written).toContain('"type":"INJECTION_ATTEMPT"');
+        expect(written).toContain('"userId":"test-user"');
+        expect(written).toContain('"timestamp":1234567890');
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
+    it('should accept a LENGTH_EXCEEDED event without throwing', () => {
+      expect(() =>
+        logSecurityEvent({
+          type: 'LENGTH_EXCEEDED',
+          userId: 'test-user',
+          details: 'Input too long',
+          timestamp: 1,
+        }),
+      ).not.toThrow();
     });
   });
 });

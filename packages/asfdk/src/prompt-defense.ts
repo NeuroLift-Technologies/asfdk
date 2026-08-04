@@ -8,23 +8,22 @@
  */
 
 // Common injection patterns to detect
+// NOTE: patterns are intentionally precise to limit false positives on benign
+// input, and avoid nested quantifiers that could enable ReDoS on untrusted data.
 const INJECTION_PATTERNS = [
-  /ignore\s+previous\s+instructions/i,
-  /ignore\s+all\s+previous\s+instructions/i,
+  /ignore\s+(?:all\s+)?previous\s+instructions/i,
   /system\s+prompt/i,
   /you\s+are\s+now/i,
-  /bypass\s+safety/i,
-  /override\s+rules/i,
-  /print\s+your\s+instructions/i,
+  /bypass\s+(?:all\s+)?safety/i,
+  /override\s+(?:your\s+)?(?:rules|instructions)/i,
+  /print\s+your\s+(?:instructions|system\s+(?:message|prompt))/i,
   /output\s+your\s+system\s+message/i,
   /developer\s+mode/i,
   /dan\s+mode/i,
-  /roleplay\s+as\s+admin/i,
-  /execute\s+code/i,
+  /roleplay\s+as\s+(?:an\s+)?admin/i,
+  /execute\s+(?:the\s+)?code/i,
   /run\s+this\s+script/i,
-  /<\s*\/?\s*script/i,
-  /javascript\s*:/i,
-  /data\s*:/i,
+  /<\/?script/i,
 ];
 
 const MAX_INPUT_LENGTH = 5000; // Prevent context flooding
@@ -40,6 +39,15 @@ export interface ValidationResult {
   valid: boolean;
   reason?: string;
 }
+
+/**
+ * Discriminated schema descriptor for {@link validateOutput}. A closed union
+ * (no `any`) so callers can only request supported structural checks, and
+ * unsupported shapes are impossible at the call site.
+ */
+export type OutputSchema =
+  | { type: 'json' }
+  | { type: 'text' };
 
 /**
  * Detects potential prompt injection attempts using heuristic patterns
@@ -103,17 +111,20 @@ export function sanitizeInput(rawInput: string): SanitizationResult {
 
 /**
  * Validates LLM output to ensure it doesn't leak system instructions
- * or contain unexpected structural elements
+ * or contain unexpected structural elements.
+ *
+ * @param output   The text produced by the LLM.
+ * @param schema   Optional structural contract (discriminated union). When
+ *                 omitted, only leak detection runs.
  */
-export function validateOutput(output: string, expectedSchema?: any): ValidationResult {
+export function validateOutput(output: string, schema?: OutputSchema): ValidationResult {
   // Check for system instruction leaks
+  // Patterns are scoped to concrete disclosure phrasing to limit false
+  // positives on otherwise legitimate empathetic output.
   const leakPatterns = [
-    /system\s+instruction/i,
-    /you\s+are\s+an\s+ai/i,
-    /your\s+purpose\s+is/i,
-    /as\s+an\s+language\s+model/i,
-    /i\s+am\s+trained\s+by/i,
-    /my\s+creators/i,
+    /\b(?:i\s+am|you\s+are)\s+(?:an\s+)?(?:ai\s+)?(?:model|assistant|language\s+model)\s+(?:trained|built|created|designed)\s+by/i,
+    /\bmy\s+(?:system\s+)?(?:instructions|prompt|training\s+data|creators)\s+(?:include|are|is|tell)/i,
+    /\bhere\s+are\s+my\s+(?:system\s+)?(?:instructions|prompt)/i,
   ];
 
   for (const pattern of leakPatterns) {
@@ -125,25 +136,21 @@ export function validateOutput(output: string, expectedSchema?: any): Validation
     }
   }
 
-  // If schema provided, validate structure (basic JSON check)
-  if (expectedSchema) {
+  // Structural validation only runs when a schema is explicitly requested.
+  if (schema && schema.type === 'json') {
     try {
       const parsed = JSON.parse(output);
-      // Additional schema validation could be added here based on expectedSchema
-      if (typeof parsed !== 'object' || parsed === null) {
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         return {
           valid: false,
           reason: 'Output is not a valid JSON object',
         };
       }
     } catch (e) {
-      // If we expect JSON but didn't get it, that's a validation failure
-      if (expectedSchema.type === 'json') {
-        return {
-          valid: false,
-          reason: 'Failed to parse output as JSON',
-        };
-      }
+      return {
+        valid: false,
+        reason: 'Failed to parse output as JSON',
+      };
     }
   }
 
@@ -166,7 +173,10 @@ export function createSecureSystemPrompt(baseInstructions: string): string {
 }
 
 /**
- * Logs security events for audit trails (to be implemented with actual logging service)
+ * Logs security events for audit trails (to be implemented with actual logging service).
+ *
+ * Writes to stderr (not stdout) so that downstream MCP/stdio consumers are never
+ * polluted by security telemetry on their protocol channel.
  */
 export function logSecurityEvent(event: {
   type: 'INJECTION_ATTEMPT' | 'VALIDATION_FAILURE' | 'LENGTH_EXCEEDED';
@@ -174,14 +184,11 @@ export function logSecurityEvent(event: {
   details: string;
   timestamp: number;
 }): void {
-  // In production, this would send to a secure logging service
-  // For now, we structure the log entry for future integration
+  // In production, this would send to a secure logging service.
   const logEntry = {
     event: 'SECURITY_AUDIT',
     ...event,
-    timestamp: event.timestamp || Date.now(),
   };
-  
-  // Console logging for development (replace with proper logging in production)
-  console.log('SECURITY_EVENT:', JSON.stringify(logEntry));
+
+  process.stderr.write(`SECURITY_EVENT: ${JSON.stringify(logEntry)}\n`);
 }

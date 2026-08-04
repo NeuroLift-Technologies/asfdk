@@ -26,53 +26,37 @@ export function detectEmotionalState(
   userInput: string,
   sessionHistory: unknown[] = [],
   channel?: Channel,
-): EmotionalState {
+  userId: string = 'unknown',
+): EmotionalState & { channel: Channel; trusted: boolean; flagged?: boolean; flagReason?: string } {
   const resolved = normalizeChannel(channel ?? undefined);
-  
-  // Sanitize input before processing
+
+  // Sanitize input before processing; a flagged result is logged but still
+  // assessed defensively so a genuine signal is never silently suppressed by
+  // an injection heuristic (fail-open on detection).
   const sanitizationResult = sanitizeInput(userInput);
-  if (!sanitizationResult.clean) {
+  const flagged = !sanitizationResult.clean;
+  if (flagged) {
     logSecurityEvent({
       type: sanitizationResult.riskLevel === 'HIGH' ? 'INJECTION_ATTEMPT' : 'VALIDATION_FAILURE',
-      userId: 'unknown', // Will be overridden by caller context
-      details: sanitizationResult.reason || 'Input sanitization failed',
+      userId,
+      details: sanitizationResult.reason || 'Input sanitization flagged in Sleepwalker assessment',
       timestamp: Date.now(),
     });
-    
-    // Return safe default state for suspicious input
-    const safeState: EmotionalState & { channel: Channel; trusted: boolean; flagged: boolean; flagReason?: string } = {
-      stateType: 'neutral',
-      protective: true,
-      requiresCheckIn: false,
-      indicators: {
-        dissociation: false,
-        numbing: false,
-        avoidance: false,
-        detachment: false,
-        crisis: {
-          suicidalIdeation: false,
-          selfHarm: false,
-          safetyConcern: false,
-        },
-      },
-      confidence: 0,
-      explicitSuicidalIdeation: false,
-      selfHarmIndicators: false,
-      inabilityToEnsureSafety: false,
-      flagged: true,
-      flagReason: sanitizationResult.reason,
-      channel: resolved,
-      trusted: resolved === Channel.USER_INPUT,
-    };
-    
-    return safeState;
   }
-  
-  const state = getInstance().detectEmotionalState(sanitizationResult.content, sessionHistory);
-  const withProvenance = state as EmotionalState & { channel: Channel; trusted: boolean };
-  withProvenance.channel = resolved;
-  withProvenance.trusted = resolved === Channel.USER_INPUT;
-  return withProvenance;
+
+  const state = getInstance().detectEmotionalState(sanitizationResult.content, sessionHistory) as EmotionalState & {
+    channel: Channel;
+    trusted: boolean;
+    flagged?: boolean;
+    flagReason?: string;
+  };
+  state.channel = resolved;
+  state.trusted = resolved === Channel.USER_INPUT;
+  if (flagged) {
+    state.flagged = true;
+    state.flagReason = sanitizationResult.reason;
+  }
+  return state;
 }
 
 /**

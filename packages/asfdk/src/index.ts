@@ -36,6 +36,7 @@ export {
   logSecurityEvent,
   type SanitizationResult,
   type ValidationResult,
+  type OutputSchema,
 } from './prompt-defense.js';
 
 // The four Solidarity Framework pillars, re-exported as namespaces.

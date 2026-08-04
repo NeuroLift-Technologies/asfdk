@@ -11,7 +11,7 @@ import {
 import * as toiOtoi from './integration/toi-otoi.js';
 import * as sleepwalker from './integration/sleepwalker.js';
 import * as rrt from './integration/rrt.js';
-import { sanitizeInput, validateOutput, logSecurityEvent, createSecureSystemPrompt } from './prompt-defense.js';
+import { validateOutput, logSecurityEvent } from './prompt-defense.js';
 
 function componentsForMode(mode: FoundationMode, overrides?: FoundationConfig['components']): {
   toi: boolean;
@@ -68,6 +68,25 @@ export class NeuroLiftFoundation {
   }
 
   /**
+   * Validates a component result (e.g. RRT) against the output contract.
+   * On failure, logs a security event and returns `undefined` so the caller can
+   * leave the corresponding `content.*` field unset — invalid output must never
+   * reach a {@link FoundationResponse}.
+   */
+  private validateComponentOutput(result: unknown): unknown {
+    if (result === null || result === undefined) return result;
+    const outputValid = validateOutput(JSON.stringify(result), { type: 'json' });
+    if (outputValid.valid) return result;
+    logSecurityEvent({
+      type: 'VALIDATION_FAILURE',
+      userId: this.config.userId,
+      details: `Component output validation failed: ${outputValid.reason}`,
+      timestamp: Date.now(),
+    });
+    return undefined;
+  }
+
+  /**
    * Routes a {@link UserInteraction} to the appropriate active components and
    * returns a {@link FoundationResponse} with aggregated content.
    *
@@ -94,7 +113,7 @@ export class NeuroLiftFoundation {
     if (this.active.swp && interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT) {
       try {
         const input = String(interaction.data?.['text'] ?? '');
-        const state = sleepwalker.detectEmotionalState(input, [], channel);
+        const state = sleepwalker.detectEmotionalState(input, [], channel, this.config.userId);
         // Emotional-path high-severity: explicit crisis flags on the state.
         highSeverity =
           state.explicitSuicidalIdeation || state.selfHarmIndicators || state.inabilityToEnsureSafety;
@@ -104,20 +123,8 @@ export class NeuroLiftFoundation {
           // Own error boundary so an RRT failure is attributed to rrt_advocate
           // (not sleepwalker) and does not discard the emotional-state result.
           try {
-            content.rrt = await rrt.assess(this.config.userId, input, channel);
-            
-            // Security: Validate RRT output
-            if (content.rrt) {
-              const outputValid = validateOutput(JSON.stringify(content.rrt));
-              if (!outputValid.valid) {
-                logSecurityEvent({
-                  type: 'VALIDATION_FAILURE',
-                  userId: this.config.userId,
-                  details: `RRT output validation failed: ${outputValid.reason}`,
-                  timestamp: Date.now(),
-                });
-              }
-            }
+            const rrtResult = this.validateComponentOutput(await rrt.assess(this.config.userId, input, channel));
+            if (rrtResult !== undefined) content.rrt = rrtResult;
           } catch (err) {
             content.error = { component: 'rrt_advocate', message: String(err) };
           }
@@ -144,7 +151,8 @@ export class NeuroLiftFoundation {
       const input = String(interaction.data?.['text'] ?? '');
       // Error boundary: an RRT failure must not abort a crisis/emergency route.
       try {
-        content.rrt = await rrt.assess(this.config.userId, input, channel);
+        const rrtResult = this.validateComponentOutput(await rrt.assess(this.config.userId, input, channel));
+        if (rrtResult !== undefined) content.rrt = rrtResult;
         // CRISIS_ALERT is high-severity only on an actual RED/BLACK reading; a
         // failed detection is not evidence of severity, so it does not gate up.
         if (interaction.interactionType === InteractionType.CRISIS_ALERT) {
