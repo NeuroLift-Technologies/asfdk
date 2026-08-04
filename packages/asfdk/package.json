@@ -1,6 +1,6 @@
 {
   "name": "@neurolift-technologies/asfdk",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Agent Solidarity Framework Development Kit — TypeScript umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol).",
   "type": "module",
   "main": "./dist/index.js",

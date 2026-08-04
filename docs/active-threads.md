@@ -20,7 +20,20 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
-<!-- No active threads at this time. -->
+### THREAD-010 — Version bump 0.2.3 → 0.2.4 (post prompt-injection defense merge)
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-010 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-08-04 |
+| **Completed** | 2026-08-04 |
+| **Owner** | POOL (agent) |
+| **Branch** | `chore/bump-asfdk-to-0.2.4` |
+| **Task** | Bump @neurolift-technologies/asfdk from 0.2.3 to 0.2.4 following merge of PR #28 (prompt injection defense). Ships Channel provenance (#24) + prompt injection defense (#28) to npm. |
+| **Scope** | `packages/asfdk/package.json`, `packages/asfdk/package-lock.json`, `docs/active-threads.md` |
+| **Blockers** | None |
+| **Related PR** | #29 — PR created and pushed |
+| **Notes** | Agent Commit Format Check PASS (proper [POOL] prefix). CodeQL skipped (no code changes to scan — version bump only). build-and-deploy fail is pre-existing (Dockerfile path issue). All Analyze/GitGuardian/validate checks pass. Depends on PRs #24 and #28 being merged (both are). Harness PR #20 depends on `^0.2.2` which is satisfied by 0.2.4. |
 
 ---
 
