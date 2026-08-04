@@ -28,6 +28,36 @@ This file tracks all **current and recently completed** work threads in this rep
 
 <!-- Move threads here when closed. Retain for 30 days after completion. -->
 
+### THREAD-008 — asfdk provenance defense — channel classification
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-008 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-08-04 |
+| **Completed** | 2026-08-04 |
+| **Owner** | OpenCode CTO Orchestrator (big-pickle) |
+| **Branch** | `nlt/asfdk-provenance-defense` — merged to `main` (`a5cc746`, 2026-08-04T11:28:47Z) |
+| **Task** | Execute plan `asfdk-provenance-defense`: add channel provenance to ASFDK foundation — Channel enum (D3), optional channel field (D2), normalizeChannel, trusted channel assignment (D6), gateUp escalation (D5), anti-spoofing (D4), mode fail-loud (T16), typed boundaries replacing `any`, D4-restricted tool schemas, D8 dependency bump to ^0.2.2 |
+| **Scope** | `packages/asfdk/src/types.ts`, `packages/asfdk/src/foundation.ts`, `packages/asfdk/src/integration/sleepwalker.ts`, `packages/asfdk/src/integration/rrt.ts`, `packages/asfdk/src/index.ts`, `packages/asfdk/tests/index.test.ts`, `packages/asfdk/package.json`, `packages/asfdk/package-lock.json` |
+| **Blockers** | None |
+| **Related PR** | #24 — merged to `main` (`a5cc746`) |
+| **Notes** | 32/32 vitest green, tsc strict + declarations clean, version 0.2.2. npm pack tarball install verified in both `~/.config/opencode` and `asfdk-harness` (real dirs, NOT symlinks). Post-restart runtime verified (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS. Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
+
+### THREAD-009 — ASFDK harness provenance defense: channel classification (C5 harness wiring)
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-009 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-08-04 |
+| **Completed** | 2026-08-04 |
+| **Owner** | OpenCode CTO Orchestrator (background lane) |
+| **Branch** | `nlt/asfdk-harness-provenance-defense` — merged to `main` (`e3bc1b6`, 2026-08-04T11:29:57Z) |
+| **Task** | Implement plan `asfdk-provenance-defense` C5 (tasks 9-11): harness control-plane wiring — typed boundaries replacing `any` in harness.ts, channel pass-through (absent → `unknown`) in assessText/processInteraction, mode-string normalization/fail-loud (T16), D4-restricted tool schemas on mcp-server.ts + tools.ts (user_input rejected at tool seams), index.ts system/user_input channel tags |
+| **Scope** | `src/harness.ts`, `src/mcp-server.ts`, `src/index.ts`, `src/tools.ts`, `test/harness.test.ts`, `test/tools.test.ts`, `test/asfdk-wiring.test.ts`, `docs/active-threads.md` |
+| **Blockers** | None |
+| **Related PR** | #20 — merged to `main` (`e3bc1b6`) |
+| **Notes** | 67/67 npm test green, npm run check + npm run build clean. D8 dependency bump ^0.2.2. Post-restart control plane verified live (log run 4520e8d3). npm publish @neurolift-technologies/asfdk@0.2.2 SUCCESS (prerequisite asfdk PR #24 landed first). Handoff record: `docs/agent-log/handoffs/2026-08-04-ses_034c5e854ffeP20Omx3y2OdOfV.json`. |
+
 ### THREAD-007 — Repository Cleanup: Archive Legacy Python, Rewrite Docs
 | Field | Value |
 |-------|-------|
