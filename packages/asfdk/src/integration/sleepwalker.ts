@@ -1,6 +1,7 @@
 import { SleepwalkerProtocol } from '@neurolift-technologies/sleepwalker-protocol';
 import type { EmotionalState } from '@neurolift-technologies/sleepwalker-protocol';
 import { Channel, normalizeChannel } from '../types.js';
+import { sanitizeInput, logSecurityEvent } from '../prompt-defense.js';
 
 export { Channel, normalizeChannel };
 export type { EmotionalState };
@@ -18,18 +19,44 @@ function getInstance(): SleepwalkerProtocol {
  * Classifies the emotional state expressed in a user's free-text input.
  * The resolved channel and its derived `trusted` flag are recorded additively
  * on the returned state (absent channel → `unknown`).
+ * 
+ * Security: Input is sanitized to prevent prompt injection attacks.
  */
 export function detectEmotionalState(
   userInput: string,
   sessionHistory: unknown[] = [],
   channel?: Channel,
-): EmotionalState {
+  userId: string = 'unknown',
+): EmotionalState & { channel: Channel; trusted: boolean; flagged?: boolean; flagReason?: string } {
   const resolved = normalizeChannel(channel ?? undefined);
-  const state = getInstance().detectEmotionalState(userInput, sessionHistory);
-  const withProvenance = state as EmotionalState & { channel: Channel; trusted: boolean };
-  withProvenance.channel = resolved;
-  withProvenance.trusted = resolved === Channel.USER_INPUT;
-  return withProvenance;
+
+  // Sanitize input before processing; a flagged result is logged but still
+  // assessed defensively so a genuine signal is never silently suppressed by
+  // an injection heuristic (fail-open on detection).
+  const sanitizationResult = sanitizeInput(userInput);
+  const flagged = !sanitizationResult.clean;
+  if (flagged) {
+    logSecurityEvent({
+      type: sanitizationResult.riskLevel === 'HIGH' ? 'INJECTION_ATTEMPT' : 'VALIDATION_FAILURE',
+      userId,
+      details: sanitizationResult.reason || 'Input sanitization flagged in Sleepwalker assessment',
+      timestamp: Date.now(),
+    });
+  }
+
+  const state = getInstance().detectEmotionalState(sanitizationResult.content, sessionHistory) as EmotionalState & {
+    channel: Channel;
+    trusted: boolean;
+    flagged?: boolean;
+    flagReason?: string;
+  };
+  state.channel = resolved;
+  state.trusted = resolved === Channel.USER_INPUT;
+  if (flagged) {
+    state.flagged = true;
+    state.flagReason = sanitizationResult.reason;
+  }
+  return state;
 }
 
 /**

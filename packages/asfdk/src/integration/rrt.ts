@@ -1,5 +1,6 @@
 import { CrisisEngine, CrisisLevel, type CrisisAssessment } from '@neurolift-technologies/rrt-advocate';
 import { Channel, normalizeChannel } from '../types.js';
+import { sanitizeInput, logSecurityEvent } from '../prompt-defense.js';
 
 export { CrisisLevel, Channel, normalizeChannel };
 export type { CrisisAssessment };
@@ -32,6 +33,8 @@ function getEngine(userId: string): CrisisEngine {
  * Runs the 3-layer crisis-detection engine on a free-text input and returns a
  * {@link CrisisAssessment} (crisis level, safety score, recommended interventions).
  *
+ * Security: Input is sanitized to prevent prompt injection attacks before assessment.
+ *
  * Channel provenance (D4): the resolved channel and its derived `trusted` flag
  * are recorded additively on the returned assessment. The assessment object is
  * fresh per call, so provenance never bleeds between responses.
@@ -49,12 +52,36 @@ export async function assess(
   userId: string,
   input: string,
   channel?: Channel,
-): Promise<CrisisAssessment> {
+): Promise<CrisisAssessment & { channel: Channel; trusted: boolean; flagged?: boolean; flagReason?: string }> {
   const resolved = normalizeChannel(channel ?? undefined);
-  const assessment = await getEngine(userId).assess(input);
-  const withProvenance = assessment as CrisisAssessment & { channel: Channel; trusted: boolean };
+
+  // Sanitize input before processing; a flagged result is logged but still
+  // assessed defensively so a genuine crisis signal is never silently
+  // suppressed by an injection heuristic (fail-open on detection).
+  const sanitizationResult = sanitizeInput(input);
+  const flagged = !sanitizationResult.clean;
+  if (flagged) {
+    logSecurityEvent({
+      type: sanitizationResult.riskLevel === 'HIGH' ? 'INJECTION_ATTEMPT' : 'VALIDATION_FAILURE',
+      userId,
+      details: sanitizationResult.reason || 'Input sanitization flagged in RRT assessment',
+      timestamp: Date.now(),
+    });
+  }
+
+  const assessment = await getEngine(userId).assess(sanitizationResult.content);
+  const withProvenance = assessment as CrisisAssessment & {
+    channel: Channel;
+    trusted: boolean;
+    flagged?: boolean;
+    flagReason?: string;
+  };
   withProvenance.channel = resolved;
   withProvenance.trusted = resolved === Channel.USER_INPUT;
+  if (flagged) {
+    withProvenance.flagged = true;
+    withProvenance.flagReason = sanitizationResult.reason;
+  }
   return withProvenance;
 }
 

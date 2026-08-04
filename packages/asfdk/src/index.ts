@@ -26,6 +26,19 @@ export type { FoundationConfig, FoundationResponse, UserInteraction, HealthCheck
 export { NeuroLiftFoundation } from './foundation.js';
 export { createFoundation } from './create-foundation.js';
 
+// Security utilities for prompt injection defense
+export {
+  sanitizeInput,
+  validateOutput,
+  detectInjectionPatterns,
+  validateInputLength,
+  createSecureSystemPrompt,
+  logSecurityEvent,
+  type SanitizationResult,
+  type ValidationResult,
+  type OutputSchema,
+} from './prompt-defense.js';
+
 // The four Solidarity Framework pillars, re-exported as namespaces.
 export * as toi from '@neurolift-technologies/toi';
 export * as otoi from '@neurolift-technologies/otoi';
