@@ -6,7 +6,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
+
+from nlt_toi import TOIDocumentGenerator, ToiDocument
 
 from .integration import rrt, sleepwalker, toi_otoi
 from .types import (
@@ -67,12 +69,55 @@ class NeuroLiftFoundation:
         self._config = config
         self._active = _components_for_mode(config.mode, config.components)
         self._initialized = False
+        #: The foundation's active ``.toi`` document, generated before any
+        #: component activates (see :meth:`initialize`). ``None`` until
+        #: initialization succeeds.
+        self._toi_document: Optional[ToiDocument] = None
 
     async def initialize(self) -> None:
-        """Mark the foundation as initialized. Called automatically by
-        :func:`asfdk.create_foundation`.
+        """Bootstrap the foundation.
+
+        The TOI generator runs *first*: the foundation's active document is
+        generated/validated from the configured source (or privacy-first
+        defaults) and stored before any component becomes active. A failure to
+        generate a conforming document raises and leaves the foundation
+        uninitialized (fail-loud), so components are never activated against a
+        broken or absent TOI.
         """
+        self._toi_document = self._generate_toi()
         self._initialized = True
+
+    def _generate_toi(self) -> ToiDocument:
+        """Run the ``toi-generator`` logic over the configured source.
+
+        Source resolution:
+        - ``None``  → privacy-first document generated from defaults
+        - ``str``   → path to a ``.toi``/``.json`` file, parsed then regenerated
+        - ``dict``  → partial preferences or a full document, merged over defaults
+
+        Every path validates through the canonical schema before returning, so
+        an invalid source raises here rather than activating a broken TOI.
+        """
+        source = self._config.toi
+        if source is None:
+            return TOIDocumentGenerator.from_defaults("anonymous").document
+        if isinstance(source, dict):
+            return TOIDocumentGenerator.from_dict(source).document
+        if isinstance(source, str):
+            with open(source, encoding="utf-8") as handle:
+                raw = json.load(handle)
+            if not isinstance(raw, dict):
+                raise TypeError("a .toi source file must contain a JSON object")
+            return TOIDocumentGenerator.from_dict(raw).document
+        raise TypeError(
+            "toi must be a preferences dict, a path to a .toi/.json file, or None; "
+            f"got {type(source).__name__}"
+        )
+
+    def get_active_toi(self) -> Optional[ToiDocument]:
+        """Return the foundation's active TOI document, or ``None`` before
+        :meth:`initialize` succeeds."""
+        return self._toi_document
 
     async def start(self) -> None:
         """Alias for :meth:`initialize`; ensures the foundation is ready before use."""
@@ -200,6 +245,10 @@ class NeuroLiftFoundation:
             "mode": self._config.mode,
             "userId": self._config.user_id,
             "initialized": self._initialized,
+            "toi": {
+                "generated": self._toi_document is not None,
+                "document": self._toi_document,
+            },
             "components": {
                 "toi_otoi_framework": toi_otoi.get_status()
                 if self._active.toi

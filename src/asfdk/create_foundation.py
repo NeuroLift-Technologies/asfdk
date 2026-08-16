@@ -20,6 +20,11 @@ async def create_foundation(
     - ``create_foundation(user_id, mode=None)`` — shorthand; ``mode`` defaults to
       :attr:`FoundationMode.UNIFIED`.
     - ``create_foundation(config)`` — full :class:`FoundationConfig` object.
+
+    Initialization runs the TOI generator before any component activates: the
+    foundation's active ``.toi`` document is produced from ``config.toi`` (a
+    preferences dict or a path to a ``.toi``/``.json`` file) or from
+    privacy-first defaults when no source is given.
     """
     if isinstance(user_id_or_config, FoundationConfig):
         config = user_id_or_config

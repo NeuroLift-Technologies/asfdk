@@ -20,6 +20,22 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
+### THREAD-011 — Generate TOI before component activation (toi bootstrap)
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-011 |
+| **Status** | 🟡 In Progress |
+| **Started** | 2026-08-16 |
+| **Owner** | opencode |
+| **Branch** | `feature/toi-bootstrap` |
+| **Task** | Run the TOI generator during foundation initialization so the active `.toi` document is produced/validated before any component activates (fail-loud). |
+| **Scope** | `src/asfdk/{foundation,types,create_foundation}.py`, `tests/test_toi_bootstrap.py`, `packages/asfdk/src/{foundation,types}.ts`, `packages/asfdk/tests/toi-bootstrap.test.ts`, `packages/asfdk/package.json` |
+| **Blockers** | `@neurolift-technologies/toi@1.0.3` must be published (TS generator shipped in nlt-toi PR #31); then `npm install` in `packages/asfdk` to regenerate `package-lock.json`. |
+| **Related PR** | https://github.com/NeuroLift-Technologies/asfdk/pull/31 |
+| **Notes** | Python depends on `nlt_toi.TOIDocumentGenerator` (nlt-toi PR #30). Depends on nlt-toi PRs #30 and #31. Verified: pytest 5/5, vitest 50/50 (via local file: override), governance 25 checks. |
+
+---
+
 ### THREAD-010 — Version bump 0.2.3 → 0.2.4 (post prompt-injection defense merge)
 | Field | Value |
 |---|---|

@@ -1,0 +1,42 @@
+{
+  "_template_info": {
+    "template_version": "1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "otoi_section": "§3 — Agent Registration",
+    "sop_reference": "SOP-NLT-001 Step 5",
+    "instructions": "Complete all fields. Save to docs/agent-log/registrations/{YYYY-MM-DD}-{agent-name}-{session-id}.json."
+  },
+  "agent_registration": {
+    "agent_name": "opencode",
+    "platform": "opencode (CLI)",
+    "version": "deepseek-v4-flash-free",
+    "session_id": "toi-bootstrap-asfdk",
+    "entry_date": "2026-08-16",
+    "entry_point": "direct task prompt — 'the toi generator needs to run before anything else gets activated'",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "working_repo": "NeuroLift-Technologies/asfdk",
+    "working_branch": "feature/toi-bootstrap",
+    "task_summary": "Run the toi generator during NeuroLiftFoundation.initialize() so the active TOI is generated before any component activates; mirrored across Python and TypeScript ASFDK.",
+    "active_thread_id": "THREAD-011",
+    "capabilities_self_reported": [
+      "code generation and refactoring",
+      "file editing",
+      "test execution (pytest, vitest, tsc)",
+      "cross-repo npm/Python package wiring",
+      "GitHub PR creation via gh CLI"
+    ],
+    "known_limitations": [
+      "GitHub MCP PAT lacks issues/PR comment and PR write scope — used gh CLI instead",
+      "npm publish requires user 2FA (EOTP) — publishing handled by Joshua",
+      "@neurolift-technologies/toi@1.0.3 must be published before asfdk lockfile can be regenerated",
+      "Python ASFDK package has no packaging config (no pyproject); tests require pillar repos on PYTHONPATH"
+    ],
+    "preferred_handoff_format": "JSON handoff record + active-threads.md entry",
+    "escalation_acknowledged": true,
+    "escalation_contact": "joshua@neurolift.tech",
+    "solidarity_framework_acknowledged": true,
+    "commit_format_acknowledged": true,
+    "handoff_required_acknowledged": true
+  }
+}

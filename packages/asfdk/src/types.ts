@@ -59,6 +59,13 @@ export interface FoundationConfig {
     sleepwalker_protocol?: boolean;
     rrt_advocate?: boolean;
   };
+  /**
+   * Optional TOI source for the foundation's active document. A preferences
+   * object (full `.toi` or partial) or a path to a `.toi`/`.json` file. When
+   * absent, a privacy-first document is generated from defaults during
+   * initialization — the generator always runs before any component activates.
+   */
+  toi?: Record<string, unknown> | string;
 }
 
 /**

@@ -1,0 +1,104 @@
+{
+  "_template_info": {
+    "template_version": "1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "otoi_section": "§5 — Handoff Protocol",
+    "sop_reference": "SOP-NLT-001 Step 8",
+    "instructions": "Complete ALL fields before ending your session. A partial handoff is a governance violation."
+  },
+  "handoff_record": {
+    "session_id": "toi-bootstrap-asfdk",
+    "agent_name": "opencode",
+    "platform": "opencode (CLI)",
+    "date": "2026-08-16",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "feature/toi-bootstrap",
+    "active_thread_id": "THREAD-011",
+    "work_completed": [
+      "Wired FoundationConfig.toi source (dict | .toi/.json path | None → privacy-first defaults) in Python types.py and TS types.ts",
+      "NeuroLiftFoundation.initialize() now runs the toi generator first (nlt_toi.TOIDocumentGenerator / @neurolift-technologies/toi TOIDocumentGenerator) and stores the active document; fail-loud on invalid source",
+      "Added get_active_toi()/getActiveToi() and toi.generated in get_system_status()/getSystemStatus()",
+      "Added tests/test_toi_bootstrap.py (5 pytest tests) and packages/asfdk/tests/toi-bootstrap.test.ts (4 vitest tests)",
+      "Bumped @neurolift-technologies/toi dependency to ^1.0.3 in packages/asfdk/package.json",
+      "Verified: pytest 5/5, vitest 50/50 (against local toi build via temporary file: override, reverted), governance 25 checks",
+      "Opened asfdk PR #31 and updated active-threads.md (THREAD-011) + registration/handoff records"
+    ],
+    "work_in_progress": [
+      "None — implementation complete; awaiting dependency publish and lockfile regeneration"
+    ],
+    "blockers": [
+      "@neurolift-technologies/toi@1.0.3 must be published by Joshua (nlt-toi PR #31 shipped the TS generator); then run npm install in packages/asfdk to regenerate package-lock.json (intentionally left at committed state)",
+      "asfdk Python depends on the nlt_toi generator from nlt-toi PR #30 (feature/toi-generator-cli) — not yet merged to main"
+    ],
+    "decisions_made": [
+      {
+        "decision": "Run the toi generator in initialize() before any component activates; generate from config.toi source or privacy-first defaults",
+        "rationale": "User-directed architecture; TOI is the foundational pillar and must exist before TOI-OTOI/Sleepwalker/RRT activate",
+        "made_by": "Joshua W. Dorsey, Sr. (via scoping answers)"
+      },
+      {
+        "decision": "Fail-loud on invalid TOI source (raise, leave uninitialized)",
+        "rationale": "Mirrors the TS T16 fail-loud principle — components must never activate against a broken or absent TOI",
+        "made_by": "opencode"
+      },
+      {
+        "decision": "TS generator shipped in @neurolift-technologies/toi (nlt-toi PR #31) rather than inlined in asfdk",
+        "rationale": "Mirror the nlt_toi generator; keep asfdk thin; single source of truth",
+        "made_by": "Joshua W. Dorsey, Sr."
+      }
+    ],
+    "decisions_pending": [
+      {
+        "decision": "Publish @neurolift-technologies/toi@1.0.3 (nlt-toi PR #31)",
+        "owner": "Joshua W. Dorsey, Sr.",
+        "urgency": "HIGH"
+      },
+      {
+        "decision": "Regenerate packages/asfdk/package-lock.json after publish and re-verify TS build/tests against registry install",
+        "owner": "opencode (next session)",
+        "urgency": "MEDIUM"
+      },
+      {
+        "decision": "Merge order: nlt-toi PR #30 (Python generator) and PR #31 (TS generator) before asfdk PR #31",
+        "owner": "Joshua W. Dorsey, Sr.",
+        "urgency": "HIGH"
+      }
+    ],
+    "escalations": [
+      {
+        "topic": "None",
+        "status": "not-required",
+        "issue_url": null
+      }
+    ],
+    "next_agent_notes": "After Joshua publishes @neurolift-technologies/toi@1.0.3: cd packages/asfdk && npm install (regenerates package-lock.json against ^1.0.3), then npm run build && npm test. Commit the lockfile update to feature/toi-bootstrap. Do NOT use the temporary file: override. Python tests need PYTHONPATH=src:../nlt-otoi/src:../rrt-advocate/src:../sleepwalker/src relative to the asfdk repo, and nlt-toi must be checked out on feature/toi-generator-cli (main lacks the Python generator until PR #30 merges).",
+    "files_modified": [
+      "src/asfdk/types.py",
+      "src/asfdk/foundation.py",
+      "src/asfdk/create_foundation.py",
+      "packages/asfdk/src/types.ts",
+      "packages/asfdk/src/foundation.ts",
+      "packages/asfdk/package.json",
+      "docs/active-threads.md"
+    ],
+    "files_created": [
+      "tests/test_toi_bootstrap.py",
+      "packages/asfdk/tests/toi-bootstrap.test.ts",
+      "docs/agent-log/registrations/2026-08-16-opencode-toi-bootstrap.json",
+      "docs/agent-log/handoffs/2026-08-16-opencode-toi-bootstrap.json"
+    ],
+    "files_deleted": [],
+    "tests_run": [
+      "PYTHONPATH=src:../nlt-otoi/src:../rrt-advocate/src:../sleepwalker/src python3 -m pytest tests/test_toi_bootstrap.py -q → 5 passed",
+      "cd packages/asfdk && npm run build (tsc) → clean",
+      "cd packages/asfdk && npm test → 50 passed (with local toi build via temporary file: override)",
+      "bash .nltotoi/scripts/validate-governance.sh → all checks pass"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/31",
+    "commit_shas": [
+      "commit pushed to origin/feature/toi-bootstrap (head of PR #31)"
+    ]
+  }
+}
