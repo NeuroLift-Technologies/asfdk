@@ -1,3 +1,5 @@
+import { TOIDocumentGenerator, type ToiDocument } from '@neurolift-technologies/toi';
+import { readFileSync } from 'node:fs';
 import {
   Channel,
   FoundationConfig,
@@ -51,15 +53,56 @@ export class NeuroLiftFoundation {
   private readonly config: FoundationConfig;
   private readonly active: ReturnType<typeof componentsForMode>;
   private initialized = false;
+  /** The foundation's active `.toi` document, generated before any component activates. */
+  private toiDocument: ToiDocument | null = null;
 
   constructor(config: FoundationConfig) {
     this.config = config;
     this.active = componentsForMode(config.mode, config.components);
   }
 
-  /** Marks the foundation as initialized. Called automatically by {@link createFoundation}. */
+  /**
+   * Bootstraps the foundation. The TOI generator runs *first*: the active
+   * document is generated/validated from the configured source (or
+   * privacy-first defaults) and stored before any component becomes active. A
+   * failure to produce a conforming document throws and leaves the foundation
+   * uninitialized (fail-loud), so components are never activated against a
+   * broken or absent TOI.
+   */
   async initialize(): Promise<void> {
+    this.toiDocument = this.generateToi();
     this.initialized = true;
+  }
+
+  /**
+   * Runs the `toi-generator` logic over the configured source.
+   *
+   * Source resolution:
+   * - `undefined` → privacy-first document generated from defaults
+   * - `string`    → path to a `.toi`/`.json` file, parsed then regenerated
+   * - object      → partial preferences or a full document, merged over defaults
+   *
+   * Every path validates through the canonical schema before returning, so an
+   * invalid source throws here rather than activating a broken TOI.
+   */
+  private generateToi(): ToiDocument {
+    const source = this.config.toi;
+    if (source === undefined) {
+      return TOIDocumentGenerator.fromDefaults('anonymous').document;
+    }
+    if (typeof source === 'object') {
+      return TOIDocumentGenerator.fromDict(source).document;
+    }
+    const raw: unknown = JSON.parse(readFileSync(source, 'utf8'));
+    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+      throw new TypeError('a .toi source file must contain a JSON object');
+    }
+    return TOIDocumentGenerator.fromDict(raw as Record<string, unknown>).document;
+  }
+
+  /** Returns the foundation's active TOI document, or `null` before initialization succeeds. */
+  getActiveToi(): ToiDocument | null {
+    return this.toiDocument;
   }
 
   /** Alias for {@link initialize}; ensures the foundation is ready before use. */
@@ -248,6 +291,10 @@ export class NeuroLiftFoundation {
       mode: this.config.mode,
       userId: this.config.userId,
       initialized: this.initialized,
+      toi: {
+        generated: this.toiDocument !== null,
+        document: this.toiDocument,
+      },
       components: {
         toi_otoi_framework: this.active.toi ? toiOtoi.getStatus() : { active: false, mode: 'disabled' },
         sleepwalker_protocol: this.active.swp ? sleepwalker.getStatus() : { active: false, mode: 'disabled' },

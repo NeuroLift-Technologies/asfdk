@@ -39,7 +39,7 @@
     "directory": "packages/asfdk"
   },
   "dependencies": {
-    "@neurolift-technologies/toi": "^1.0.1",
+    "@neurolift-technologies/toi": "^1.0.3",
     "@neurolift-technologies/otoi": "^1.1.0",
     "@neurolift-technologies/rrt-advocate": "^0.1.1",
     "@neurolift-technologies/sleepwalker-protocol": "^1.0.1"

@@ -78,6 +78,11 @@ class FoundationConfig:
     user_id: str
     mode: FoundationMode
     components: Optional[FoundationComponents] = None
+    #: Optional TOI source for the foundation's active document. A preferences
+    #: ``dict`` (full ``.toi`` or partial) or a path to a ``.toi``/``.json``
+    #: file. When ``None`` (default), a privacy-first document is generated
+    #: from defaults during initialization.
+    toi: Optional[Union[str, Dict[str, Any]]] = None
 
     def __post_init__(self) -> None:
         # Accept a plain dict for ``components`` (per the documented usage) and
