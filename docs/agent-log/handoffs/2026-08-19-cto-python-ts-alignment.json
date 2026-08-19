@@ -47,15 +47,16 @@
       "tests/test_channel.py",
       "tests/test_prompt_defense.py",
       "pyproject.toml",
+      "Dockerfile",
       "docs/active-threads.md",
       "docs/python-ts-alignment-remediation-plan.md"
     ],
     "tests_run": [
       "pytest tests/test_channel.py - 10 passed",
-      "pytest tests/test_prompt_defense.py - 24 passed",
-      "All 34 tests passing"
+      "pytest tests/test_prompt_defense.py - 27 passed",
+      "All 37 tests passing"
     ],
     "tests_passing": true,
-    "pr_url": null
+    "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/32"
   }
 }

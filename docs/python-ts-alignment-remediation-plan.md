@@ -136,21 +136,20 @@ def normalize_channel(value: Any) -> Channel:
 
 ---
 
-### Task 2: Create `prompt-defense.py` Module
+### Task 2: Create `prompt_defense.py` Module
 **Priority:** HIGH  
 **Effort:** MEDIUM  
-**Files:** `src/asfdk/prompt-defense.py` (new)
+**Files:** `src/asfdk/prompt_defense.py` (new)
 
 Port from `packages/asfdk/src/prompt-defense.ts`:
 - `INJECTION_PATTERNS` regex list
 - `MAX_INPUT_LENGTH` constant
 - `SanitizationResult` dataclass
 - `ValidationResult` dataclass
-- `OutputSchema` type
 - `detect_injection_patterns()`
 - `validate_input_length()`
 - `sanitize_input()`
-- `validate_output()`
+- `validate_output(..., schema_type: Optional[str] = None)`
 - `create_secure_system_prompt()`
 - `log_security_event()`
 
@@ -235,7 +234,7 @@ Tests needed:
 
 ## Dependencies
 
-- No external dependencies — all changes are internal to `src/asfdk/`
+- Runtime dependencies declared in `pyproject.toml`: `nlt-toi`, `nlt-otoi`, `rrt-advocate`, `sleepwalker-protocol`
 - TypeScript `packages/asfdk/` is the canonical source of truth
 - Python package must match TypeScript API surface
 - Pillar repos (nlt-toi, nlt-otoi, rrt-advocate, sleepwalker) are already aligned

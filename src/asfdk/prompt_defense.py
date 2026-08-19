@@ -120,21 +120,30 @@ def sanitize_input(raw_input: str) -> SanitizationResult:
     Returns:
         SanitizationResult with clean status, sanitized content, and risk level.
     """
-    # Check length first
+    # Check length first — truncate to bound and wrap in delimiters so the
+    # downstream assessor never sees raw unbounded input, even under fail-open.
     if not validate_input_length(raw_input):
+        truncated = raw_input[:MAX_INPUT_LENGTH]
+        escaped = truncated.replace("<user_message>", "&lt;user_message&gt;")
+        escaped = escaped.replace("</user_message>", "&lt;/user_message&gt;")
+        wrapped = f"<user_message>\n{escaped}\n</user_message>"
         return SanitizationResult(
             clean=False,
-            content=raw_input,
+            content=wrapped,
             reason=f"Input exceeds maximum length of {MAX_INPUT_LENGTH} characters",
             risk_level=RiskLevel.MEDIUM,
         )
 
-    # Check for injection patterns
+    # Check for injection patterns — still wrap in delimiters so delimiter
+    # confusion cannot be exploited, even though the content is flagged.
     injection_check = detect_injection_patterns(raw_input)
     if injection_check["detected"]:
+        escaped = raw_input.replace("<user_message>", "&lt;user_message&gt;")
+        escaped = escaped.replace("</user_message>", "&lt;/user_message&gt;")
+        wrapped = f"<user_message>\n{escaped}\n</user_message>"
         return SanitizationResult(
             clean=False,
-            content=raw_input,
+            content=wrapped,
             reason=f"Potential injection detected: \"{injection_check['pattern']}\"",
             risk_level=RiskLevel.HIGH,
         )

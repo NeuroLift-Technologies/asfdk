@@ -32,6 +32,7 @@ __all__ = [
     "CrisisLevel",
     "Channel",
     "CrisisAssessment",
+    "CrisisAssessmentWithProvenance",
     "assess",
     "get_status",
     "reset",
@@ -115,6 +116,8 @@ async def assess(
                 event_type=(
                     SecurityEventType.INJECTION_ATTEMPT
                     if sanitization_result.risk_level == RiskLevel.HIGH
+                    else SecurityEventType.LENGTH_EXCEEDED
+                    if sanitization_result.risk_level == RiskLevel.MEDIUM
                     else SecurityEventType.VALIDATION_FAILURE
                 ),
                 user_id=user_id,
