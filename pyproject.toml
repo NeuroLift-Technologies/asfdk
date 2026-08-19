@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "asfdk"
-version = "0.2.0"
+version = "0.3.0"
 description = "Agent Solidarity Framework Development Kit — Python umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol). Faithful port of @neurolift-technologies/asfdk."
 readme = "README.md"
 requires-python = ">=3.9"
