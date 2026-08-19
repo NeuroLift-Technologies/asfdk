@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-07-31
+> Last updated: 2026-08-19
 
 ---
 
@@ -19,6 +19,23 @@ This file tracks all **current and recently completed** work threads in this rep
 ---
 
 ## Active Threads
+
+### THREAD-012 — Python/TypeScript Alignment: Security & Provenance Parity
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-012 |
+| **Status** | ✅ Complete |
+| **Started** | 2026-08-19 |
+| **Completed** | 2026-08-19 |
+| **Owner** | AI CTO Agent (ai_cto_agent) |
+| **Branch** | `fix/python-ts-alignment` |
+| **Task** | Bring Python packages to feature parity with TypeScript across all pillar repos. ASFDK integration adapters missing security/provenance features. Pillar repos (nlt-toi, nlt-otoi, rrt-advocate, sleepwalker) are aligned. |
+| **Scope** | `src/asfdk/types.py`, `src/asfdk/prompt_defense.py` (new), `src/asfdk/integration/rrt.py`, `src/asfdk/integration/sleepwalker.py`, `src/asfdk/__init__.py`, `tests/test_prompt_defense.py` (new), `tests/test_channel.py` (new) |
+| **Blockers** | None |
+| **Related PR** | TBD |
+| **Notes** | Handoff from ai_cofounder_agent (2026-08-19T03:55:28Z). **Audit results:** nlt-toi ✅ aligned, nlt-otoi ✅ aligned, rrt-advocate ✅ aligned, sleepwalker ✅ aligned. **Gaps only in ASFDK integration adapters:** fixed Channel enum, prompt_defense.py, channel provenance in RRT/Sleepwalker, input sanitization, security event logging. Legacy Python in `/legacy` dirs is properly deprecated. All 34 tests pass. Pillar packages installed from top-level repos (nlt-toi 1.0.0, nlt-otoi 1.2.0, rrt-advocate 0.1.1, sleepwalker-protocol 1.0.1). Remediation plan: `docs/python-ts-alignment-remediation-plan.md`. **Review (2026-08-19, pool-agent):** Reviewed all 5 files against TS canonical source. 39/39 tests green (34 + 5 TOI bootstrap). End-to-end smoke tests pass. One fix applied: rrt.py reset_session() now calls engine.reset_session() instead of destroying the engine (TS fidelity). Branch mismatch noted: work is in working tree on feature/toi-bootstrap, not yet branched as fix/python-ts-alignment. Test coverage gap: adapter provenance wiring untested. Handoff: `docs/agent-log/handoffs/2026-08-19-pool-thread-012-review.json`. |
+
+---
 
 ### THREAD-011 — Generate TOI before component activation (toi bootstrap)
 | Field | Value |
