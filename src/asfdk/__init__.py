@@ -34,6 +34,7 @@ import sleepwalker_protocol as sleepwalker
 from .create_foundation import create_foundation
 from .foundation import NeuroLiftFoundation
 from .types import (
+    Channel,
     ComponentStatus,
     FoundationComponents,
     FoundationConfig,
@@ -42,6 +43,22 @@ from .types import (
     HealthCheckResult,
     InteractionType,
     UserInteraction,
+    normalize_channel,
+)
+
+# Prompt defense utilities (security layer).
+from .prompt_defense import (
+    RiskLevel,
+    SanitizationResult,
+    SecurityEvent,
+    SecurityEventType,
+    ValidationResult,
+    create_secure_system_prompt,
+    detect_injection_patterns,
+    log_security_event,
+    sanitize_input,
+    validate_input_length,
+    validate_output,
 )
 
 __version__ = "0.2.0"
@@ -53,12 +70,26 @@ __all__ = [
     # types
     "FoundationMode",
     "InteractionType",
+    "Channel",
+    "normalize_channel",
     "FoundationConfig",
     "FoundationComponents",
     "UserInteraction",
     "FoundationResponse",
     "ComponentStatus",
     "HealthCheckResult",
+    # prompt defense (security layer)
+    "RiskLevel",
+    "SecurityEventType",
+    "SanitizationResult",
+    "ValidationResult",
+    "SecurityEvent",
+    "detect_injection_patterns",
+    "validate_input_length",
+    "sanitize_input",
+    "validate_output",
+    "create_secure_system_prompt",
+    "log_security_event",
     # pillar namespaces
     "toi",
     "otoi",

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from dataclasses import fields as dataclass_fields
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 class FoundationMode(str, Enum):
@@ -39,6 +39,33 @@ class InteractionType(str, Enum):
     OPTIMIZATION_REQUEST = "optimization_request"
     STATUS_INQUIRY = "status_inquiry"
     EMERGENCY_ESCALATION = "emergency_escalation"
+
+
+class Channel(str, Enum):
+    """Closed set of channels an interaction can arrive on (D3).
+
+    Trust is derived from this value alone (D4/D6): only ``USER_INPUT`` is
+    trusted. Anything that does not exactly match a member collapses to
+    ``UNKNOWN`` (D2) and is never elevated by :func:`normalize_channel`.
+    """
+
+    USER_INPUT = "user_input"
+    MODEL_OUTPUT = "model_output"
+    TOOL_RESULT = "tool_result"
+    SYSTEM = "system"
+    UNKNOWN = "unknown"
+
+
+def normalize_channel(value: Any) -> Channel:
+    """Coerce an arbitrary runtime value to a :class:`Channel`.
+
+    Exact closed-enum members pass through; every malformed value — wrong
+    casing, surrounding whitespace, unicode lookalikes, non-strings, nested
+    objects, ``None`` — collapses to ``UNKNOWN``. Never elevates.
+    """
+    if isinstance(value, str) and value in Channel.__members__.values():
+        return Channel(value)
+    return Channel.UNKNOWN
 
 
 @dataclass
@@ -136,6 +163,8 @@ class HealthCheckResult:
 __all__ = [
     "FoundationMode",
     "InteractionType",
+    "Channel",
+    "normalize_channel",
     "FoundationComponents",
     "FoundationConfig",
     "UserInteraction",

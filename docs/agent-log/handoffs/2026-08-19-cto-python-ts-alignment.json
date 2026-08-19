@@ -1,0 +1,62 @@
+{
+  "handoff_record": {
+    "session_id": "2026-08-19-cto-python-ts-alignment",
+    "agent_name": "AI CTO Agent (ai_cto_agent)",
+    "date": "2026-08-19T12:00:00Z",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "fix/python-ts-alignment",
+    "work_completed": [
+      "Accepted handoff from ai_cofounder_agent regarding ASFDK Python/TypeScript alignment gap",
+      "Completed gap analysis of TypeScript (packages/asfdk/) vs Python (src/asfdk/) implementations",
+      "Identified 4 specific gap areas: Channel enum, prompt-defense module, channel provenance in adapters, security event logging",
+      "Registered THREAD-012 in active-threads.md for tracking",
+      "Created remediation plan in docs/python-ts-alignment-remediation-plan.md",
+      "Added Channel enum and normalize_channel() to src/asfdk/types.py",
+      "Created src/asfdk/prompt_defense.py with all security functions",
+      "Updated src/asfdk/integration/rrt.py with channel provenance and input sanitization",
+      "Updated src/asfdk/integration/sleepwalker.py with channel + user_id provenance and input sanitization",
+      "Updated src/asfdk/__init__.py exports to include new security features",
+      "Created tests/test_channel.py with 10 tests for Channel enum",
+      "Created tests/test_prompt_defense.py with 24 tests for security functions",
+      "Installed pillar packages from top-level repos (nlt-toi 1.0.0, nlt-otoi 1.2.0, rrt-advocate 0.1.1, sleepwalker-protocol 1.0.1)",
+      "All 34 tests passing",
+      "Updated active-threads.md to mark THREAD-012 as complete",
+      "Updated remediation plan to mark all success criteria as complete"
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Python package is the faithful port, TypeScript is canonical source of truth",
+      "Legacy Python in /legacy is properly deprecated and archived",
+      "Remediation focused on src/asfdk/ (published PyPI package)",
+      "New thread THREAD-012 created to track alignment work",
+      "Created pyproject.toml for asfdk package to enable editable installs",
+      "Installed pillar packages from top-level repos (not legacy copies)",
+      "Added input sanitization to RRT and Sleepwalker adapters (fail-open on detection)"
+    ],
+    "decisions_pending": [],
+    "escalations": [],
+    "next_agent_notes": "THREAD-012 complete. All Python/TypeScript alignment gaps in ASFDK integration adapters have been fixed. Package is ready for use. Next steps: commit changes, create PR, and potentially sync with upstream.",
+    "files_modified": [
+      "src/asfdk/types.py",
+      "src/asfdk/prompt_defense.py",
+      "src/asfdk/integration/rrt.py",
+      "src/asfdk/integration/sleepwalker.py",
+      "src/asfdk/__init__.py",
+      "tests/test_channel.py",
+      "tests/test_prompt_defense.py",
+      "pyproject.toml",
+      "Dockerfile",
+      "docs/active-threads.md",
+      "docs/python-ts-alignment-remediation-plan.md"
+    ],
+    "tests_run": [
+      "pytest tests/test_channel.py - 10 passed",
+      "pytest tests/test_prompt_defense.py - 27 passed",
+      "All 37 tests passing"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/32"
+  }
+}

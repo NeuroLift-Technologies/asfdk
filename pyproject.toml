@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "asfdk"
+version = "0.2.0"
+description = "Agent Solidarity Framework Development Kit — Python umbrella over the four Solidarity Framework pillars (TOI, OTOI, RRT Advocate, Sleepwalker Protocol). Faithful port of @neurolift-technologies/asfdk."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "NeuroLift Technologies", email = "info@neuroliftsolutions.com" }]
+keywords = [
+    "ai",
+    "solidarity-framework",
+    "haief",
+    "neurodivergent",
+    "toi",
+    "otoi",
+    "sleepwalker",
+    "rrt-advocate",
+    "agent-governance",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = [
+    "nlt-toi>=1.0.0",
+    "nlt-otoi>=0.1.0",
+    "rrt-advocate>=0.1.0",
+    "sleepwalker-protocol>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[project.urls]
+Homepage = "https://github.com/NeuroLift-Technologies/asfdk"
+Documentation = "https://github.com/NeuroLift-Technologies/asfdk#readme"
+Repository = "https://github.com/NeuroLift-Technologies/asfdk"
+Issues = "https://github.com/NeuroLift-Technologies/asfdk/issues"
+"HAIEF Standard" = "https://github.com/NeuroLift-Technologies/haief"
+
+# --- Build backend (Hatchling) -------------------------------------------------
+# src/ layout: the importable package is src/asfdk, published as ``asfdk``.
+# The repo also holds checked-in copies of the pillar repos (nlt-otoi/,
+# rrt-advocate/, sleepwalker/) — none of those are bundled. The package depends
+# on the published pillars; it does not ship them.
+[tool.hatch.build.targets.wheel]
+packages = ["src/asfdk"]
+
+# Lean sdist: only what the package and its conformance suite need. This also
+# keeps every checked-in pillar tree out of the distribution.
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "tests", "README.md", "LICENSE"]
+
+# --- Test config ---------------------------------------------------------------
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
