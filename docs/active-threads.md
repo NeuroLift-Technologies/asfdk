@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-08-19
+> Last updated: 2026-09-18
 
 ---
 
@@ -19,6 +19,22 @@ This file tracks all **current and recently completed** work threads in this rep
 ---
 
 ## Active Threads
+
+### THREAD-013 — Repair asfdk 0.3.0 PyPI release and ship 0.3.1
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-013 |
+| **Status** | 🟡 In Progress (PR open, awaiting review) |
+| **Started** | 2026-09-18 |
+| **Owner** | Cline (coding-agent) |
+| **Branch** | `fix/0.3.1-pypi-release` |
+| **Task** | Fix the broken published asfdk 0.3.0 wheel (hard `ImportError` on `import asfdk`) and ship a corrected 0.3.1 to PyPI. |
+| **Scope** | `src/asfdk/toi_bootstrap.py` (new), `src/asfdk/foundation.py`, `src/asfdk/integration/sleepwalker.py`, `src/asfdk/types.py`, `src/asfdk/__init__.py`, `pyproject.toml`, `packages/asfdk/package-lock.json`, `tests/test_provenance.py` (new) |
+| **Blockers** | None (PyPI upload itself is performed by Joshua after merge) |
+| **Related PR** | `[this pull request]` |
+| **Notes** | Root cause of 0.3.0 breakage: PR #31 inlined `TOIDocumentGenerator` from `nlt_toi`, but `nlt-toi` 1.0.0 (published) does not ship it. Fix: `toi_bootstrap.py` uses the pillar generator when present, else a canonical `DEFAULT_DOCUMENT` fallback that is still validated through `nlt_toi.parse_toi` (fail-loud preserved; source surfaced in `get_system_status()`). Also fixes: Sleepwalker adapter now mirrors real pillar `EmotionalState` fields (0.3.0 read nonexistent `.state`/`.raw_scores`), top-level channel provenance on `UserInteraction` (D2/D4), D5 gate-up predicate (untrusted channel + high-severity crisis), RRT error boundary on crisis routes. Lockfile regenerated for `@neurolift-technologies/toi@^1.0.3` — closes the blocker recorded in THREAD-011's npm side. Verification: pytest 59/59; `python -m build` sdist+wheel; clean-venv install of the wheel (real PyPI pillar deps) with end-to-end probes — all passed. Handoff: `docs/agent-log/handoffs/2026-09-18-cline-031-release.json`. |
+
+---
 
 ### THREAD-012 — Python/TypeScript Alignment: Security & Provenance Parity
 | Field | Value |

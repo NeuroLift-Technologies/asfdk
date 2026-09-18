@@ -1,0 +1,57 @@
+{
+  "handoff_record": {
+    "session_id": "2026-09-18-cline-031-release",
+    "agent_name": "Cline (coding-agent)",
+    "date": "2026-09-18T12:00:00Z",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "fix/0.3.1-pypi-release",
+    "work_completed": [
+      "Diagnosed the published asfdk 0.3.0 wheel: importing asfdk raised ImportError because nlt_toi 1.0.0 does not ship TOIDocumentGenerator (inlined by PR #31)",
+      "Added src/asfdk/toi_bootstrap.py: uses the pillar's TOIDocumentGenerator when present, else a verbatim canonical DEFAULT_DOCUMENT fallback that is still validated through nlt_toi.parse_toi (fail-loud preserved); foundation.get_system_status() surfaces which source was used",
+      "Fixed integration/sleepwalker.py to mirror the real pillar EmotionalState fields (state_type, protective, requires_check_in, confidence, explicit_suicidal_ideation, ...) via EmotionalStateWithProvenance instead of the nonexistent .state/.raw_scores accessors",
+      "Added sanitize-then-assess flow with fail-open detection and flag provenance (flagged/flag_reason) to the Sleepwalker adapter",
+      "Added D5 gate-up predicate in foundation.py (untrusted channel + high-severity crisis signal) and an error boundary so an RRT failure cannot abort crisis/emergency routing",
+      "Added top-level channel provenance (D2/D4) on UserInteraction in types.py; trust is read only from the top-level channel field",
+      "Added tests/test_provenance.py (provenance propagation, gate-up, pillar-correct fields); full suite 59 passed",
+      "Bumped version to 0.3.1 (pyproject.toml + __init__.py) and regenerated packages/asfdk/package-lock.json for @neurolift-technologies/toi ^1.0.3 (the blocker recorded in THREAD-011)",
+      "Built dist/asfdk-0.3.1-py3-none-any.whl and .tar.gz with python -m build; installed the wheel into a clean venv (pulling nlt-toi 1.0.0, nlt-otoi 1.2.0, rrt-advocate 0.1.1, sleepwalker-protocol 1.0.1 from PyPI) and ran end-to-end probes against the installed wheel — all passed"
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "TOI generator fallback mirrors the TypeScript canonical DEFAULT_DOCUMENT but always validates through the pillar's parser before activation — fail-loud guarantee from THREAD-011 is preserved (no silent fallback)",
+      "Trust derivation stays additive: absent channel resolves to unknown/untrusted; nested data/context values are never consulted for trust",
+      "Release executed as fix commits on fix/0.3.1-pypi-release rather than a bare version-bump release branch, because the code fixes are the substance of 0.3.1"
+    ],
+    "decisions_pending": [
+      "Actual PyPI upload for 0.3.1 (twine) — owner: Joshua W. Dorsey, Sr.",
+      "Publishing the Python TOI generator inside nlt-toi so the asfdk fallback path stops being used (fallback is safe but native is preferred) — owner: pillar maintainers"
+    ],
+    "escalations": [],
+    "next_agent_notes": "After merge: publish 0.3.1 to PyPI (dist/ artifacts are gitignored; rebuild with python -m build). The wheel was smoke-tested in a clean venv against the real PyPI pillar dependencies. THREAD-013 tracks this release; THREAD-011 remains open only for the TypeScript-side verification of @neurolift-technologies/toi@1.0.3.",
+    "files_modified": [
+      "src/asfdk/foundation.py",
+      "src/asfdk/integration/sleepwalker.py",
+      "src/asfdk/types.py",
+      "src/asfdk/__init__.py",
+      "pyproject.toml",
+      "packages/asfdk/package-lock.json",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/2026-09-18-cline-031-release.json",
+      "docs/agent-log/handoffs/2026-09-18-cline-031-release.json"
+    ],
+    "files_created": [
+      "src/asfdk/toi_bootstrap.py",
+      "tests/test_provenance.py"
+    ],
+    "files_deleted": [],
+    "tests_run": [
+      "pytest tests -q — 59 passed (pillar packages on PYTHONPATH, published pillar versions)",
+      "python -m build — sdist + wheel built cleanly",
+      "clean-venv wheel install + e2e probes against installed asfdk 0.3.1 — all passed"
+    ],
+    "tests_passing": true,
+    "pr_url": "[this pull request]"
+  }
+}
