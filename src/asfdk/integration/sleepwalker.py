@@ -46,21 +46,51 @@ def _get_instance() -> SleepwalkerProtocol:
 class EmotionalStateWithProvenance:
     """Emotional state with channel provenance (D4).
 
-    Extends the base EmotionalState with channel, trusted flag, and
-    optional injection detection fields.
+    Mirrors the published pillar's ``EmotionalState`` dataclass (``state_type``,
+    ``protective``, ``requires_check_in``, ``indicators``, ``confidence``,
+    ``explicit_suicidal_ideation``, ``self_harm_indicators``,
+    ``inability_to_ensure_safety``) with the TS adapter's provenance fields added
+    on top.
     """
 
-    # Base emotional state fields
-    state: str
-    confidence: float
-    indicators: List[str] = field(default_factory=list)
-    raw_scores: Dict[str, float] = field(default_factory=dict)
+    # Base emotional state fields (pillar's EmotionalState)
+    state_type: str
+    protective: bool
+    requires_check_in: bool
+    indicators: Dict[str, Any] = field(default_factory=dict)
+    confidence: float = 0.0
+    explicit_suicidal_ideation: bool = False
+    self_harm_indicators: bool = False
+    inability_to_ensure_safety: bool = False
 
     # Provenance fields (D4)
     channel: Channel = Channel.UNKNOWN
     trusted: bool = False
     flagged: Optional[bool] = None
     flag_reason: Optional[str] = None
+
+
+def _state_from_pillar(state: Any) -> EmotionalStateWithProvenance:
+    """Coerce a pillar emotional state into the provenance-bearing dataclass.
+
+    The pillar returns its own ``EmotionalState`` dataclass; this keeps the
+    adapter honest about the real field names instead of guessing accessors that
+    may not exist (a shipped 0.3.0 bug: it read ``.state``/``.raw_scores``).
+    """
+    return EmotionalStateWithProvenance(
+        state_type=str(getattr(state, "state_type", "")),
+        protective=bool(getattr(state, "protective", False)),
+        requires_check_in=bool(getattr(state, "requires_check_in", False)),
+        indicators=dict(getattr(state, "indicators", {}) or {}),
+        confidence=float(getattr(state, "confidence", 0.0)),
+        explicit_suicidal_ideation=bool(
+            getattr(state, "explicit_suicidal_ideation", False)
+        ),
+        self_harm_indicators=bool(getattr(state, "self_harm_indicators", False)),
+        inability_to_ensure_safety=bool(
+            getattr(state, "inability_to_ensure_safety", False)
+        ),
+    )
 
 
 def detect_emotional_state(
@@ -104,25 +134,17 @@ def detect_emotional_state(
             )
         )
 
-    state = _get_instance().detect_emotional_state(
-        sanitization_result.content, session_history or []
+    state = _state_from_pillar(
+        _get_instance().detect_emotional_state(
+            sanitization_result.content, session_history or []
+        )
     )
-
-    # Build provenance-enriched result
-    result = EmotionalStateWithProvenance(
-        state=state.state if hasattr(state, "state") else str(state),
-        confidence=state.confidence if hasattr(state, "confidence") else 0.0,
-        indicators=state.indicators if hasattr(state, "indicators") else [],
-        raw_scores=state.raw_scores if hasattr(state, "raw_scores") else {},
-        channel=resolved,
-        trusted=resolved == Channel.USER_INPUT,
-    )
-
+    state.channel = resolved
+    state.trusted = resolved == Channel.USER_INPUT
     if flagged:
-        result.flagged = True
-        result.flag_reason = sanitization_result.reason
-
-    return result
+        state.flagged = True
+        state.flag_reason = sanitization_result.reason
+    return state
 
 
 def assess_interaction(
