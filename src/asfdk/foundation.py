@@ -8,10 +8,15 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 
-from nlt_toi import TOIDocumentGenerator, ToiDocument
+try:  # ``nlt-toi`` >= 1.0.0 ships this alias; keep annotations meaningful either way.
+    from nlt_toi import ToiDocument
+except ImportError:  # pragma: no cover - defensive
+    ToiDocument = Dict[str, Any]  # type: ignore[misc,assignment]
 
 from .integration import rrt, sleepwalker, toi_otoi
+from .toi_bootstrap import generator_source, get_generator_class
 from .types import (
+    Channel,
     ComponentStatus,
     FoundationComponents,
     FoundationConfig,
@@ -20,6 +25,7 @@ from .types import (
     HealthCheckResult,
     InteractionType,
     UserInteraction,
+    normalize_channel,
 )
 
 
@@ -90,6 +96,12 @@ class NeuroLiftFoundation:
     def _generate_toi(self) -> ToiDocument:
         """Run the ``toi-generator`` logic over the configured source.
 
+        The authoring helper is the pillar's own ``TOIDocumentGenerator`` when the
+        installed ``nlt-toi`` provides it, otherwise the local mirror in
+        :mod:`asfdk.toi_bootstrap` (which delegates validation to the pillar's
+        canonical schema). :func:`asfdk.toi_bootstrap.generator_source` reports
+        which one is in use.
+
         Source resolution:
         - ``None``  → privacy-first document generated from defaults
         - ``str``   → path to a ``.toi``/``.json`` file, parsed then regenerated
@@ -98,17 +110,18 @@ class NeuroLiftFoundation:
         Every path validates through the canonical schema before returning, so
         an invalid source raises here rather than activating a broken TOI.
         """
+        generator = get_generator_class()
         source = self._config.toi
         if source is None:
-            return TOIDocumentGenerator.from_defaults("anonymous").document
+            return generator.from_defaults("anonymous").document
         if isinstance(source, dict):
-            return TOIDocumentGenerator.from_dict(source).document
+            return generator.from_dict(source).document
         if isinstance(source, str):
             with open(source, encoding="utf-8") as handle:
                 raw = json.load(handle)
             if not isinstance(raw, dict):
                 raise TypeError("a .toi source file must contain a JSON object")
-            return TOIDocumentGenerator.from_dict(raw).document
+            return generator.from_dict(raw).document
         raise TypeError(
             "toi must be a preferences dict, a path to a .toi/.json file, or None; "
             f"got {type(source).__name__}"
@@ -139,6 +152,13 @@ class NeuroLiftFoundation:
         components: List[str] = []
         content: Dict[str, Any] = {}
 
+        # Provenance (D2/D4/D6): resolve the channel from the TOP-LEVEL field
+        # only — values nested inside data/context are ignored for trust
+        # (anti-spoofing). Absent → ``unknown``; trusted := channel == user_input.
+        channel = normalize_channel(interaction.channel)
+        trusted = channel == Channel.USER_INPUT
+        # D5 gate-up predicate: untrusted channel AND high-severity crisis signal.
+        high_severity = False
         if (
             self._active.swp
             and interaction.interaction_type == InteractionType.EMOTIONAL_ASSESSMENT
@@ -146,7 +166,15 @@ class NeuroLiftFoundation:
             try:
                 text_val = (interaction.data or {}).get("text")
                 user_input = str(text_val) if text_val is not None else ""
-                state = sleepwalker.detect_emotional_state(user_input)
+                state = sleepwalker.detect_emotional_state(
+                    user_input, [], channel, self._config.user_id
+                )
+                # Emotional-path high-severity: explicit crisis flags on the state.
+                high_severity = bool(
+                    state.explicit_suicidal_ideation
+                    or state.self_harm_indicators
+                    or state.inability_to_ensure_safety
+                )
                 content["emotionalState"] = state
 
                 if self._active.rrt and sleepwalker.requires_rrta_handoff(state):
@@ -155,7 +183,7 @@ class NeuroLiftFoundation:
                     # emotional-state result.
                     try:
                         content["rrt"] = await rrt.assess(
-                            self._config.user_id, user_input
+                            self._config.user_id, user_input, channel
                         )
                     except Exception as err:  # noqa: BLE001
                         content["error"] = {
@@ -189,10 +217,39 @@ class NeuroLiftFoundation:
             user_input = str(text_val) if text_val is not None else ""
             # Error boundary: an RRT failure must not abort a crisis/emergency route.
             try:
-                content["rrt"] = await rrt.assess(self._config.user_id, user_input)
+                content["rrt"] = await rrt.assess(
+                    self._config.user_id, user_input, channel
+                )
+                # CRISIS_ALERT is high-severity only on an actual RED/BLACK
+                # reading; a failed detection is not evidence of severity, so it
+                # does not gate up.
+                if interaction.interaction_type == InteractionType.CRISIS_ALERT:
+                    level = getattr(content.get("rrt"), "crisis_level", None)
+                    high_severity = level in (
+                        rrt.CrisisLevel.RED,
+                        rrt.CrisisLevel.BLACK,
+                    )
             except Exception as err:  # noqa: BLE001
                 content["error"] = {"component": "rrt_advocate", "message": str(err)}
             components.append("rrt_advocate")
+
+        # D5 high-severity fallbacks:
+        # - EMERGENCY_ESCALATION is always high-severity.
+        # - CRISIS_ALERT with RRT inactive is high-severity by interaction type
+        #   alone (fail-safe: never silently ignored when detection is off).
+        if interaction.interaction_type == InteractionType.EMERGENCY_ESCALATION:
+            high_severity = True
+        if (
+            interaction.interaction_type == InteractionType.CRISIS_ALERT
+            and not self._active.rrt
+        ):
+            high_severity = True
+
+        # D5 gate-up (Enforce): an untrusted channel carrying a high-severity
+        # signal is the one combination that escalates rather than degrades.
+        content["channel"] = channel
+        content["trusted"] = trusted
+        content["gateUp"] = not trusted and high_severity
 
         return FoundationResponse(
             timestamp=datetime.now(timezone.utc),
@@ -208,17 +265,56 @@ class NeuroLiftFoundation:
         self,
         input: str,
         _context: Optional[Dict[str, Any]] = None,
+        channel: Optional[Channel] = None,
     ) -> Any:
         """Assess the emotional state of a free-text input via the Sleepwalker
         Protocol. Returns ``None`` when Sleepwalker is not active for the current
         mode.
 
+        Channel provenance (D4): the resolved channel and its derived ``trusted``
+        flag are recorded additively on the returned assessment — no envelope —
+        so existing consumers see the same shape plus ``channel``, ``trusted``,
+        and ``gateUp`` properties. Absent channel → ``unknown``/untrusted.
+
         :param input: Free-text user input to assess.
         :param _context: Reserved for future context enrichment; currently unused.
+        :param channel: Optional channel the interaction arrived on; absent → ``unknown``.
         """
         if not self._active.swp:
             return None
-        return sleepwalker.assess_interaction(input)
+        resolved = normalize_channel(channel)
+        trusted = resolved == Channel.USER_INPUT
+
+        def _get(obj: Any, name: str, default: Any = None) -> Any:
+            value = obj.get(name, default) if isinstance(obj, dict) else getattr(obj, name, default)
+            return default if value is None else value
+
+        result = sleepwalker.assess_interaction(input)
+        # assessInteraction nests the state; read the crisis flags from it
+        # (falling back to the top level for flat-shaped callers).
+        inner = _get(result, "emotional_state", None) or _get(
+            result, "emotionalState", None
+        )
+        if inner is None:
+            inner = result
+        high_severity = bool(
+            _get(inner, "explicit_suicidal_ideation", False)
+            or _get(inner, "explicitSuicidalIdeation", False)
+            or _get(inner, "self_harm_indicators", False)
+            or _get(inner, "selfHarmIndicators", False)
+            or _get(inner, "inability_to_ensure_safety", False)
+            or _get(inner, "inabilityToEnsureSafety", False)
+        )
+        gate_up = not trusted and high_severity
+        if isinstance(result, dict):
+            result["channel"] = resolved
+            result["trusted"] = trusted
+            result["gateUp"] = gate_up
+        else:
+            result.channel = resolved
+            result.trusted = trusted
+            result.gateUp = gate_up
+        return result
 
     async def update_preferences(self, prefs: Dict[str, Any]) -> None:
         """Validate a preference object against the TOI schema and raise if
@@ -247,6 +343,9 @@ class NeuroLiftFoundation:
             "initialized": self._initialized,
             "toi": {
                 "generated": self._toi_document is not None,
+                # ``"nlt_toi"`` when the pillar supplies the authoring helper,
+                # otherwise ``"asfdk-fallback"`` — the fallback is never silent.
+                "generator": generator_source(),
                 "document": self._toi_document,
             },
             "components": {

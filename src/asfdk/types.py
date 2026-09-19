@@ -128,6 +128,10 @@ class UserInteraction:
     session_id: Optional[str] = None
     priority: Optional[int] = None
     context: Optional[Dict[str, Any]] = None
+    #: Optional channel the interaction arrived on (D2). Absent → ``unknown``.
+    #: Trust is read ONLY from this top-level field (D4); values nested inside
+    #: ``data`` or ``context`` are ignored for trust purposes.
+    channel: Optional[Channel] = None
 
 
 @dataclass
