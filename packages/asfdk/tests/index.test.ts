@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import {
   Channel,
   createFoundation,
@@ -641,5 +641,88 @@ describe('ASFDK provenance defense — channel classification (C1/C2)', () => {
     expect(c3.content.channel).toBe(Channel.UNKNOWN);
     expect(c3.content.trusted).toBe(false);
     expect(c3.content.gateUp).toBe(true); // EMERGENCY_ESCALATION always high + untrusted
+  });
+});
+
+// RRT runs on every emotional assessment when it is active, independent of Sleepwalker's handoff signal.
+// Background: Sleepwalker's detector does not flag every statement RRT recognizes ("I want to die"
+// returns emergency / 1.0 from RRT alone), and RRT was only called when Sleepwalker asked for a handoff.
+describe('EMOTIONAL_ASSESSMENT routes to RRT whenever RRT is active', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const assess = (f: NeuroLiftFoundation, userId: string, text: string, channel: Channel) =>
+    f.processInteraction({
+      timestamp: new Date(),
+      interactionType: InteractionType.EMOTIONAL_ASSESSMENT,
+      data: { text },
+      userId,
+      channel,
+    });
+
+  it('UNIFIED: a statement RRT recognizes is assessed by RRT even when Sleepwalker does not flag it', async () => {
+    const f = await createFoundation('r1', FoundationMode.UNIFIED);
+    const response = await assess(f, 'r1', 'I want to die', Channel.USER_INPUT);
+    expect(response.componentsInvolved).toEqual(['rrt_advocate', 'sleepwalker_protocol']);
+    expect((response.content.rrt as { crisisLevel?: string }).crisisLevel).toBe(rrt.CrisisLevel.BLACK);
+  });
+
+  it('UNIFIED: an RRT critical/emergency reading raises the gate on an untrusted channel', async () => {
+    const f = await createFoundation('r2', FoundationMode.UNIFIED);
+    const untrusted = await assess(f, 'r2', 'I want to die', Channel.UNKNOWN);
+    expect(untrusted.content.trusted).toBe(false);
+    expect(untrusted.content.gateUp).toBe(true);
+    const trusted = await assess(f, 'r2', 'I want to die', Channel.USER_INPUT);
+    expect(trusted.content.gateUp).toBe(false);
+  });
+
+  it('UNIFIED: benign text is assessed by RRT, reads stable, and does not raise the gate', async () => {
+    const f = await createFoundation('r3', FoundationMode.UNIFIED);
+    const response = await assess(f, 'r3', 'Add a unit test for the parser.', Channel.UNKNOWN);
+    expect(response.componentsInvolved).toContain('rrt_advocate');
+    expect((response.content.rrt as { crisisLevel?: string }).crisisLevel).toBe(rrt.CrisisLevel.GREEN);
+    expect(response.content.gateUp).toBe(false);
+  });
+
+  it('CRISIS_ONLY: emotional assessments are no longer ignored; RRT assesses them', async () => {
+    const f = await createFoundation('r4', FoundationMode.CRISIS_ONLY);
+    const response = await assess(f, 'r4', 'I want to kill myself', Channel.UNKNOWN);
+    expect(response.componentsInvolved).toEqual(['rrt_advocate']);
+    expect(response.content).not.toHaveProperty('emotionalState');
+    expect((response.content.rrt as { crisisLevel?: string }).crisisLevel).toBe(rrt.CrisisLevel.BLACK);
+    expect(response.content.gateUp).toBe(true);
+  });
+
+  it('CONTINUITY_ONLY (RRT off) and FRAMEWORK_ONLY are unchanged', async () => {
+    const continuity = await createFoundation('r5', FoundationMode.CONTINUITY_ONLY);
+    const c = await assess(continuity, 'r5', 'I want to die', Channel.USER_INPUT);
+    expect(c.componentsInvolved).toEqual(['sleepwalker_protocol']);
+    expect(c.content).not.toHaveProperty('rrt');
+
+    const framework = await createFoundation('r6', FoundationMode.FRAMEWORK_ONLY);
+    const fw = await assess(framework, 'r6', 'I want to die', Channel.USER_INPUT);
+    expect(fw.componentsInvolved).toHaveLength(0);
+  });
+
+  it('an RRT failure is attributed to rrt_advocate and keeps the Sleepwalker result', async () => {
+    vi.spyOn(rrtAdapter, 'assess').mockRejectedValueOnce(new Error('rrt boom'));
+    const f = await createFoundation('r7', FoundationMode.UNIFIED);
+    const response = await assess(f, 'r7', 'I feel overwhelmed today', Channel.USER_INPUT);
+    expect(response.success).toBe(true);
+    expect(response.content).toHaveProperty('emotionalState');
+    expect(response.content.error).toMatchObject({ component: 'rrt_advocate' });
+    expect(response.componentsInvolved).toEqual(['rrt_advocate', 'sleepwalker_protocol']);
+  });
+
+  it('a Sleepwalker failure no longer skips RRT', async () => {
+    vi.spyOn(sleepwalkerAdapter, 'detectEmotionalState').mockImplementationOnce(() => {
+      throw new Error('swp boom');
+    });
+    const f = await createFoundation('r8', FoundationMode.UNIFIED);
+    const response = await assess(f, 'r8', 'I want to die', Channel.UNKNOWN);
+    expect(response.componentsInvolved).toEqual(['rrt_advocate', 'sleepwalker_protocol']);
+    expect((response.content.rrt as { crisisLevel?: string }).crisisLevel).toBe(rrt.CrisisLevel.BLACK);
+    expect(response.content.gateUp).toBe(true);
   });
 });
