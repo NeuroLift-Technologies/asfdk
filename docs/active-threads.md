@@ -31,7 +31,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Task** | The foundation called RRT on an emotional assessment only when Sleepwalker raised a handoff, so statements RRT recognizes (for example "I want to die": RRT alone returns emergency / 1.0) were never assessed, and `CRISIS_ONLY` mode ignored emotional assessments entirely. |
 | **Scope** | `packages/asfdk/src/foundation.ts`, `src/asfdk/foundation.py`, tests for both, `docs/agent-log/*`, `docs/escalations/*`, this file |
 | **Blockers** | None for this change. Statements RRT's patterns miss are tracked in NeuroLift-Technologies/rrt-advocate #49 and #50. |
-| **Related PR** | pending |
+| **Related PR** | [asfdk#41](https://github.com/NeuroLift-Technologies/asfdk/pull/41); related: rrt-advocate#49, #50, asfdk-harness#36, nlt-pi#16 |
 | **Notes** | Behavior change on a versioned public API; approval recorded in `docs/escalations/2026-11-04-emotional-assessment-rrt-routing-approved.md`. No version bump, build, or publish done; those are the owner's. |
 
 ---

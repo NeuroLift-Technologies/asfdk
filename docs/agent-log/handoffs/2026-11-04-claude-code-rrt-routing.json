@@ -41,6 +41,6 @@
       "pytest tests (66 pass)"
     ],
     "test_result": "all_pass; mutation_checks_confirm_tests_depend_on_change",
-    "pr_url": "pending"
+    "pr_url": "https://github.com/NeuroLift-Technologies/asfdk/pull/41"
   }
 }
