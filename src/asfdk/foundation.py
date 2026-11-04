@@ -144,7 +144,9 @@ class NeuroLiftFoundation:
         components and return a :class:`~asfdk.types.FoundationResponse` with
         aggregated content.
 
-        - ``EMOTIONAL_ASSESSMENT`` → Sleepwalker Protocol (+ RRT handoff if crisis indicated)
+        - ``EMOTIONAL_ASSESSMENT`` → Sleepwalker Protocol (when active) and RRT Advocate
+          (when active). RRT runs on every emotional assessment, independent of
+          Sleepwalker's handoff signal.
         - ``PREFERENCE_UPDATE`` → TOI-OTOI schema validation
         - ``CRISIS_ALERT`` / ``EMERGENCY_ESCALATION`` → RRT Advocate crisis detection
         - All other types → empty ``components_involved`` list with ``success=True``
@@ -160,45 +162,54 @@ class NeuroLiftFoundation:
         # D5 gate-up predicate: untrusted channel AND high-severity crisis signal.
         high_severity = False
         if (
-            self._active.swp
-            and interaction.interaction_type == InteractionType.EMOTIONAL_ASSESSMENT
-        ):
-            try:
-                text_val = (interaction.data or {}).get("text")
-                user_input = str(text_val) if text_val is not None else ""
-                state = sleepwalker.detect_emotional_state(
-                    user_input, [], channel, self._config.user_id
-                )
-                # Emotional-path high-severity: explicit crisis flags on the state.
-                high_severity = bool(
-                    state.explicit_suicidal_ideation
-                    or state.self_harm_indicators
-                    or state.inability_to_ensure_safety
-                )
-                content["emotionalState"] = state
+            self._active.swp or self._active.rrt
+        ) and interaction.interaction_type == InteractionType.EMOTIONAL_ASSESSMENT:
+            text_val = (interaction.data or {}).get("text")
+            user_input = str(text_val) if text_val is not None else ""
 
-                if self._active.rrt and sleepwalker.requires_rrta_handoff(state):
-                    # Own error boundary so an RRT failure is attributed to
-                    # rrt_advocate (not sleepwalker) and does not discard the
-                    # emotional-state result.
-                    try:
-                        content["rrt"] = await rrt.assess(
-                            self._config.user_id, user_input, channel
-                        )
-                    except Exception as err:  # noqa: BLE001
-                        content["error"] = {
-                            "component": "rrt_advocate",
-                            "message": str(err),
-                        }
-                    # Listed whenever attempted (success or failure), consistent
-                    # with the crisis/emergency route and with sleepwalker_protocol.
-                    components.append("rrt_advocate")
-            except Exception as err:  # noqa: BLE001
-                content["error"] = {
-                    "component": "sleepwalker_protocol",
-                    "message": str(err),
-                }
-            components.append("sleepwalker_protocol")
+            if self._active.swp:
+                try:
+                    state = sleepwalker.detect_emotional_state(
+                        user_input, [], channel, self._config.user_id
+                    )
+                    # Emotional-path high-severity: explicit crisis flags on the state.
+                    high_severity = bool(
+                        state.explicit_suicidal_ideation
+                        or state.self_harm_indicators
+                        or state.inability_to_ensure_safety
+                    )
+                    content["emotionalState"] = state
+                except Exception as err:  # noqa: BLE001
+                    content["error"] = {
+                        "component": "sleepwalker_protocol",
+                        "message": str(err),
+                    }
+
+            if self._active.rrt:
+                # RRT runs whenever it is active, not only when Sleepwalker asks
+                # for a handoff: Sleepwalker's detector does not flag every
+                # statement RRT recognizes. Own error boundary so an RRT failure
+                # is attributed to rrt_advocate (not sleepwalker) and does not
+                # discard the emotional-state result; a Sleepwalker failure no
+                # longer skips RRT either.
+                try:
+                    content["rrt"] = await rrt.assess(
+                        self._config.user_id, user_input, channel
+                    )
+                    level = getattr(content.get("rrt"), "crisis_level", None)
+                    if level in (rrt.CrisisLevel.RED, rrt.CrisisLevel.BLACK):
+                        high_severity = True
+                except Exception as err:  # noqa: BLE001
+                    content["error"] = {
+                        "component": "rrt_advocate",
+                        "message": str(err),
+                    }
+                # Listed whenever attempted (success or failure), consistent
+                # with the crisis/emergency route and with sleepwalker_protocol.
+                components.append("rrt_advocate")
+
+            if self._active.swp:
+                components.append("sleepwalker_protocol")
 
         if (
             self._active.toi

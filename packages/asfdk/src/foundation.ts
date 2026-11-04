@@ -135,7 +135,9 @@ export class NeuroLiftFoundation {
    *
    * Security: Input is sanitized and output is validated to prevent prompt injection.
    *
-   * - `EMOTIONAL_ASSESSMENT` → Sleepwalker Protocol (+ RRT handoff if crisis indicated)
+   * - `EMOTIONAL_ASSESSMENT` → Sleepwalker Protocol (when active) and RRT Advocate (when active). RRT
+   *   runs on every emotional assessment, independent of Sleepwalker's handoff signal: Sleepwalker's detector
+   *   does not flag every statement RRT recognizes, so gating RRT on it left such statements unassessed.
    * - `PREFERENCE_UPDATE` → TOI-OTOI schema validation
    * - `CRISIS_ALERT` / `EMERGENCY_ESCALATION` → RRT Advocate crisis detection
    * - All other types → empty `componentsInvolved` array with `success: true`
@@ -153,32 +155,46 @@ export class NeuroLiftFoundation {
     // D5 gate-up predicate: untrusted channel AND high-severity crisis signal.
     let highSeverity = false;
 
-    if (this.active.swp && interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT) {
-      try {
-        const input = String(interaction.data?.['text'] ?? '');
-        const state = sleepwalker.detectEmotionalState(input, [], channel, this.config.userId);
-        // Emotional-path high-severity: explicit crisis flags on the state.
-        highSeverity =
-          state.explicitSuicidalIdeation || state.selfHarmIndicators || state.inabilityToEnsureSafety;
-        content.emotionalState = state;
+    if (
+      (this.active.swp || this.active.rrt) &&
+      interaction.interactionType === InteractionType.EMOTIONAL_ASSESSMENT
+    ) {
+      const input = String(interaction.data?.['text'] ?? '');
 
-        if (this.active.rrt && sleepwalker.requiresRrtaHandoff(state)) {
-          // Own error boundary so an RRT failure is attributed to rrt_advocate
-          // (not sleepwalker) and does not discard the emotional-state result.
-          try {
-            const rrtResult = this.validateComponentOutput(await rrt.assess(this.config.userId, input, channel));
-            if (rrtResult !== undefined) content.rrt = rrtResult;
-          } catch (err) {
-            content.error = { component: 'rrt_advocate', message: String(err) };
-          }
-          // Listed whenever attempted (success or failure), consistent with the
-          // crisis/emergency route and with sleepwalker_protocol.
-          components.push('rrt_advocate');
+      if (this.active.swp) {
+        try {
+          const state = sleepwalker.detectEmotionalState(input, [], channel, this.config.userId);
+          // Emotional-path high-severity: explicit crisis flags on the state.
+          highSeverity =
+            state.explicitSuicidalIdeation || state.selfHarmIndicators || state.inabilityToEnsureSafety;
+          content.emotionalState = state;
+        } catch (err) {
+          content.error = { component: 'sleepwalker_protocol', message: String(err) };
         }
-      } catch (err) {
-        content.error = { component: 'sleepwalker_protocol', message: String(err) };
       }
-      components.push('sleepwalker_protocol');
+
+      if (this.active.rrt) {
+        // RRT runs whenever it is active, not only when Sleepwalker asks for a handoff. Own error boundary so
+        // an RRT failure is attributed to rrt_advocate (not sleepwalker) and does not discard the
+        // emotional-state result; a Sleepwalker failure no longer skips RRT either.
+        try {
+          const rrtResult = this.validateComponentOutput(await rrt.assess(this.config.userId, input, channel));
+          if (rrtResult !== undefined) {
+            content.rrt = rrtResult;
+            const level = (rrtResult as { crisisLevel?: rrt.CrisisLevel }).crisisLevel;
+            if (level === rrt.CrisisLevel.RED || level === rrt.CrisisLevel.BLACK) {
+              highSeverity = true;
+            }
+          }
+        } catch (err) {
+          content.error = { component: 'rrt_advocate', message: String(err) };
+        }
+        // Listed whenever attempted (success or failure), consistent with the
+        // crisis/emergency route and with sleepwalker_protocol.
+        components.push('rrt_advocate');
+      }
+
+      if (this.active.swp) components.push('sleepwalker_protocol');
     }
 
     if (this.active.toi && interaction.interactionType === InteractionType.PREFERENCE_UPDATE) {
