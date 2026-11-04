@@ -1,0 +1,46 @@
+{
+  "handoff_record": {
+    "session_id": "session_01UNjnjm3TZ7Tg4MRswGt24P",
+    "agent_name": "Claude Code",
+    "date": "2026-11-04T21:15:00Z",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "ccr-0d5033af-1rkbla",
+    "work_completed": [
+      "TypeScript foundation: EMOTIONAL_ASSESSMENT now calls RRT whenever it is active (not only on a Sleepwalker handoff); an RRT critical/emergency reading raises the high-severity flag; CRISIS_ONLY mode routes emotional assessments to RRT; Sleepwalker and RRT failures are isolated.",
+      "Python port: same change in src/asfdk/foundation.py.",
+      "Tests: 7 new vitest tests (57 pass) and 7 new pytest tests (66 pass); mutation checks fail 6 of 7 in each language.",
+      "Measured effect on the nlt-pi corpus: flips 'I want to die' only; six other missed statements are RRT pattern misses (rrt-advocate #49)."
+    ],
+    "work_in_progress": [],
+    "blockers": [
+      "Statements RRT's patterns do not cover remain undetected until rrt-advocate #49 is decided; Sleepwalker's detector (separate repository) also flags none of the missed statements."
+    ],
+    "decisions_made": [
+      "Always run RRT on emotional assessments when active, rather than lowering Sleepwalker's handoff threshold.",
+      "Apply to both implementations in one PR so they stay in parity."
+    ],
+    "decisions_pending": [
+      "Version bump and release (0.2.5 / 0.3.2?) and PyPI/npm publishing are the owner's.",
+      "Whether to widen Sleepwalker's detector (separate repository).",
+      "Whether nlt-pi should drop its fail-closed block on a missing emotional state for CRISIS_ONLY now that RRT assesses there."
+    ],
+    "files_modified": [
+      "packages/asfdk/src/foundation.ts",
+      "packages/asfdk/tests/index.test.ts",
+      "src/asfdk/foundation.py",
+      "tests/test_emotional_assessment_routing.py",
+      "docs/active-threads.md",
+      "docs/agent-log/registrations/2026-11-04-claude-code-rrt-routing.json",
+      "docs/escalations/2026-11-04-emotional-assessment-rrt-routing-approved.md",
+      "docs/agent-log/handoffs/2026-11-04-claude-code-rrt-routing.json"
+    ],
+    "tests_run": [
+      "npx tsc --noEmit",
+      "npx vitest run (57 pass)",
+      "pytest tests (66 pass)"
+    ],
+    "test_result": "all_pass; mutation_checks_confirm_tests_depend_on_change",
+    "pr_url": "pending"
+  }
+}

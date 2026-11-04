@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-09-18
+> Last updated: 2026-11-04
 
 ---
 
@@ -19,6 +19,22 @@ This file tracks all **current and recently completed** work threads in this rep
 ---
 
 ## Active Threads
+
+### THREAD-014 — Route EMOTIONAL_ASSESSMENT to RRT whenever RRT is active
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-014 |
+| **Status** | 🟡 In Progress (draft PR, awaiting owner review) |
+| **Started** | 2026-11-04 |
+| **Owner** | Claude Code (owner-directed from nlt-pi) |
+| **Branch** | `ccr-0d5033af-1rkbla` |
+| **Task** | The foundation called RRT on an emotional assessment only when Sleepwalker raised a handoff, so statements RRT recognizes (for example "I want to die": RRT alone returns emergency / 1.0) were never assessed, and `CRISIS_ONLY` mode ignored emotional assessments entirely. |
+| **Scope** | `packages/asfdk/src/foundation.ts`, `src/asfdk/foundation.py`, tests for both, `docs/agent-log/*`, `docs/escalations/*`, this file |
+| **Blockers** | None for this change. Statements RRT's patterns miss are tracked in NeuroLift-Technologies/rrt-advocate #49 and #50. |
+| **Related PR** | pending |
+| **Notes** | Behavior change on a versioned public API; approval recorded in `docs/escalations/2026-11-04-emotional-assessment-rrt-routing-approved.md`. No version bump, build, or publish done; those are the owner's. |
+
+---
 
 ### THREAD-013 — Repair asfdk 0.3.0 PyPI release and ship 0.3.1
 | Field | Value |
