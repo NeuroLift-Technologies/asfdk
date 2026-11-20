@@ -122,7 +122,9 @@ class PolicyGateway:
         }))
         token = ACDT(
             token_id=str(uuid.uuid4()), subject=subject, audience=audience,
-            capabilities=effective, rem_depth=rem_depth, exp=timestamp + 300,
+            capabilities=effective, rem_depth=rem_depth,
+            # Child expiry is bounded by the parent's expiration.
+            exp=min(timestamp + 300, parent.exp) if parent else timestamp + 300,
             cnf_jkt=dpop_jkt, session_id=session_id, handoff_id=handoff_id,
             lineage_hash=lineage, parent_token_id=parent.token_id if parent else None,
         )
@@ -188,8 +190,8 @@ class PolicyGateway:
             raise PolicyDenied("INVALID_RECOVERY", "Recovery requires GREEN or YELLOW")
         self.crisis_level = level
         self._kill_switch = False
-        self._revoked_sessions.clear()
-        self._revoked_tokens.clear()
+        # Previously revoked sessions and tokens stay revoked until expiry;
+        # fresh authorized grants can be minted after recovery.
 
     def update_consent(self, consent: Consent) -> None:
         if self.config.consent == Consent.NONE and consent != Consent.NONE:
@@ -201,7 +203,9 @@ class PolicyGateway:
         if isinstance(self.store, SQLiteReservationStore):
             self.store.update_consent(consent, self.ledger.cipher)
         if consent == Consent.NONE:
+            # Atomically switch to a volatile memory store; disk is never used again.
             self.store.clear()
+            self.store = MemoryReservationStore()
         self.config.consent = consent
 
     def _safe_result(self, state: TerminalState = TerminalState.CANCELLED,
@@ -216,6 +220,15 @@ class PolicyGateway:
         return DispatchResult(state=state, deferred=deferred)
 
     async def dispatch(self, token: ACDT, request: OutboundRequest, dpop_proof: str) -> DispatchResult:
+        # Deny unknown or incomplete operations before the adapter is called.
+        if not request.audience:
+            raise PolicyDenied("INVALID_OPERATION", "Operation audience is required")
+        if not request.destination:
+            raise PolicyDenied("INVALID_OPERATION", "Operation destination is required")
+        if not request.boundary:
+            raise PolicyDenied("INVALID_OPERATION", "Operation boundary is required")
+        if not request.required_capability:
+            raise PolicyDenied("INVALID_OPERATION", "Operation capability is required")
         # Credential/revocation -> CSG -> scope is a normative precedence chain.
         self._verify_token(
             token, expected_audience=request.audience, proof=dpop_proof,

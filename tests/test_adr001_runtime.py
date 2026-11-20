@@ -27,7 +27,11 @@ from asfdk import (
 )
 from asfdk.runtime import AuditLedger
 from asfdk.runtime.crypto import b64url, canonical_json
-from asfdk.runtime.store import MemoryReservationStore
+from asfdk.runtime.store import (
+    MemoryReservationStore,
+    SQLiteReservationStore,
+    request_hash,
+)
 
 ALL = frozenset({"calendar:read", "notes:read", "calendar:write", "private:respond"})
 
@@ -625,3 +629,92 @@ async def test_passive_never_persists_full_response_but_never_reexecutes(tmp_pat
         assert connection.execute(
             "SELECT response_json FROM reservations WHERE key = 'passive-response'",
         ).fetchone()[0] is None
+
+
+
+# ============================================================
+# CodeX review regression tests
+# ============================================================
+
+import time as time_module
+
+
+@pytest.mark.asyncio
+async def test_codex_incomplete_operation_rejected_before_adapter(tmp_path):
+    gateway, key, token = make_gateway(tmp_path)
+    adapter = RecordingAdapter()
+    incomplete = request(adapter, destination='', capability='')
+    with pytest.raises(PolicyDenied) as caught:
+        await send(gateway, key, token, incomplete)
+    assert caught.value.code == 'INVALID_OPERATION'
+    assert adapter.calls == []
+
+
+@pytest.mark.asyncio
+async def test_codex_consent_downgrade_switches_to_memory_store(tmp_path):
+    path = tmp_path / 'consent-downgrade.sqlite3'
+    gateway, _key, _token = make_gateway(
+        tmp_path, consent=Consent.ACTIVE, storage_path=str(path),
+        audit_encryption_key=Fernet.generate_key(),
+    )
+    assert isinstance(gateway.store, SQLiteReservationStore)
+    gateway.update_consent(Consent.NONE)
+    assert isinstance(gateway.store, MemoryReservationStore)
+    with sqlite3.connect(path) as connection:
+        rows = connection.execute(
+            "SELECT COUNT(*) FROM reservations WHERE key = ?", ("post-downgrade",)
+        ).fetchone()[0]
+    assert rows == 0
+
+
+@pytest.mark.asyncio
+async def test_codex_foundation_crisis_revokes_gateway(tmp_path):
+    from datetime import datetime, timezone
+
+    from asfdk.types import Channel, InteractionType, UserInteraction
+    charter_path, trusted = make_charter(tmp_path)
+    foundation = await create_foundation(FoundationConfig(
+        user_id='crisis-user', mode=FoundationMode.UNIFIED,
+        runtime=RuntimeConfig(
+            charter_path=charter_path, trusted_charter_keys=trusted,
+            sleepwalker_capabilities=ALL, human_task_capabilities=ALL,
+            root_audience='test://adapter', root_depth=2,
+        ),
+    ))
+    gateway = foundation.runtime
+    assert gateway.crisis_level == CrisisLevel.GREEN
+    interaction = UserInteraction(
+        timestamp=datetime.now(timezone.utc),
+        interaction_type=InteractionType.EMOTIONAL_ASSESSMENT,
+        data={'text': 'I want to die'},
+        user_id='crisis-user', channel=Channel.USER_INPUT,
+    )
+    await foundation.process_interaction(interaction)
+    assert gateway.crisis_level in (CrisisLevel.RED, CrisisLevel.BLACK)
+    await foundation.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_codex_child_expiry_bounded_by_parent(tmp_path):
+    gateway, _key, root = make_gateway(tmp_path, root_depth=1)
+    child_key = ec.generate_private_key(ec.SECP256R1())
+    child = gateway.delegate(
+        root, subject='child', audience='test://adapter',
+        human_task_capabilities=frozenset({'calendar:read'}),
+        receiver_capabilities=frozenset(ALL),
+        dpop_jkt=jwk_thumbprint(public_jwk(child_key.public_key())),
+        user_decides=lambda _: True,
+    )
+    assert child.exp <= root.exp
+    assert child.rem_depth < root.rem_depth
+
+
+@pytest.mark.asyncio
+async def test_codex_inflight_write_not_purged_on_expiry(tmp_path):
+    gateway, _key, token = make_gateway(tmp_path)
+    digest = request_hash({'payload': {}, 'method': 'POST', 'url': 'test', 'audience': 't', 'destination': 'd'})
+    reservation = gateway.store.reserve('inflight', token.session_id, digest, exp=time_module.time() - 1)
+    assert reservation.state == 'RESERVED'
+    reservation2 = gateway.store.reserve('inflight', token.session_id, digest, exp=time_module.time() - 1)
+    assert reservation2.state == 'RESERVED'
+    assert not reservation2.created

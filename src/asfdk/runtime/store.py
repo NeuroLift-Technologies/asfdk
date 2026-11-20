@@ -24,7 +24,12 @@ class MemoryReservationStore:
     def reserve(self, key: str, session_id: str, request_hash: str, exp: float) -> Reservation:
         with self._lock:
             now = time.time()
-            self._rows = {k: row for k, row in self._rows.items() if row["exp"] > now}
+            # Only purge expired terminal-state reservations; in-flight RESERVED
+            # entries are retained until finalization or reconciliation.
+            self._rows = {
+                k: row for k, row in self._rows.items()
+                if row["exp"] > now or row["state"] == "RESERVED"
+            }
             row = self._rows.get(key)
             if row is None:
                 row = {"session_id": session_id, "request_hash": request_hash,
@@ -134,7 +139,12 @@ class SQLiteReservationStore:
         connection = self._connect()
         try:
             connection.execute("BEGIN IMMEDIATE")
-            connection.execute("DELETE FROM reservations WHERE exp <= ?", (time.time(),))
+            # Only purge expired terminal-state reservations; in-flight RESERVED
+            # entries are retained until finalization or reconciliation.
+            connection.execute(
+                "DELETE FROM reservations WHERE exp <= ? AND state != 'RESERVED'",
+                (time.time(),),
+            )
             row = connection.execute("SELECT * FROM reservations WHERE key = ?", (key,)).fetchone()
             created = row is None
             if created:

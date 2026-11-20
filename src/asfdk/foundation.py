@@ -212,6 +212,13 @@ class NeuroLiftFoundation:
                     level = getattr(content.get("rrt"), "crisis_level", None)
                     if level in (rrt.CrisisLevel.RED, rrt.CrisisLevel.BLACK):
                         high_severity = True
+                        # Connect crisis detection to runtime gateway revocation.
+                        # Map RRT's Financial CrisisLevel to the runtime's enum.
+                        if self._runtime_gateway is not None:
+                            from .runtime.models import CrisisLevel as RuntimeCrisisLevel
+                            runtime_level = (RuntimeCrisisLevel.RED if level == rrt.CrisisLevel.RED
+                                             else RuntimeCrisisLevel.BLACK)
+                            self._runtime_gateway.revoke(level=runtime_level)
                 except Exception as err:  # noqa: BLE001
                     content["error"] = {
                         "component": "rrt_advocate",
@@ -247,12 +254,15 @@ class NeuroLiftFoundation:
                 # CRISIS_ALERT is high-severity only on an actual RED/BLACK
                 # reading; a failed detection is not evidence of severity, so it
                 # does not gate up.
+                level = getattr(content.get("rrt"), "crisis_level", None)
+                rrt_crisis = level in (rrt.CrisisLevel.RED, rrt.CrisisLevel.BLACK)
                 if interaction.interaction_type == InteractionType.CRISIS_ALERT:
-                    level = getattr(content.get("rrt"), "crisis_level", None)
-                    high_severity = level in (
-                        rrt.CrisisLevel.RED,
-                        rrt.CrisisLevel.BLACK,
-                    )
+                    high_severity = rrt_crisis
+                if rrt_crisis and self._runtime_gateway is not None:
+                    from .runtime.models import CrisisLevel as RuntimeCrisisLevel
+                    runtime_level = (RuntimeCrisisLevel.RED if level == rrt.CrisisLevel.RED
+                                     else RuntimeCrisisLevel.BLACK)
+                    self._runtime_gateway.revoke(level=runtime_level)
             except Exception as err:  # noqa: BLE001
                 content["error"] = {"component": "rrt_advocate", "message": str(err)}
             components.append("rrt_advocate")
