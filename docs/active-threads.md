@@ -1,6 +1,6 @@
 # Active Threads — NeuroLift-Technologies/solidarity-framework
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-11-04
+> Last updated: 2026-11-20
 
 ---
 
@@ -105,6 +105,21 @@ This file tracks all **current and recently completed** work threads in this rep
 ## Completed Threads
 
 <!-- Move threads here when closed. Retain for 30 days after completion. -->
+
+### THREAD-015 — ADR-001 Python runtime enforcement
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-015 |
+| **Status** | ✅ Complete (implementation; owner acceptance pending) |
+| **Started / Completed** | 2026-11-20 / 2026-11-20 |
+| **Owner** | Cline |
+| **Branch** | `feature/adr-001-runtime-enforcement` |
+| **Scope** | Python runtime, foundation startup wiring, AT-001/security tests, integration guide and handoff records |
+| **Verification** | 86 pytest tests passed; focused Ruff checks passed; sdist and wheel built; wheel contains `asfdk/runtime/` |
+| **Limits** | Handoff-derived contracts (normative ADR/reference absent); generic async adapters, not concrete MCP/A2A clients; TypeScript unchanged |
+| **Handoff** | `docs/agent-log/handoffs/NLT-HND-2026-001.json` v1.1.0, status Integrated; ADR-001 remains Draft |
+
+---
 
 ### THREAD-008 — asfdk provenance defense — channel classification
 | Field | Value |

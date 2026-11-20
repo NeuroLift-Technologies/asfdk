@@ -1,0 +1,32 @@
+{
+  "agent_registration": {
+    "agent_name": "Cline",
+    "platform": "Cline IDE / Terminal Shell",
+    "version": "Not recorded",
+    "session_id": "NLT-HND-2026-001-C4",
+    "entry_date": "2026-11-20T03:05:00-05:00",
+    "entry_point": "NLT-HND-2026-001 v1.0.0 direct handoff from Gemini",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "working_repo": "NeuroLift-Technologies/asfdk",
+    "working_branch": "feature/adr-001-runtime-enforcement",
+    "task_summary": "Integrate the ADR-001 runtime contracts and AT-001 acceptance coverage into the Python ASFDK runtime without changing ADR approval status.",
+    "active_thread_id": "THREAD-015",
+    "capabilities_self_reported": [
+      "Repository inspection and Python implementation",
+      "Local pytest execution and runtime validation",
+      "Structured governance and handoff records"
+    ],
+    "known_limitations": [
+      "NLT-ADR-2026-001 v1.3.0 and the standalone AT-001 reference source were not present in the repository or handoff; the handoff summary is the available contract source.",
+      "No concrete MCP or A2A client implementation exists in this repository; integration uses a generic asynchronous outbound adapter protocol.",
+      "TypeScript runtime parity is outside this Python reference-integration slice unless separately requested."
+    ],
+    "preferred_handoff_format": "Structured checkpoints plus JSON handoff record",
+    "escalation_acknowledged": true,
+    "escalation_contact": "Joshua W. Dorsey, Sr.",
+    "solidarity_framework_acknowledged": true,
+    "commit_format_acknowledged": true,
+    "handoff_required_acknowledged": true
+  }
+}

@@ -41,6 +41,7 @@ dependencies = [
     "nlt-otoi>=0.1.0",
     "rrt-advocate>=0.1.0",
     "sleepwalker-protocol>=0.1.0",
+    "cryptography>=41.0",
 ]
 
 [project.optional-dependencies]

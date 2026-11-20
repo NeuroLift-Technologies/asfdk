@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
+from .runtime.models import RuntimeConfig
+
 
 class FoundationMode(str, Enum):
     """Operating modes that determine which Solidarity Framework components are active."""
@@ -78,8 +80,8 @@ class FoundationComponents:
 
     @classmethod
     def coerce(
-        cls, value: "FoundationComponents | Dict[str, Any] | None"
-    ) -> "Optional[FoundationComponents]":
+        cls, value: FoundationComponents | Dict[str, Any] | None
+    ) -> Optional[FoundationComponents]:
         """Normalize ``components`` into a :class:`FoundationComponents`.
 
         The docs show callers passing a plain ``dict`` (e.g.
@@ -110,6 +112,9 @@ class FoundationConfig:
     #: file. When ``None`` (default), a privacy-first document is generated
     #: from defaults during initialization.
     toi: Optional[Union[str, Dict[str, Any]]] = None
+    #: Explicitly enables ADR-001 fail-closed runtime enforcement at startup.
+    #: ``None`` preserves the legacy adopter surface and is not ADR-001 mode.
+    runtime: Optional[RuntimeConfig] = None
 
     def __post_init__(self) -> None:
         # Accept a plain dict for ``components`` (per the documented usage) and
@@ -165,14 +170,14 @@ class HealthCheckResult:
 
 
 __all__ = [
-    "FoundationMode",
-    "InteractionType",
     "Channel",
-    "normalize_channel",
+    "ComponentStatus",
     "FoundationComponents",
     "FoundationConfig",
-    "UserInteraction",
+    "FoundationMode",
     "FoundationResponse",
-    "ComponentStatus",
     "HealthCheckResult",
+    "InteractionType",
+    "UserInteraction",
+    "normalize_channel",
 ]

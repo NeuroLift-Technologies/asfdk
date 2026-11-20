@@ -1,0 +1,95 @@
+{
+  "artifact_metadata": {
+    "document_type": "Handoff",
+    "document_id": "NLT-HND-2026-001",
+    "timestamp": "2026-11-20T08:31:30+00:00",
+    "version": "v1.1.0",
+    "version_notes": "Cline integrated the handoff-derived ADR-001 contracts into the opt-in Python runtime and recorded live gateway acceptance results. Owner acceptance and normative-document comparison remain pending.",
+    "status": "Integrated",
+    "classification": "Internal",
+    "human_collaborator": "Joshua Dorsey",
+    "ai_collaborator": {"name": "Cline", "role": "Python runtime integration and acceptance validation", "version": "Not recorded"},
+    "agent_lineage": [
+      {"name": "Gemini", "version": "Gemini 3 Pro", "role": "Literature synthesis and v1.0-v1.1 ADR drafts"},
+      {"name": "ChatGPT", "version": "GPT-5 / Reasoning & Codex", "role": "Architectural review and standalone AT-001 reference"},
+      {"name": "Gemini", "version": "Gemini 3.1 Pro", "role": "Reference audit, owner decisions, and v1.3.0 handoff"},
+      {"name": "Cline", "version": "Not recorded", "role": "ASFDK Python runtime integration and live gateway validation"}
+    ],
+    "handoff_chain": {
+      "chain_position": "4 of 5 complete; 5 pending owner acceptance",
+      "next": "Joshua Dorsey — final acceptance and sole authority over ADR-001 approval"
+    }
+  },
+  "integration_summary": {
+    "branch": "feature/adr-001-runtime-enforcement",
+    "active_thread_id": "THREAD-015",
+    "adr_001_status": "Draft (unchanged)",
+    "principal_and_acdt": "Pinned Ed25519 charter verification at startup; G_eff intersection; monotonic rem_depth; USER_DECIDES ephemeral grants; aud and cnf.jkt binding.",
+    "dpop_and_idempotency": "ES256 DPoP htm/htu/iat/jti/ath checks; atomic replay reservations; idempotency conflict detection; NONE memory store and SQLite WAL otherwise; no locks across adapter I/O.",
+    "ingress_and_csg": "Default unknown_taint, invalid-label denial, attested provenance, and pre-adapter DENY_COMPOSITE_EGRESS for restricted synthesis to shared destinations.",
+    "revocation_and_rrta": "Pre-dispatch revocation, cancellation/status hooks, CANCELLED/COMMITTED/UNKNOWN reconciliation, deferred recovery commits, and zero-disclosure user:direct_support_stream responses.",
+    "retention": "NONE memory-only; PASSIVE PII stage plus k>=10 rolling 24-hour cohort and aggregate-only events; local auto-drop; ACTIVE/EXPLICIT encrypted traces; downgrade purge."
+  },
+  "verification": {
+    "pytest": "86 passed in 0.67s (20 ADR-specific and 66 existing)",
+    "full_verbose_log": "docs/agent-log/test-results/2026-11-20-adr001-pytest.txt",
+    "acceptance": [
+      "AT-001A PASSED: private response dispatched; shared composite write denied before adapter receipt",
+      "AT-001B PASSED: split delegated reads and orchestrator synthesis enforce the same boundary",
+      "DPoP replay/aud, idempotency, CSG precedence, revocation/cancellation, reconciliation, and deferred commits PASSED",
+      "NONE/PASSIVE retention, ACTIVE encryption, downgrade purge, and SQLite WAL lock release PASSED"
+    ],
+    "lint": "Focused Ruff checks passed, ignoring legacy typing/__all__ style rules",
+    "build": "sdist and wheel built; wheel inspected and contains asfdk/runtime/",
+    "secrets": "No private keys or static credentials committed; test keypairs are generated dynamically"
+  },
+  "limits_and_user_decides": [
+    "The normative ADR v1.3.0 and standalone reference were absent; schema-to-schema comparison remains pending.",
+    "Tests execute the live Python PolicyGateway with asynchronous recording adapters. No concrete production MCP/A2A client exists here, so production wrapper verification remains pending.",
+    "TypeScript createFoundation parity is not implemented; TypeScript files were unchanged.",
+    "Joshua Dorsey must perform final acceptance and alone may promote ADR-001 from Draft to Approved."
+  ],
+  "handoff_record": {
+    "session_id": "NLT-HND-2026-001-C4",
+    "agent_name": "Cline",
+    "platform": "Cline IDE / Terminal Shell",
+    "date": "2026-11-20T08:31:30+00:00",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/asfdk",
+    "branch": "feature/adr-001-runtime-enforcement",
+    "active_thread_id": "THREAD-015",
+    "work_completed": ["Five handoff-derived contracts integrated into opt-in Python runtime", "AT-001/security suite, guide, and verbose test log completed"],
+    "work_in_progress": ["None in this implementation slice"],
+    "blockers": ["Production MCP/A2A client and normative ADR/reference sources are unavailable"],
+    "decisions_made": [
+      {"decision": "Use explicit runtime opt-in", "rationale": "Avoid an unapproved breaking public-API change", "made_by": "Cline within preservation boundary"},
+      {"decision": "Keep ADR-001 Draft", "rationale": "Joshua retains sole approval authority", "made_by": "Joshua Dorsey (handoff constraint)"}
+    ],
+    "decisions_pending": [
+      {"decision": "Normative comparison and production adapter/TypeScript follow-up", "owner": "Joshua Dorsey", "urgency": "MEDIUM"},
+      {"decision": "Final ADR-001 acceptance/approval", "owner": "Joshua Dorsey", "urgency": "HIGH"}
+    ],
+    "escalations": [{"topic": "Missing normative source and concrete clients", "status": "documented for owner decision", "issue_url": null}],
+    "next_agent_notes": "Review docs/dev/adr-001-runtime.md and these limits before claiming full cross-language or production MCP/A2A conformance.",
+    "files_modified": [
+      "docs/active-threads.md", "pyproject.toml", "src/asfdk/__init__.py",
+      "src/asfdk/foundation.py", "src/asfdk/types.py"
+    ],
+    "files_created": [
+      "src/asfdk/runtime/__init__.py", "src/asfdk/runtime/crypto.py",
+      "src/asfdk/runtime/errors.py", "src/asfdk/runtime/gateway.py",
+      "src/asfdk/runtime/models.py", "src/asfdk/runtime/provenance.py",
+      "src/asfdk/runtime/retention.py", "src/asfdk/runtime/rrta.py",
+      "src/asfdk/runtime/store.py", "tests/test_adr001_runtime.py",
+      "docs/dev/adr-001-runtime.md", "docs/agent-log/intents/2026-11-20-cline-adr-001.md",
+      "docs/agent-log/registrations/2026-11-20-cline-adr-001.json",
+      "docs/agent-log/test-results/2026-11-20-adr001-pytest.txt",
+      "docs/agent-log/handoffs/NLT-HND-2026-001.json"
+    ],
+    "files_deleted": [],
+    "tests_run": ["pytest -vv --tb=short", "focused Ruff check", "python -m build --no-isolation"],
+    "tests_passing": true,
+    "pr_url": null,
+    "commit_shas": []
+  }
+}
