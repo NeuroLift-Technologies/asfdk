@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 try:  # ``nlt-toi`` >= 1.0.0 ships this alias; keep annotations meaningful either way.
     from nlt_toi import ToiDocument
@@ -79,6 +79,7 @@ class NeuroLiftFoundation:
         #: component activates (see :meth:`initialize`). ``None`` until
         #: initialization succeeds.
         self._toi_document: Optional[ToiDocument] = None
+        self._runtime_gateway = None
 
     async def initialize(self) -> None:
         """Bootstrap the foundation.
@@ -91,7 +92,19 @@ class NeuroLiftFoundation:
         broken or absent TOI.
         """
         self._toi_document = self._generate_toi()
+        if self._config.runtime is not None:
+            # Construction verifies the pinned, signed charter before the
+            # foundation becomes initialized or any runtime adapter is exposed.
+            from .runtime import PolicyGateway
+            self._runtime_gateway = PolicyGateway(self._config.runtime)
         self._initialized = True
+
+    @property
+    def runtime(self) -> Any:
+        """Return the initialized ADR gateway, or fail closed when unavailable."""
+        if not self._initialized or self._runtime_gateway is None:
+            raise RuntimeError("ADR-001 runtime is not configured and initialized")
+        return self._runtime_gateway
 
     def _generate_toi(self) -> ToiDocument:
         """Run the ``toi-generator`` logic over the configured source.
@@ -199,6 +212,15 @@ class NeuroLiftFoundation:
                     level = getattr(content.get("rrt"), "crisis_level", None)
                     if level in (rrt.CrisisLevel.RED, rrt.CrisisLevel.BLACK):
                         high_severity = True
+                        # Connect crisis detection to runtime gateway revocation.
+                        # Map RRT's Financial CrisisLevel to the runtime's enum.
+                        if self._runtime_gateway is not None:
+                            from .runtime.models import (
+                                CrisisLevel as RuntimeCrisisLevel,
+                            )
+                            runtime_level = (RuntimeCrisisLevel.RED if level == rrt.CrisisLevel.RED
+                                             else RuntimeCrisisLevel.BLACK)
+                            self._runtime_gateway.revoke(level=runtime_level)
                 except Exception as err:  # noqa: BLE001
                     content["error"] = {
                         "component": "rrt_advocate",
@@ -234,12 +256,15 @@ class NeuroLiftFoundation:
                 # CRISIS_ALERT is high-severity only on an actual RED/BLACK
                 # reading; a failed detection is not evidence of severity, so it
                 # does not gate up.
+                level = getattr(content.get("rrt"), "crisis_level", None)
+                rrt_crisis = level in (rrt.CrisisLevel.RED, rrt.CrisisLevel.BLACK)
                 if interaction.interaction_type == InteractionType.CRISIS_ALERT:
-                    level = getattr(content.get("rrt"), "crisis_level", None)
-                    high_severity = level in (
-                        rrt.CrisisLevel.RED,
-                        rrt.CrisisLevel.BLACK,
-                    )
+                    high_severity = rrt_crisis
+                if rrt_crisis and self._runtime_gateway is not None:
+                    from .runtime.models import CrisisLevel as RuntimeCrisisLevel
+                    runtime_level = (RuntimeCrisisLevel.RED if level == rrt.CrisisLevel.RED
+                                     else RuntimeCrisisLevel.BLACK)
+                    self._runtime_gateway.revoke(level=runtime_level)
             except Exception as err:  # noqa: BLE001
                 content["error"] = {"component": "rrt_advocate", "message": str(err)}
             components.append("rrt_advocate")
@@ -398,6 +423,7 @@ class NeuroLiftFoundation:
         """
         sleepwalker.reset()
         rrt.reset(self._config.user_id)
+        self._runtime_gateway = None
         self._initialized = False
 
 

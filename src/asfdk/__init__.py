@@ -33,18 +33,6 @@ import sleepwalker_protocol as sleepwalker
 # High-level orchestrator (primary API).
 from .create_foundation import create_foundation
 from .foundation import NeuroLiftFoundation
-from .types import (
-    Channel,
-    ComponentStatus,
-    FoundationComponents,
-    FoundationConfig,
-    FoundationMode,
-    FoundationResponse,
-    HealthCheckResult,
-    InteractionType,
-    UserInteraction,
-    normalize_channel,
-)
 
 # Prompt defense utilities (security layer).
 from .prompt_defense import (
@@ -60,6 +48,34 @@ from .prompt_defense import (
     validate_input_length,
     validate_output,
 )
+from .runtime import (
+    ACDT,
+    Consent,
+    CrisisLevel,
+    DispatchResult,
+    OperationDefinition,
+    OutboundRequest,
+    PolicyDenied,
+    PolicyGateway,
+    Provenance,
+    RuntimeConfig,
+    TerminalState,
+    dpop_proof,
+    jwk_thumbprint,
+    public_jwk,
+)
+from .types import (
+    Channel,
+    ComponentStatus,
+    FoundationComponents,
+    FoundationConfig,
+    FoundationMode,
+    FoundationResponse,
+    HealthCheckResult,
+    InteractionType,
+    UserInteraction,
+    normalize_channel,
+)
 
 __version__ = "0.3.1"
 
@@ -67,6 +83,21 @@ __all__ = [
     # high-level orchestrator
     "create_foundation",
     "NeuroLiftFoundation",
+    # ADR-001 opt-in runtime
+    "ACDT",
+    "Consent",
+    "CrisisLevel",
+    "DispatchResult",
+    "OperationDefinition",
+    "OutboundRequest",
+    "PolicyDenied",
+    "PolicyGateway",
+    "Provenance",
+    "RuntimeConfig",
+    "TerminalState",
+    "dpop_proof",
+    "jwk_thumbprint",
+    "public_jwk",
     # types
     "FoundationMode",
     "InteractionType",
