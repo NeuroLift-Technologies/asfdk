@@ -15,6 +15,7 @@ from asfdk import (
     CrisisLevel,
     FoundationConfig,
     FoundationMode,
+    OperationDefinition,
     OutboundRequest,
     PolicyDenied,
     PolicyGateway,
@@ -48,6 +49,34 @@ def make_charter(tmp_path, agent_id="root-agent", capabilities=ALL, tamper=False
     return str(path), {agent_id: jwk_thumbprint(jwk)}
 
 
+def _register_test_operations(gateway):
+    """Register standard test operations trusted by the test harness."""
+    specs = [
+        ("private-respond", "user:private_response", "private:respond", False),
+        ("shared-write", "calendar:shared", "calendar:write", True),
+        ("calendar-read", "agent:private_context", "calendar:read", False),
+        ("note-read", "agent:private_context", "notes:read", False),
+        ("support-response", "user:direct_support_stream", "private:respond", False),
+    ]
+    for name, destination, capability, is_write in specs:
+        gateway.register_operation(OperationDefinition(
+            name=name, method="POST", url="test://adapter/action?ignored=yes",
+            audience="test://adapter", destination=destination,
+            required_capability=capability, boundary="tool", is_write=is_write,
+        ))
+
+
+def _operation_name(destination, capability, write):
+    mapping = {
+        ("user:private_response", "private:respond", False): "private-respond",
+        ("calendar:shared", "calendar:write", True): "shared-write",
+        ("agent:private_context", "calendar:read", False): "calendar-read",
+        ("agent:private_context", "notes:read", False): "note-read",
+        ("user:direct_support_stream", "private:respond", False): "support-response",
+    }
+    return mapping.get((destination, capability, write), "")
+
+
 def make_gateway(tmp_path, **overrides):
     charter_path, trusted = make_charter(tmp_path)
     values = {
@@ -57,6 +86,7 @@ def make_gateway(tmp_path, **overrides):
     }
     values.update(overrides)
     gateway = PolicyGateway(RuntimeConfig(**values))
+    _register_test_operations(gateway)
     key = ec.generate_private_key(ec.SECP256R1())
     token = gateway.mint_root(jwk_thumbprint(public_jwk(key.public_key())))
     return gateway, key, token
@@ -80,12 +110,13 @@ class RecordingAdapter:
 
 def request(adapter, *, destination="user:private_response", provenance=(),
             capability="private:respond", write=False, key=None, payload=None):
+    op = _operation_name(destination, capability, write)
     return OutboundRequest(
         adapter=adapter, method="POST", url="test://adapter/action?ignored=yes",
         audience="test://adapter", destination=destination,
         payload={"value": "calendar + note"} if payload is None else payload,
         provenance=tuple(provenance), required_capability=capability,
-        write=write, idempotency_key=key,
+        write=write, idempotency_key=key, operation=op,
     )
 
 
@@ -295,11 +326,20 @@ async def test_csg_precedes_scope_denial_and_adapter_never_receives_payload(tmp_
     gateway, key, token = make_gateway(tmp_path, human_task_capabilities=frozenset({"notes:read"}))
     adapter = RecordingAdapter()
     _, restricted = gateway.ingress.classify("secret", source_id="note", classification="private")
+    # Register the ungranted operation so operation validation passes; CSG
+    # must then deny before the capability check fires.
+    gateway.register_operation(OperationDefinition(
+        name="ungranted-write", method="POST", url="test://adapter/action?ignored=yes",
+        audience="test://adapter", destination="calendar:shared",
+        required_capability="not:granted", boundary="tool", is_write=True,
+    ))
+    outbound = request(
+        adapter, destination="calendar:shared", provenance=(restricted,),
+        capability="not:granted", write=True, key="precedence",
+    )
+    outbound = replace(outbound, operation="ungranted-write")
     with pytest.raises(PolicyDenied) as caught:
-        await send(gateway, key, token, request(
-            adapter, destination="calendar:shared", provenance=(restricted,),
-            capability="not:granted", write=True, key="precedence",
-        ))
+        await send(gateway, key, token, outbound)
     assert caught.value.code == "DENY_COMPOSITE_EGRESS"
     assert adapter.calls == []
 
@@ -548,8 +588,16 @@ async def test_csg_rejects_reused_public_attestation(tmp_path):
 async def test_mislabeled_side_effecting_post_still_requires_idempotency(tmp_path):
     gateway, key, token = make_gateway(tmp_path)
     adapter = RecordingAdapter()
+    # Register the operation with is_write=True so the adapter contract
+    # overrides the caller's write=False label; idempotency is still required.
+    gateway.register_operation(OperationDefinition(
+        name="mislabeled-write", method="POST", url="test://adapter/action?ignored=yes",
+        audience="test://adapter", destination="calendar:shared",
+        required_capability="calendar:write", boundary="tool", is_write=True,
+    ))
     outbound = request(adapter, destination="calendar:shared", capability="calendar:write",
                        write=False, key=None)
+    outbound = replace(outbound, operation="mislabeled-write")
     with pytest.raises(PolicyDenied) as caught:
         await send(gateway, key, token, outbound)
     assert caught.value.code == "IDEMPOTENCY_KEY_REQUIRED"
@@ -643,10 +691,45 @@ import time as time_module
 async def test_codex_incomplete_operation_rejected_before_adapter(tmp_path):
     gateway, key, token = make_gateway(tmp_path)
     adapter = RecordingAdapter()
+    # Empty destination/capability yields no registered operation; the
+    # dispatch rejects it as an unknown operation before the adapter is called.
     incomplete = request(adapter, destination='', capability='')
     with pytest.raises(PolicyDenied) as caught:
         await send(gateway, key, token, incomplete)
-    assert caught.value.code == 'INVALID_OPERATION'
+    assert caught.value.code == 'UNKNOWN_OPERATION'
+    assert adapter.calls == []
+
+
+@pytest.mark.asyncio
+async def test_codex_unknown_operation_and_metadata_mismatch_rejected(tmp_path):
+    """Finding 2: unknown operation and mismatched operation metadata are denied."""
+    gateway, key, token = make_gateway(tmp_path)
+    adapter = RecordingAdapter()
+
+    # Unknown operation name
+    unknown_op = request(adapter, destination="user:private_response",
+                         capability="private:respond")
+    unknown_op = replace(unknown_op, operation="not-a-real-operation")
+    with pytest.raises(PolicyDenied) as caught:
+        await send(gateway, key, token, unknown_op)
+    assert caught.value.code == "UNKNOWN_OPERATION"
+    assert adapter.calls == []
+
+    # Request metadata mismatch with registered operation
+    mismatched = request(adapter, destination="user:private_response",
+                         capability="private:respond")
+    mismatched = replace(mismatched, operation="shared-write")  # wrong op for this request
+    with pytest.raises(PolicyDenied) as caught:
+        await send(gateway, key, token, mismatched)
+    assert caught.value.code == "OPERATION_MISMATCH"
+    assert adapter.calls == []
+
+    # Missing proof
+    valid_op = request(adapter, destination="user:private_response",
+                       capability="private:respond")
+    with pytest.raises(PolicyDenied) as caught:
+        await gateway.dispatch(token, valid_op, "")
+    assert caught.value.code == "PROOF_REQUIRED"
     assert adapter.calls == []
 
 
@@ -718,3 +801,172 @@ async def test_codex_inflight_write_not_purged_on_expiry(tmp_path):
     reservation2 = gateway.store.reserve('inflight', token.session_id, digest, exp=time_module.time() - 1)
     assert reservation2.state == 'RESERVED'
     assert not reservation2.created
+
+
+# ============================================================
+# Integrated AT-001 acceptance through foundation and gateway
+# ============================================================
+
+def _make_foundation(tmp_path, user='at001-user'):
+    charter_path, trusted = make_charter(tmp_path)
+    return create_foundation(FoundationConfig(
+        user_id=user, mode=FoundationMode.UNIFIED,
+        runtime=RuntimeConfig(
+            charter_path=charter_path, trusted_charter_keys=trusted,
+            sleepwalker_capabilities=ALL, human_task_capabilities=ALL,
+            root_audience='test://adapter', root_depth=2,
+            root_session_id='session-at001',
+        ),
+    ))
+
+
+@pytest.mark.asyncio
+async def test_at001a_integrated_foundation_single_agent(tmp_path):
+    """AT-001A through foundation: real reads, runtime provenance, same boundary."""
+    foundation = await _make_foundation(tmp_path, 'at001a-int')
+    gateway = foundation.runtime
+    _register_test_operations(gateway)
+    key = ec.generate_private_key(ec.SECP256R1())
+    token = gateway.mint_root(jwk_thumbprint(public_jwk(key.public_key())))
+
+    cal_adapter = RecordingAdapter({'event': 'Planning at 10:00'})
+    note_adapter = RecordingAdapter({'note': 'Private medication reminder'})
+    cal_result = await send(gateway, key, token, request(
+        cal_adapter, destination='agent:private_context', capability='calendar:read'))
+    note_result = await send(gateway, key, token, request(
+        note_adapter, destination='agent:private_context', capability='notes:read'))
+
+    _, cal_prov = gateway.ingress.classify(
+        cal_result.response, source_id='calendar', classification='public_external')
+    _, note_prov = gateway.ingress.classify(
+        note_result.response, source_id='private-note', classification='private')
+
+    plan = {'plan': cal_result.response['event'] + ' -- ' + note_result.response['note']}
+    provenance = (cal_prov, note_prov)
+    synthesis = gateway.synthesize(plan, provenance)
+
+    private_adapter = RecordingAdapter()
+    private_req = OutboundRequest(
+        adapter=private_adapter, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='user:private_response',
+        payload=plan, provenance=provenance, required_capability='private:respond',
+        operation='private-respond', synthesis=synthesis)
+    private = await send(gateway, key, token, private_req)
+    assert private.state == TerminalState.COMMITTED
+    assert len(private_adapter.calls) == 1
+
+    shared_denied = RecordingAdapter()
+    shared_req = OutboundRequest(
+        adapter=shared_denied, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='calendar:shared',
+        payload=plan, provenance=provenance, required_capability='calendar:write',
+        write=True, idempotency_key='at001a-shared', operation='shared-write',
+        synthesis=synthesis)
+    with pytest.raises(PolicyDenied) as caught:
+        await send(gateway, key, token, shared_req)
+    assert caught.value.code == 'DENY_COMPOSITE_EGRESS'
+    assert shared_denied.calls == []
+
+    public_payload = {'event': 'Public team standup'}
+    _, public_prov = gateway.ingress.classify(
+        public_payload, source_id='public', classification='public_external')
+    write_adapter = RecordingAdapter({'commit_id': 'w1'})
+    write_req = OutboundRequest(
+        adapter=write_adapter, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='calendar:shared',
+        payload=public_payload, provenance=(public_prov,),
+        required_capability='calendar:write', write=True,
+        idempotency_key='at001a-control', operation='shared-write',
+        synthesis=gateway.synthesize(public_payload, (public_prov,)))
+    write_result = await send(gateway, key, token, write_req)
+    assert write_result.state == TerminalState.COMMITTED
+    assert len(write_adapter.calls) == 1
+    cached = await send(gateway, key, token, write_req)
+    assert cached.cached is True
+    assert len(write_adapter.calls) == 1
+
+    await foundation.shutdown()
+
+
+
+@pytest.mark.asyncio
+async def test_at001b_integrated_foundation_multi_agent(tmp_path):
+    """AT-001B: delegated readers, runtime provenance, supervisor synthesis."""
+    foundation = await _make_foundation(tmp_path, 'at001b-int')
+    gateway = foundation.runtime
+    _register_test_operations(gateway)
+    root_key = ec.generate_private_key(ec.SECP256R1())
+    root = gateway.mint_root(jwk_thumbprint(public_jwk(root_key.public_key())))
+
+    cal_key = ec.generate_private_key(ec.SECP256R1())
+    note_key = ec.generate_private_key(ec.SECP256R1())
+    cal_token = gateway.delegate(
+        root, subject='calendar-agent', audience='test://adapter',
+        human_task_capabilities=frozenset({'calendar:read'}),
+        receiver_capabilities=frozenset(ALL),
+        dpop_jkt=jwk_thumbprint(public_jwk(cal_key.public_key())),
+        user_decides=lambda decision: True)
+    note_token = gateway.delegate(
+        root, subject='note-agent', audience='test://adapter',
+        human_task_capabilities=frozenset({'notes:read'}),
+        receiver_capabilities=frozenset(ALL),
+        dpop_jkt=jwk_thumbprint(public_jwk(note_key.public_key())),
+        user_decides=lambda decision: True)
+    assert cal_token.capabilities == frozenset({'calendar:read'})
+    assert note_token.capabilities == frozenset({'notes:read'})
+
+    cal_adapter = RecordingAdapter({'event': 'Dentist at 14:00'})
+    note_adapter = RecordingAdapter({'note': 'Private anxiety medication'})
+    cal_result = await send(gateway, cal_key, cal_token, request(
+        cal_adapter, destination='agent:private_context', capability='calendar:read'))
+    note_result = await send(gateway, note_key, note_token, request(
+        note_adapter, destination='agent:private_context', capability='notes:read'))
+
+    _, cal_prov = gateway.ingress.classify(
+        cal_result.response, source_id='calendar-agent', classification='public_external')
+    _, note_prov = gateway.ingress.classify(
+        note_result.response, source_id='note-agent', classification='private')
+
+    plan = {'plan': cal_result.response['event'] + ' -- ' + note_result.response['note']}
+    provenance = (cal_prov, note_prov)
+    synthesis = gateway.synthesize(plan, provenance)
+
+    private_adapter = RecordingAdapter()
+    private_req = OutboundRequest(
+        adapter=private_adapter, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='user:private_response',
+        payload=plan, provenance=provenance, required_capability='private:respond',
+        operation='private-respond', synthesis=synthesis)
+    delivered = await send(gateway, root_key, root, private_req)
+    assert delivered.state == TerminalState.COMMITTED
+    assert len(private_adapter.calls) == 1
+
+    shared_denied = RecordingAdapter()
+    shared_req = OutboundRequest(
+        adapter=shared_denied, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='calendar:shared',
+        payload=plan, provenance=provenance, required_capability='calendar:write',
+        write=True, idempotency_key='at001b-shared', operation='shared-write',
+        synthesis=synthesis)
+    with pytest.raises(PolicyDenied) as caught:
+        await send(gateway, root_key, root, shared_req)
+    assert caught.value.code == 'DENY_COMPOSITE_EGRESS'
+    assert shared_denied.calls == []
+
+    public_payload = {'event': 'Public team sync'}
+    _, public_prov = gateway.ingress.classify(
+        public_payload, source_id='public', classification='public_external')
+    write_adapter = RecordingAdapter({'commit_id': 'w-at001b'})
+    write_req = OutboundRequest(
+        adapter=write_adapter, method='POST', url='test://adapter/action?ignored=yes',
+        audience='test://adapter', destination='calendar:shared',
+        payload=public_payload, provenance=(public_prov,),
+        required_capability='calendar:write', write=True,
+        idempotency_key='at001b-control', operation='shared-write',
+        synthesis=gateway.synthesize(public_payload, (public_prov,)))
+    write_result = await send(gateway, root_key, root, write_req)
+    assert write_result.state == TerminalState.COMMITTED
+    assert len(write_adapter.calls) == 1
+
+    await foundation.shutdown()
+

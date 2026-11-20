@@ -58,6 +58,19 @@ class ACDT:
 
 
 @dataclass(frozen=True)
+class OperationDefinition:
+    """Trusted operation metadata registered by the gateway owner."""
+    name: str
+    method: str
+    url: str
+    audience: str
+    destination: str
+    required_capability: str
+    boundary: str = "tool"
+    is_write: bool = False
+
+
+@dataclass(frozen=True)
 class OutboundRequest:
     adapter: OutboundAdapter
     method: str
@@ -71,6 +84,7 @@ class OutboundRequest:
     write: bool = False
     idempotency_key: Optional[str] = None
     synthesis: Optional[SynthesizedContent] = None
+    operation: str = ""
 
 
 @dataclass(frozen=True)
@@ -128,6 +142,6 @@ class RuntimeConfig:
 
 __all__ = [
     "ACDT", "CancellationAdapter", "Consent", "CrisisLevel", "DispatchResult",
-    "OutboundAdapter", "OutboundRequest", "Provenance", "Reservation", "RuntimeConfig",
-    "StatusAdapter", "SynthesizedContent", "TerminalState",
+    "OperationDefinition", "OutboundAdapter", "OutboundRequest", "Provenance",
+    "Reservation", "RuntimeConfig", "StatusAdapter", "SynthesizedContent", "TerminalState",
 ]

@@ -22,6 +22,7 @@ from .models import (
     Consent,
     CrisisLevel,
     DispatchResult,
+    OperationDefinition,
     OutboundRequest,
     RuntimeConfig,
     TerminalState,
@@ -68,6 +69,33 @@ class PolicyGateway:
         self._revoked_sessions: Set[str] = set()
         self._revoked_tokens: Set[str] = set()
         self._kill_switch = False
+        self._operations: Dict[str, OperationDefinition] = {}
+
+    def register_operation(self, definition: OperationDefinition) -> None:
+        """Register a trusted adapter operation definition."""
+        if not definition.name:
+            raise PolicyDenied("INVALID_OPERATION", "Operation name is required")
+        self._operations[definition.name] = definition
+
+    def _validate_operation(self, request: OutboundRequest) -> None:
+        """Validate the request against its trusted operation definition."""
+        if not request.operation:
+            raise PolicyDenied(
+                "UNKNOWN_OPERATION", "A registered operation name is required",
+            )
+        definition = self._operations.get(request.operation)
+        if definition is None:
+            raise PolicyDenied("UNKNOWN_OPERATION", f"Operation '{request.operation}' is not registered")
+        if (request.method.upper() != definition.method.upper()
+                or request.url != definition.url
+                or request.audience != definition.audience
+                or request.destination != definition.destination
+                or request.required_capability != definition.required_capability
+                or request.boundary != definition.boundary):
+            raise PolicyDenied(
+                "OPERATION_MISMATCH",
+                "Request metadata does not match the registered operation definition",
+            )
 
     def synthesize(self, payload: Any, provenance: Any) -> Any:
         """Attest a derived payload and its complete contributor lineage."""
@@ -182,6 +210,11 @@ class PolicyGateway:
         self._kill_switch = self._kill_switch or kill_switch
         if session_id:
             self._revoked_sessions.add(session_id)
+            # Invalidate every grant already issued for the affected session,
+            # including delegated children; recovery does not resurrect them.
+            for tid, token in self._tokens.items():
+                if token.session_id == session_id:
+                    self._revoked_tokens.add(tid)
         if token_id:
             self._revoked_tokens.add(token_id)
 
@@ -203,9 +236,20 @@ class PolicyGateway:
         if isinstance(self.store, SQLiteReservationStore):
             self.store.update_consent(consent, self.ledger.cipher)
         if consent == Consent.NONE:
-            # Atomically switch to a volatile memory store; disk is never used again.
-            self.store.clear()
-            self.store = MemoryReservationStore()
+            # Atomically transfer in-flight reservations and replay state to a
+            # volatile memory store, then purge all durable rows and jti entries.
+            old_store = self.store
+            if isinstance(old_store, SQLiteReservationStore):
+                rows = old_store.export_rows()
+                jti = old_store.export_jti()
+                old_store.clear()
+                new_store = MemoryReservationStore()
+                new_store.import_rows(rows)
+                new_store.import_jti(jti)
+                self.store = new_store
+            else:
+                self.store.clear()
+                self.store = MemoryReservationStore()
         self.config.consent = consent
 
     def _safe_result(self, state: TerminalState = TerminalState.CANCELLED,
@@ -220,16 +264,10 @@ class PolicyGateway:
         return DispatchResult(state=state, deferred=deferred)
 
     async def dispatch(self, token: ACDT, request: OutboundRequest, dpop_proof: str) -> DispatchResult:
-        # Deny unknown or incomplete operations before the adapter is called.
-        if not request.audience:
-            raise PolicyDenied("INVALID_OPERATION", "Operation audience is required")
-        if not request.destination:
-            raise PolicyDenied("INVALID_OPERATION", "Operation destination is required")
-        if not request.boundary:
-            raise PolicyDenied("INVALID_OPERATION", "Operation boundary is required")
-        if not request.required_capability:
-            raise PolicyDenied("INVALID_OPERATION", "Operation capability is required")
-        # Credential/revocation -> CSG -> scope is a normative precedence chain.
+        # Holder proof is mandatory at the public dispatch boundary.
+        if not dpop_proof or not isinstance(dpop_proof, str):
+            raise PolicyDenied("PROOF_REQUIRED", "A valid DPoP proof is required")
+        # Credential/revocation -> operation -> CSG -> scope precedence chain.
         self._verify_token(
             token, expected_audience=request.audience, proof=dpop_proof,
             method=request.method, url=request.url,
@@ -240,6 +278,8 @@ class PolicyGateway:
             if err.code == "CRISIS_REVOKED":
                 return self._safe_result()
             raise
+        # Validate the actual request against its trusted operation definition.
+        self._validate_operation(request)
         self.csg.authorize(
             request.destination, request.payload, request.provenance, request.synthesis,
         )
@@ -303,15 +343,18 @@ class PolicyGateway:
         self.store.finalize(reservation.key, TerminalState.COMMITTED, response)
         return DispatchResult(state=TerminalState.COMMITTED, response=response)
 
-    @staticmethod
-    def _is_write(request: OutboundRequest) -> bool:
+    def _is_write(self, request: OutboundRequest) -> bool:
+        # The trusted operation definition is authoritative for write classification;
+        # a caller's write=False label cannot downgrade a registered write.
+        if request.operation:
+            definition = self._operations.get(request.operation)
+            if definition and definition.is_write:
+                return True
         if hasattr(request.adapter, "is_write"):
             trusted_write = request.adapter.is_write(request)
             if not isinstance(trusted_write, bool):
                 raise PolicyDenied("INVALID_ADAPTER_CONTRACT", "is_write must return bool")
         else:
-            # Without a trusted operation contract, only conventional safe HTTP
-            # methods may bypass write reservations. Caller true may only elevate.
             trusted_write = request.method.upper() not in {"GET", "HEAD", "OPTIONS"}
         return request.write or trusted_write
 
@@ -346,6 +389,15 @@ class PolicyGateway:
             except Exception:  # noqa: BLE001 - status failure is explicitly UNKNOWN
                 return TerminalState.UNKNOWN, None
         return TerminalState.UNKNOWN, None
+
+    def resolve_unknown(self, idempotency_key: str, state: TerminalState,
+                         response: Any = None) -> None:
+        """Resolve an UNKNOWN reservation with later provider evidence."""
+        if state not in (TerminalState.COMMITTED, TerminalState.CANCELLED):
+            raise PolicyDenied(
+                "INVALID_RESOLUTION", "Resolution requires COMMITTED or CANCELLED",
+            )
+        self.store.finalize(idempotency_key, state, response)
 
     def drain_deferred(self) -> List[DispatchResult]:
         if self.crisis_level not in (CrisisLevel.GREEN, CrisisLevel.YELLOW):

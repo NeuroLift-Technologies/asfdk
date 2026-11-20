@@ -84,10 +84,22 @@ class CompositeSynthesisGate:
         contributors = tuple(provenance)
         if not contributors or any(not self._classifier.verify(item) for item in contributors):
             raise PolicyDenied("DENY_COMPOSITE_EGRESS", "Ingress provenance attestation is invalid")
-        if (synthesis is not None
-                and (contributors != synthesis.provenance
-                     or not self._classifier.verify_derivation(payload, synthesis))):
-            raise PolicyDenied("DENY_COMPOSITE_EGRESS", "Derived payload lineage is invalid")
+        if synthesis is not None:
+            if contributors != synthesis.provenance or not self._classifier.verify_derivation(payload, synthesis):
+                raise PolicyDenied("DENY_COMPOSITE_EGRESS", "Derived payload lineage is invalid")
+        elif payload is not None:
+            # Direct release: the outbound content digest must match the single
+            # attested source; reused or unrelated provenance is rejected.
+            if len(contributors) != 1:
+                raise PolicyDenied(
+                    "DENY_COMPOSITE_EGRESS",
+                    "Direct release requires exactly one classified contributor",
+                )
+            if contributors[0].content_hash != content_digest(payload):
+                raise PolicyDenied(
+                    "DENY_COMPOSITE_EGRESS",
+                    "Direct release content does not match the attested source",
+                )
         restricted = [item for item in contributors if item.no_derived_egress]
         if restricted and destination not in self._private_destinations:
             raise PolicyDenied(

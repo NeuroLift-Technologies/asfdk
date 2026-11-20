@@ -25,10 +25,10 @@ class MemoryReservationStore:
         with self._lock:
             now = time.time()
             # Only purge expired terminal-state reservations; in-flight RESERVED
-            # entries are retained until finalization or reconciliation.
+            # and UNKNOWN entries are retained until finalization or reconciliation.
             self._rows = {
                 k: row for k, row in self._rows.items()
-                if row["exp"] > now or row["state"] == "RESERVED"
+                if row["exp"] > now or row["state"] in ("RESERVED", "UNKNOWN")
             }
             row = self._rows.get(key)
             if row is None:
@@ -72,6 +72,20 @@ class MemoryReservationStore:
         with self._lock:
             self._rows.clear()
             self._jti.clear()
+
+    def import_rows(self, rows: List[Dict[str, Any]]) -> None:
+        """Import rows from a durable store during consent downgrade."""
+        with self._lock:
+            for row in rows:
+                self._rows[row["key"]] = {
+                    "session_id": row["session_id"], "request_hash": row["request_hash"],
+                    "state": row["state"], "response": row["response"],
+                    "deferred": row["deferred"], "exp": row["exp"],
+                }
+
+    def import_jti(self, jti_map: Dict[Tuple[str, str], float]) -> None:
+        with self._lock:
+            self._jti.update(jti_map)
 
     @staticmethod
     def _view(key: str, row: Dict[str, Any], created: bool = False) -> Reservation:
@@ -140,9 +154,9 @@ class SQLiteReservationStore:
         try:
             connection.execute("BEGIN IMMEDIATE")
             # Only purge expired terminal-state reservations; in-flight RESERVED
-            # entries are retained until finalization or reconciliation.
+            # and UNKNOWN entries are retained until finalization or reconciliation.
             connection.execute(
-                "DELETE FROM reservations WHERE exp <= ? AND state != 'RESERVED'",
+                "DELETE FROM reservations WHERE exp <= ? AND state NOT IN ('RESERVED', 'UNKNOWN')",
                 (time.time(),),
             )
             row = connection.execute("SELECT * FROM reservations WHERE key = ?", (key,)).fetchone()
@@ -221,6 +235,24 @@ class SQLiteReservationStore:
                 connection.execute("BEGIN IMMEDIATE")
                 connection.execute("UPDATE reservations SET response_json = NULL")
                 connection.execute("COMMIT")
+
+    def export_rows(self) -> List[Dict[str, Any]]:
+        """Export all rows for volatile-state transfer on consent downgrade."""
+        with self._connect() as connection:
+            rows = connection.execute("SELECT * FROM reservations").fetchall()
+            return [
+                {"key": row["key"], "session_id": row["session_id"],
+                 "request_hash": row["request_hash"], "state": row["state"],
+                 "response": self._decode_response(row["response_json"]),
+                 "deferred": bool(row["deferred"]), "exp": row["exp"]}
+                for row in rows
+            ]
+
+    def export_jti(self) -> Dict[Tuple[str, str], float]:
+        """Export the replay cache for volatile-state transfer."""
+        with self._connect() as connection:
+            rows = connection.execute("SELECT jkt, jti, exp FROM dpop_jti").fetchall()
+            return {(row["jkt"], row["jti"]): row["exp"] for row in rows}
 
     def clear(self) -> None:
         with self._connect() as connection:

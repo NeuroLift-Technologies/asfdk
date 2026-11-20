@@ -215,7 +215,9 @@ class NeuroLiftFoundation:
                         # Connect crisis detection to runtime gateway revocation.
                         # Map RRT's Financial CrisisLevel to the runtime's enum.
                         if self._runtime_gateway is not None:
-                            from .runtime.models import CrisisLevel as RuntimeCrisisLevel
+                            from .runtime.models import (
+                                CrisisLevel as RuntimeCrisisLevel,
+                            )
                             runtime_level = (RuntimeCrisisLevel.RED if level == rrt.CrisisLevel.RED
                                              else RuntimeCrisisLevel.BLACK)
                             self._runtime_gateway.revoke(level=runtime_level)

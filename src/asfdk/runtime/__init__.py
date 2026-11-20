@@ -7,10 +7,12 @@ from .models import (
     Consent,
     CrisisLevel,
     DispatchResult,
+    OperationDefinition,
     OutboundAdapter,
     OutboundRequest,
     Provenance,
     RuntimeConfig,
+    SynthesizedContent,
     TerminalState,
 )
 from .retention import AuditLedger, PassiveAnonymizer
@@ -18,7 +20,8 @@ from .rrta import SafeResponseHandler
 
 __all__ = [
     "ACDT", "AuditLedger", "Consent", "CrisisLevel", "DispatchResult",
-    "OutboundAdapter", "OutboundRequest", "PassiveAnonymizer", "PolicyDenied",
-    "PolicyGateway", "Provenance", "RuntimeConfig", "SafeResponseHandler",
-    "TerminalState", "dpop_proof", "jwk_thumbprint", "public_jwk", "verify_charter",
+    "OperationDefinition", "OutboundAdapter", "OutboundRequest", "PassiveAnonymizer",
+    "PolicyDenied", "PolicyGateway", "Provenance", "RuntimeConfig", "SafeResponseHandler",
+    "SynthesizedContent", "TerminalState", "dpop_proof", "jwk_thumbprint",
+    "public_jwk", "verify_charter",
 ]

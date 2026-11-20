@@ -115,7 +115,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Owner** | Cline |
 | **Branch** | `feature/adr-001-runtime-enforcement` |
 | **Scope** | Python runtime, foundation startup wiring, AT-001/security tests, integration guide and handoff records |
-| **Verification** | 97 pytest tests (96 pass, 1 known structural/scope mismatch) | sdist and wheel built; focused Ruff checks passed; sdist and wheel built; wheel contains `asfdk/runtime/` |
+| **Verification** | 100 pytest tests, all passing | sdist and wheel built; focused Ruff checks passed; sdist and wheel built; wheel contains `asfdk/runtime/` |
 | **Limits** | Handoff-derived contracts (normative ADR/reference absent); generic async adapters, not concrete MCP/A2A clients; TypeScript unchanged |
 | **Handoff** | `docs/agent-log/handoffs/NLT-HND-2026-001.json` v1.1.0, status Integrated; ADR-001 remains Draft |
 
