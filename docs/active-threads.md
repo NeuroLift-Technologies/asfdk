@@ -1,6 +1,6 @@
-# Active Threads — NeuroLift-Technologies/solidarity-framework
+# Active Threads — NeuroLift-Technologies/asfdk
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-11-04
+> Last updated: 2026-11-22
 
 ---
 
@@ -19,6 +19,22 @@ This file tracks all **current and recently completed** work threads in this rep
 ---
 
 ## Active Threads
+
+### THREAD-015 — Retire the ASFDK archive
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-015 |
+| **Status** | 🟡 In Progress |
+| **Started** | 2026-11-22 |
+| **Owner** | Codex |
+| **Branch** | `codex/retire-asfdk-archive` |
+| **Task** | Retire the superseded archive and link its historical revision. |
+| **Scope** | `legacy/`, archive references in documentation, and coordination records. |
+| **Blockers** | None |
+| **Related PR** | TBD |
+| **Notes** | Next action: compare package builds and prepare a draft PR. |
+
+---
 
 ### THREAD-014 — Route EMOTIONAL_ASSESSMENT to RRT whenever RRT is active
 | Field | Value |
