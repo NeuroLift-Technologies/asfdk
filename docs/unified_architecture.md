@@ -7,7 +7,7 @@
 > - TypeScript: `packages/asfdk/README.md`
 > - Python: `src/asfdk/__init__.py`
 >
-> **Archived source:** The implementation described here was moved to `legacy/unified_core/`, `legacy/nlt-otoi/`, `legacy/rrt-advocate/`, `legacy/sleepwalker/`.
+> **Archived source:** See the [pinned Python-era archive](https://github.com/NeuroLift-Technologies/asfdk/tree/28d4b4ca7cb8c71a42c56974d9d1e951f5c9dfd5/legacy).
 
 ---
 

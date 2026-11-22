@@ -5,7 +5,7 @@
 >
 > **Current repository state:** See the root [README.md](../README.md) and `file-structure.md`.
 >
-> **Archived source:** The implementation reviewed here was moved to `legacy/unified_core/`, `legacy/nlt-otoi/`, `legacy/rrt-advocate/`, `legacy/sleepwalker/`, `legacy/config/`, `legacy/scripts/`, `legacy/tests/`, `legacy/Dockerfile`, `legacy/pyproject.toml.v0.1.0`, `legacy/requirements.txt`, `legacy/GEMINI_TOPOGRAPHY.py`.
+> **Archived source:** See the [pinned Python-era archive](https://github.com/NeuroLift-Technologies/asfdk/tree/28d4b4ca7cb8c71a42c56974d9d1e951f5c9dfd5/legacy).
 
 ---
 

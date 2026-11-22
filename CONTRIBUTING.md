@@ -45,6 +45,10 @@ Use the **Feature Request** issue template. Please:
 
 ## Pull Request Process
 
+The [ORG-DEV-OTOI-1.0.4 organization contract](https://github.com/NeuroLift-Technologies/.github/blob/main/governance.yaml)
+sets the required minimum. Use the [agent contribution template](PULL_REQUEST_TEMPLATE/agent-contribution.md)
+and follow [REVIEW.md](REVIEW.md) for agent reviews.
+
 1. Ensure all existing tests pass and add new tests for new behavior.
 2. Update documentation if your change affects the public API or user-facing behavior.
 3. Keep pull requests focused — one change per PR.

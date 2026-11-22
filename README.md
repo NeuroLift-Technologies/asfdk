@@ -1,4 +1,4 @@
-# ASFDK — Agent Solidarity Framework Development Kit
+# ASFDK — Agent Solidarity Framework Deployment Kit
 
 ```yaml
 ai_assistant_directive:
@@ -171,16 +171,6 @@ asfdk/
 ├── src/asfdk/               # PyPI asfdk (Python source, faithful port)
 ├── hosting/                 # Next.js landing page (separate deliverable)
 ├── workers/                 # Cloudflare Workers deployment (separate deliverable)
-├── legacy/                  # Archived Python-era implementation (v0.1.x)
-│   ├── unified_core/        # Old ASFDK Python core
-│   ├── nlt-otoi/            # Vendored NLT-OTOI (superseded by npm @neurolift-technologies/otoi)
-│   ├── rrt-advocate/        # Vendored RRT Advocate (superseded by npm @neurolift-technologies/rrt-advocate)
-│   ├── sleepwalker/         # Vendored Sleepwalker (superseded by npm @neurolift-technologies/sleepwalker-protocol)
-│   ├── config/              # Python-era config
-│   ├── scripts/             # Python sync scripts
-│   ├── tests/               # Python-era tests
-│   ├── DEPRECATED.md        # Archive index and migration guide
-│   └── ...                  # Dockerfile, pyproject.toml.v0.1.0, requirements.txt, GEMINI_TOPOGRAPHY.py
 ├── docs/                    # Documentation (dev/deploy quickstarts, etc.)
 ├── .nltotoi/                # NLT governance namespace
 ├── NLT-DEV-OTOI.md          # Org-level coding agent contract
@@ -188,6 +178,8 @@ asfdk/
 ├── CLAUDE.md                # Project-specific context
 └── LICENSE                  # Apache-2.0
 ```
+
+The [Python-era archive](https://github.com/NeuroLift-Technologies/asfdk/tree/28d4b4ca7cb8c71a42c56974d9d1e951f5c9dfd5/legacy) is available in Git history.
 
 ---
 
