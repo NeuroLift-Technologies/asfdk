@@ -31,7 +31,7 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Task** | Retire the superseded archive and link its historical revision. |
 | **Scope** | `legacy/`, archive references in documentation, and coordination records. |
 | **Blockers** | None |
-| **Related PR** | TBD |
+| **Related PR** | [#43](https://github.com/NeuroLift-Technologies/asfdk/pull/43) |
 | **Notes** | Next action: review the archive retirement PR. |
 
 ---
