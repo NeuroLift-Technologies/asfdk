@@ -1,0 +1,38 @@
+{
+  "_template_info": {
+    "template_version": "1.0.0",
+    "otoi_version": "ORG-DEV-OTOI-1.0.2",
+    "otoi_section": "\u00a73 \u2014 Agent Registration",
+    "sop_reference": "SOP-NLT-001 Step 5",
+    "instructions": "Complete all fields. Save to docs/agent-log/registrations/{YYYY-MM-DD}-{agent-name}-{session-id}.json. This file must be committed as your first action in any session.",
+    "file_naming": "{YYYY-MM-DD}-{agent-name}-{session-id}.json"
+  },
+  "agent_registration": {
+    "agent_name": "Codex",
+    "platform": "OpenAI Codex",
+    "version": "Not exposed in this session",
+    "session_id": "asfdk-archive-retirement",
+    "entry_date": "2026-11-22",
+    "entry_point": "Joshua requested the next item in the Solidarity Framework cleanup",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "working_repo": "NeuroLift-Technologies/asfdk",
+    "working_branch": "codex/retire-asfdk-archive",
+    "task_summary": "Remove the archived Python-era tree and verify active package and deployment inputs remain intact.",
+    "active_thread_id": "THREAD-015",
+    "capabilities_self_reported": [
+      "Repository inspection",
+      "GitHub branch and PR work",
+      "Package validation"
+    ],
+    "known_limitations": [
+      "Production operations are outside task scope"
+    ],
+    "preferred_handoff_format": "Repository handoff JSON",
+    "escalation_acknowledged": true,
+    "escalation_contact": "joshua@neurolift.tech",
+    "solidarity_framework_acknowledged": true,
+    "commit_format_acknowledged": true,
+    "handoff_required_acknowledged": true
+  }
+}

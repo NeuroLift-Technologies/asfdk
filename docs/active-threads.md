@@ -1,6 +1,6 @@
-# Active Threads — NeuroLift-Technologies/solidarity-framework
+# Active Threads — NeuroLift-Technologies/asfdk
 > OTOI §4.1 Step 4 · Read before starting any work to avoid conflicts
-> Last updated: 2026-11-04
+> Last updated: 2026-11-22
 
 ---
 
@@ -20,12 +20,33 @@ This file tracks all **current and recently completed** work threads in this rep
 
 ## Active Threads
 
+### THREAD-015 — Retire the ASFDK archive
+| Field | Value |
+|---|---|
+| **Thread ID** | THREAD-015 |
+| **Status** | 🟡 Pending review |
+| **Started** | 2026-11-22 |
+| **Owner** | Codex |
+| **Branch** | `codex/retire-asfdk-archive` |
+| **Task** | Retire the superseded archive and link its historical revision. |
+| **Scope** | `legacy/`, archive references in documentation, and coordination records. |
+| **Blockers** | None |
+| **Related PR** | [#43](https://github.com/NeuroLift-Technologies/asfdk/pull/43) |
+| **Notes** | Next action: review the archive retirement PR. |
+
+---
+
+## Completed Threads
+
+<!-- Move threads here when closed. Retain for 30 days after completion. -->
+
 ### THREAD-014 — Route EMOTIONAL_ASSESSMENT to RRT whenever RRT is active
 | Field | Value |
 |---|---|
 | **Thread ID** | THREAD-014 |
-| **Status** | 🟡 In Progress (draft PR, awaiting owner review) |
+| **Status** | ✅ Merged |
 | **Started** | 2026-11-04 |
+| **Completed** | 2026-11-04 |
 | **Owner** | Claude Code (owner-directed from nlt-pi) |
 | **Branch** | `ccr-0d5033af-1rkbla` |
 | **Task** | The foundation called RRT on an emotional assessment only when Sleepwalker raised a handoff, so statements RRT recognizes (for example "I want to die": RRT alone returns emergency / 1.0) were never assessed, and `CRISIS_ONLY` mode ignored emotional assessments entirely. |
@@ -34,29 +55,26 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Related PR** | [asfdk#41](https://github.com/NeuroLift-Technologies/asfdk/pull/41); related: rrt-advocate#49, #50, asfdk-harness#36, nlt-pi#16 |
 | **Notes** | Behavior change on a versioned public API; approval recorded in `docs/escalations/2026-11-04-emotional-assessment-rrt-routing-approved.md`. No version bump, build, or publish done; those are the owner's. |
 
----
-
 ### THREAD-013 — Repair asfdk 0.3.0 PyPI release and ship 0.3.1
 | Field | Value |
 |---|---|
 | **Thread ID** | THREAD-013 |
-| **Status** | 🟡 In Progress (PR open, awaiting review) |
+| **Status** | ✅ Merged |
 | **Started** | 2026-09-18 |
+| **Completed** | 2026-09-18 |
 | **Owner** | Cline (coding-agent) |
 | **Branch** | `fix/0.3.1-pypi-release` |
 | **Task** | Fix the broken published asfdk 0.3.0 wheel (hard `ImportError` on `import asfdk`) and ship a corrected 0.3.1 to PyPI. |
 | **Scope** | `src/asfdk/toi_bootstrap.py` (new), `src/asfdk/foundation.py`, `src/asfdk/integration/sleepwalker.py`, `src/asfdk/types.py`, `src/asfdk/__init__.py`, `pyproject.toml`, `packages/asfdk/package-lock.json`, `tests/test_provenance.py` (new) |
-| **Blockers** | None (PyPI upload itself is performed by Joshua after merge) |
-| **Related PR** | `[this pull request]` |
+| **Blockers** | None. The PyPI index lists asfdk 0.3.1. |
+| **Related PR** | [#39](https://github.com/NeuroLift-Technologies/asfdk/pull/39) |
 | **Notes** | Root cause of 0.3.0 breakage: PR #31 inlined `TOIDocumentGenerator` from `nlt_toi`, but `nlt-toi` 1.0.0 (published) does not ship it. Fix: `toi_bootstrap.py` uses the pillar generator when present, else a canonical `DEFAULT_DOCUMENT` fallback that is still validated through `nlt_toi.parse_toi` (fail-loud preserved; source surfaced in `get_system_status()`). Also fixes: Sleepwalker adapter now mirrors real pillar `EmotionalState` fields (0.3.0 read nonexistent `.state`/`.raw_scores`), top-level channel provenance on `UserInteraction` (D2/D4), D5 gate-up predicate (untrusted channel + high-severity crisis), RRT error boundary on crisis routes. Lockfile regenerated for `@neurolift-technologies/toi@^1.0.3` — closes the blocker recorded in THREAD-011's npm side. Verification: pytest 59/59; `python -m build` sdist+wheel; clean-venv install of the wheel (real PyPI pillar deps) with end-to-end probes — all passed. Handoff: `docs/agent-log/handoffs/2026-09-18-cline-031-release.json`. |
-
----
 
 ### THREAD-012 — Python/TypeScript Alignment: Security & Provenance Parity
 | Field | Value |
 |---|---|
 | **Thread ID** | THREAD-012 |
-| **Status** | ✅ Complete |
+| **Status** | ✅ Merged |
 | **Started** | 2026-08-19 |
 | **Completed** | 2026-08-19 |
 | **Owner** | AI CTO Agent (ai_cto_agent) |
@@ -67,29 +85,26 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Related PR** | https://github.com/NeuroLift-Technologies/asfdk/pull/32 |
 | **Notes** | Handoff from ai_cofounder_agent (2026-08-19T03:55:28Z). **Audit results:** nlt-toi ✅ aligned, nlt-otoi ✅ aligned, rrt-advocate ✅ aligned, sleepwalker ✅ aligned. **Gaps only in ASFDK integration adapters:** fixed Channel enum, prompt_defense.py, channel provenance in RRT/Sleepwalker, input sanitization, security event logging. Legacy Python in `/legacy` dirs is properly deprecated. All 34 tests pass. Pillar packages installed from top-level repos (nlt-toi 1.0.0, nlt-otoi 1.2.0, rrt-advocate 0.1.1, sleepwalker-protocol 1.0.1). Remediation plan: `docs/python-ts-alignment-remediation-plan.md`. **Review (2026-08-19, pool-agent):** Reviewed all 5 files against TS canonical source. 39/39 tests green (34 + 5 TOI bootstrap). End-to-end smoke tests pass. One fix applied: rrt.py reset_session() now calls engine.reset_session() instead of destroying the engine (TS fidelity). Handoff: `docs/agent-log/handoffs/2026-08-19-pool-thread-012-review.json`. **CodeRabbit review (2026-08-19):** 9 findings addressed — safe content on flagged paths, LENGTH_EXCEEDED event mapping, assess_interaction sanitization, provenance type exports, documentation reconciliation. |
 
----
-
 ### THREAD-011 — Generate TOI before component activation (toi bootstrap)
 | Field | Value |
 |---|---|
 | **Thread ID** | THREAD-011 |
-| **Status** | 🟡 In Progress |
+| **Status** | ✅ Merged |
 | **Started** | 2026-08-16 |
+| **Completed** | 2026-08-16 |
 | **Owner** | opencode |
 | **Branch** | `feature/toi-bootstrap` |
 | **Task** | Run the TOI generator during foundation initialization so the active `.toi` document is produced/validated before any component activates (fail-loud). |
 | **Scope** | `src/asfdk/{foundation,types,create_foundation}.py`, `tests/test_toi_bootstrap.py`, `packages/asfdk/src/{foundation,types}.ts`, `packages/asfdk/tests/toi-bootstrap.test.ts`, `packages/asfdk/package.json` |
-| **Blockers** | `@neurolift-technologies/toi@1.0.3` must be published (TS generator shipped in nlt-toi PR #31); then `npm install` in `packages/asfdk` to regenerate `package-lock.json`. |
+| **Blockers** | None. TOI 1.0.3 is published on npm and the ASFDK lockfile update landed in PR #39. |
 | **Related PR** | https://github.com/NeuroLift-Technologies/asfdk/pull/31 |
 | **Notes** | Python depends on `nlt_toi.TOIDocumentGenerator` (nlt-toi PR #30). Depends on nlt-toi PRs #30 and #31. Verified: pytest 5/5, vitest 50/50 (via local file: override), governance 25 checks. |
-
----
 
 ### THREAD-010 — Version bump 0.2.3 → 0.2.4 (post prompt-injection defense merge)
 | Field | Value |
 |---|---|
 | **Thread ID** | THREAD-010 |
-| **Status** | ✅ Complete |
+| **Status** | ✅ Merged |
 | **Started** | 2026-08-04 |
 | **Completed** | 2026-08-04 |
 | **Owner** | POOL (agent) |
@@ -97,14 +112,10 @@ This file tracks all **current and recently completed** work threads in this rep
 | **Task** | Bump @neurolift-technologies/asfdk from 0.2.3 to 0.2.4 following merge of PR #28 (prompt injection defense). Ships Channel provenance (#24) + prompt injection defense (#28) to npm. |
 | **Scope** | `packages/asfdk/package.json`, `packages/asfdk/package-lock.json`, `docs/active-threads.md` |
 | **Blockers** | None |
-| **Related PR** | #29 — PR created and pushed |
+| **Related PR** | [#29](https://github.com/NeuroLift-Technologies/asfdk/pull/29) |
 | **Notes** | Agent Commit Format Check PASS (proper [POOL] prefix). CodeQL skipped (no code changes to scan — version bump only). build-and-deploy fail is pre-existing (Dockerfile path issue). All Analyze/GitGuardian/validate checks pass. Depends on PRs #24 and #28 being merged (both are). Harness PR #20 depends on `^0.2.2` which is satisfied by 0.2.4. |
 
 ---
-
-## Completed Threads
-
-<!-- Move threads here when closed. Retain for 30 days after completion. -->
 
 ### THREAD-008 — asfdk provenance defense — channel classification
 | Field | Value |
